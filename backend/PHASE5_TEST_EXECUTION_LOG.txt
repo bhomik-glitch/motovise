@@ -1,0 +1,201 @@
+
+================================================================================
+PHASE 5 - FINANCIAL INTEGRITY TEST EXECUTION
+================================================================================
+
+Started: 16/2/2026, 6:25:18 pm
+
+✓ Stock reset to 500 for all active products
+
+Found 10 active products
+
+
+================================================================================
+TEST 1: RAZORPAY HAPPY PATH
+================================================================================
+
+Order: ORD2602160079 (cmlp6g11y0009y179qjubm9ru)
+Product: Low Stock Product 1
+
+DB STATE BEFORE:
+{
+  "paymentStatus": "PENDING",
+  "orderStatus": "PENDING",
+  "gatewayPaymentId": null
+}
+
+--- REQUEST: Initiate Payment ---
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "gatewayOrderId": "mock_order_1771246519187_dap89k",
+    "amount": 5900,
+    "currency": "INR",
+    "orderNumber": "ORD2602160079"
+  },
+  "timestamp": "2026-02-16T12:55:19.192Z"
+}
+
+--- REQUEST: Verify Payment ---
+
+--- RESPONSE: Verify Payment ---
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "message": "Payment verified successfully",
+    "order": {
+      "id": "cmlp6g11y0009y179qjubm9ru",
+      "orderNumber": "ORD2602160079",
+      "status": "CONFIRMED",
+      "paymentStatus": "PAID"
+    }
+  },
+  "timestamp": "2026-02-16T12:55:19.222Z"
+}
+
+DB STATE AFTER:
+{
+  "paymentStatus": "PAID",
+  "orderStatus": "CONFIRMED",
+  "gatewayPaymentId": "pay_test1"
+}
+
+>>> TEST 1: PASS <<<
+
+
+================================================================================
+TEST 2: INVALID SIGNATURE
+================================================================================
+
+
+--- REQUEST: Verify with Invalid Signature ---
+
+--- RESPONSE ---
+{
+  "success": true,
+  "data": {
+    "success": false,
+    "message": "Invalid payment signature",
+    "canRetry": true
+  },
+  "timestamp": "2026-02-16T12:55:19.575Z"
+}
+
+DB STATE AFTER:
+{
+  "paymentStatus": "FAILED",
+  "orderStatus": "PENDING"
+}
+
+>>> TEST 2: PASS <<<
+
+
+================================================================================
+TEST 3: RETRY AFTER FAILED
+================================================================================
+
+Retrying order: ORD2602160080
+
+
+--- REQUEST: Retry with Valid Signature ---
+
+--- RESPONSE ---
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "message": "Payment verified successfully",
+    "order": {
+      "id": "cmlp6g1cm000oy179e4g5tndl",
+      "orderNumber": "ORD2602160080",
+      "status": "CONFIRMED",
+      "paymentStatus": "PAID"
+    }
+  },
+  "timestamp": "2026-02-16T12:55:19.660Z"
+}
+
+DB STATE AFTER RETRY:
+{
+  "paymentStatus": "PAID",
+  "orderStatus": "CONFIRMED",
+  "gatewayPaymentId": "pay_test2_retry"
+}
+
+>>> TEST 3: PASS <<<
+
+
+================================================================================
+TEST 4: IDEMPOTENCY - DOUBLE VERIFY
+================================================================================
+
+
+--- REQUEST: Second Verify (Same PaymentId) ---
+
+--- RESPONSE ---
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "message": "Payment already verified",
+    "alreadyProcessed": true,
+    "order": {
+      "id": "cmlp6g1o60014y179hg916mwo",
+      "orderNumber": "ORD2602160081",
+      "status": "CONFIRMED",
+      "paymentStatus": "PAID"
+    }
+  },
+  "timestamp": "2026-02-16T12:55:19.996Z"
+}
+
+>>> TEST 4: PASS <<<
+
+
+================================================================================
+TEST 5: COD FLOW
+================================================================================
+
+
+--- REQUEST: Initiate COD ---
+
+--- RESPONSE ---
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "message": "COD order confirmed",
+    "orderNumber": "ORD2602160082",
+    "orderStatus": "CONFIRMED",
+    "paymentMethod": "COD"
+  },
+  "timestamp": "2026-02-16T12:55:20.289Z"
+}
+
+DB STATE AFTER:
+{
+  "paymentStatus": "PENDING",
+  "orderStatus": "CONFIRMED",
+  "paymentMethod": "COD"
+}
+
+>>> TEST 5: PASS <<<
+
+
+================================================================================
+TEST EXECUTION SUMMARY
+================================================================================
+
+✓ TEST 1: RAZORPAY HAPPY PATH: PASS
+✓ TEST 2: INVALID SIGNATURE: PASS
+✓ TEST 3: RETRY AFTER FAILED: PASS
+✓ TEST 4: IDEMPOTENCY: PASS
+✓ TEST 5: COD FLOW: PASS
+
+Total: 5
+Passed: 5
+Failed: 0
+
+Completed: 16/2/2026, 6:25:20 pm
