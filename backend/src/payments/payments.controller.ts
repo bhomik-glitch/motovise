@@ -8,6 +8,7 @@ import {
     HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { VerifyPaymentDto } from './dto/verify-payment.dto';
@@ -93,6 +94,7 @@ export class PaymentsController {
         return this.paymentsService.verifyPayment(req.user.sub, dto);
     }
 
+    @SkipThrottle()
     @Post('webhook')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({

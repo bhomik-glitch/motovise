@@ -5,6 +5,7 @@ import {
     BadRequestException,
     ForbiddenException,
     ConflictException,
+    Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentGateway } from './interfaces/payment-gateway.interface';
@@ -14,6 +15,8 @@ import { OrderStatus, PaymentStatus, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PaymentsService {
+    private readonly logger = new Logger(PaymentsService.name);
+
     constructor(
         private prisma: PrismaService,
         @Inject('PaymentGateway') private gateway: PaymentGateway,
@@ -231,7 +234,7 @@ export class PaymentsService {
                 signature: dto.signature,
             });
 
-            console.log('[DEBUG] Signature verification:', {
+            this.logger.debug('Signature verification', {
                 orderId: dto.orderId,
                 orderNumber: order.orderNumber,
                 gatewayOrderId: order.gatewayOrderId,
@@ -324,7 +327,7 @@ export class PaymentsService {
             },
         });
 
-        console.log('[DEBUG] Order state before lock:', {
+        this.logger.debug('Order state before lock', {
             orderId,
             orderNumber: orderBeforeLock?.orderNumber,
             stockDeducted: orderBeforeLock?.stockDeducted,
@@ -361,14 +364,14 @@ export class PaymentsService {
             },
         });
 
-        console.log('[DEBUG] Lock acquisition result:', { lockCount: lock.count });
+        this.logger.debug('Lock acquisition result', { lockCount: lock.count });
 
         // ========================================
         // STEP 2: CHECK LOCK ACQUISITION
         // ========================================
         if (lock.count === 0) {
             // Lock NOT acquired - already processed or invalid state
-            console.log('[DEBUG] Lock NOT acquired - order already processed');
+            this.logger.debug('Lock NOT acquired - order already processed');
             return { alreadyProcessed: true };
         }
 
