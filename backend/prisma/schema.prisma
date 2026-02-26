@@ -313,6 +313,9 @@ model Order {
   @@index([createdAt])
   @@index([orderStatus, createdAt])
   @@index([shippingPincode])
+  // Phase 9B: composite indexes for heavy read paths
+  @@index([is_manual_review, review_status, createdAt]) // manual-review queue filter + sort
+  @@index([createdAt, orderStatus, is_rto])              // MTD RTO aggregation (range first)
 }
 
 enum OrderStatus {
@@ -394,6 +397,7 @@ model Payment {
   @@index([status])
   @@index([createdAt])
   @@index([status, createdAt])
+  @@index([orderId, status]) // Phase 9B: payment lookup by order + status
 }
 
 // ============================================
@@ -522,6 +526,8 @@ model PincodeRisk {
   lastUpdated      DateTime  @updatedAt
   lastEvaluatedAt  DateTime? // Phase 8B: timestamp of last cron aggregation run
 
+  // Phase 9B: top HIGH-risk pincodes query (WHERE riskLevel=HIGH ORDER BY rtoPercentage DESC)
+  @@index([riskLevel, rtoPercentage])
   @@map("pincode_risk")
 }
 
@@ -559,4 +565,5 @@ model Alert {
 
   @@index([type, status])
   @@index([type, status, pincode])
+  @@index([createdAt]) // Phase 9B: alert history ORDER BY createdAt DESC
 }

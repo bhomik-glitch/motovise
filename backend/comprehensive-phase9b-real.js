@@ -208,14 +208,18 @@ async function runTests() {
             order = await prisma.order.create({
                 data: {
                     orderNumber: 'TEST-' + Date.now(),
-                    userId: userId,
+                    user: { connect: { id: userId } },
+                    customerEmail: 'test@example.com',
+                    customerPhone: '9999999999',
+                    subtotal: 99.99,
                     total: 99.99,
-                    status: 'active',
                     orderStatus: 'PENDING',
-                    paymentMethod: 'UPI',
-                    paymentStatus: 'COMPLETED',
+                    paymentMethod: 'COD',
+                    paymentStatus: 'PAID',
                     shippingCost: 0,
-                    shippingAddress: { connectOrCreate: { where: { id: 'dummy' }, create: { id: 'dummy', userId: userId, fullName: 'Test', addressLine1: '-', city: '-', state: '-', pincode: '400001', country: 'IN', phone: '0000000000' } } }
+                    shippingPincode: '400001',
+                    shippingAddress: { connectOrCreate: { where: { id: 'dummy' }, create: { id: 'dummy', userId: userId, fullName: 'Test', addressLine1: '-', city: '-', state: '-', postalCode: '400001', country: 'IN', phone: '0000000000' } } },
+                    billingAddress: { connectOrCreate: { where: { id: 'dummy' }, create: { id: 'dummy', userId: userId, fullName: 'Test', addressLine1: '-', city: '-', state: '-', postalCode: '400001', country: 'IN', phone: '0000000000' } } }
                 }
             });
         }
