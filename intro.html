@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Motovise - Performance Luxury</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .animate-intro-logo {
+                animation: intro-logo 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            }
+            .animate-intro-text {
+                animation: intro-text 3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+                animation-delay: 0.5s;
+                opacity: 0;
+            }
+            .animate-intro-line {
+                animation: intro-line 2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+                animation-delay: 0.8s;
+                width: 0;
+            }
+            .animate-intro-glow {
+                animation: intro-glow 4s ease-in-out infinite alternate;
+            }
+            .animate-overlay-dismiss {
+                animation: overlay-fade 0.8s ease-in-out forwards;
+                animation-delay: 3.5s;
+            }
+        }
+        @keyframes intro-logo {
+            0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes intro-text {
+            0% { opacity: 0; transform: translateY(10px); letter-spacing: 0.6em; }
+            100% { opacity: 1; transform: translateY(0); letter-spacing: 0.4em; }
+        }
+        @keyframes intro-line {
+            0% { width: 0; opacity: 0; }
+            100% { width: 120px; opacity: 1; }
+        }
+        @keyframes intro-glow {
+            0% { opacity: 0.2; transform: scale(1); }
+            100% { opacity: 0.4; transform: scale(1.1); }
+        }
+        @keyframes overlay-fade {
+            0% { opacity: 1; visibility: visible; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+        :root {
+            --accent-olive: #8FAE1B;
+            --matte-black: #000000;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#000000",
+                        "accent-olive": "#8FAE1B",
+                        "background-dark": "#000000",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-dark font-display overflow-hidden">
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-[#000000] animate-overlay-dismiss">
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="animate-intro-glow w-[500px] h-[500px] rounded-full blur-[100px]" style="background: radial-gradient(circle, rgba(143, 174, 27, 0.25) 0%, rgba(0, 0, 0, 0) 70%);">
+</div>
+</div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="mb-10 animate-intro-logo">
+<svg class="text-accent-olive" fill="none" height="72" viewBox="0 0 48 48" width="72" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4ZM24 8C32.8366 8 40 15.1634 40 24C40 25.5411 39.7828 27.0315 39.3758 28.4418L32 24L39.3758 19.5582C39.7828 20.9685 40 22.4589 40 24C40 32.8366 32.8366 40 24 40C15.1634 40 8 32.8366 8 24C8 22.4589 8.21721 20.9685 8.62423 19.5582L16 24L8.62423 28.4418C8.21721 27.0315 8 25.5411 8 24C8 15.1634 15.1634 8 24 8ZM24 10V21L13.5 15L24 10ZM24 38V27L34.5 33L24 38Z" fill="currentColor" fill-opacity="0.9"></path>
+</svg>
+</div>
+<div class="flex flex-col items-center animate-intro-text">
+<h1 class="text-white text-3xl md:text-4xl font-extrabold tracking-[0.4em] uppercase mb-3">
+                    Motovise
+                </h1>
+<p class="text-stone-400 text-xs md:text-sm font-light tracking-[0.3em] uppercase italic">
+                    Give your car wings
+                </p>
+</div>
+<div class="mt-12 h-[1px] bg-accent-olive animate-intro-line shadow-[0_0_15px_rgba(143,174,27,0.5)]"></div>
+</div>
+</div>
+<main class="relative min-h-screen w-full bg-primary flex flex-col">
+<nav class="absolute top-0 left-0 w-full z-50 px-8 md:px-16 py-8 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-accent-olive text-2xl">adjust</span>
+<span class="text-white font-bold tracking-[0.3em] text-sm">MOTOVISE</span>
+</div>
+<div class="hidden md:flex gap-12">
+<a class="text-stone-400 hover:text-white text-[10px] font-bold tracking-[0.4em] uppercase transition-colors" href="#">Heritage</a>
+<a class="text-stone-400 hover:text-white text-[10px] font-bold tracking-[0.4em] uppercase transition-colors" href="#">Performance</a>
+<a class="text-stone-400 hover:text-white text-[10px] font-bold tracking-[0.4em] uppercase transition-colors" href="#">Bespoke</a>
+</div>
+<button class="text-white flex items-center gap-4 group">
+<span class="text-[10px] font-bold tracking-[0.3em] uppercase hidden md:inline opacity-0 group-hover:opacity-100 transition-opacity">Menu</span>
+<span class="material-symbols-outlined">menu</span>
+</button>
+</nav>
+<div class="relative flex-grow flex items-center justify-center px-8 md:px-16">
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-cover bg-center opacity-40 grayscale" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.4), rgba(0,0,0,0.9)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuCUxO6l7z60EUGQGmA_eY8aqpJOYZp-jIuolP1DIHieUEAi6bJ-dwU6SCJZGBKoBL0sw9SOKHPEkIDDwiW71X_fvg3F6tl0KDcP6CjhLOlyg-hcyyejIyNU0S9p3wLsc2deKPDdPyr2UfwGjUiwx2-bxKtAcCWGwIidQhalqm0rhEW6y5plCVc9ZMqBdEmf1dJMI7RECbAHmX2V8W6IlYXVZY9F0qpfjVAyLuCUOtmqRdyMyZfNSM7Ucyc1qBeryS0hvqLwBD3NUlY')">
+</div>
+</div>
+<div class="relative z-10 w-full max-w-7xl">
+<div class="max-w-2xl">
+<span class="inline-block text-accent-olive text-xs font-bold tracking-[0.5em] uppercase mb-6">Series One : Aerodynamics</span>
+<h2 class="text-white text-5xl md:text-7xl font-extrabold leading-tight mb-8">
+                        Redefining the <br/>
+<span class="text-stone-500">Art of Velocity</span>
+</h2>
+<div class="flex flex-col md:flex-row gap-6 mt-12">
+<button class="px-10 py-4 bg-accent-olive text-black font-bold text-xs tracking-widest uppercase hover:bg-white transition-colors">
+                            Configure Your Vision
+                        </button>
+<button class="px-10 py-4 border border-stone-800 text-white font-bold text-xs tracking-widest uppercase hover:border-accent-olive transition-colors flex items-center gap-3">
+                            Watch Film <span class="material-symbols-outlined text-sm">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="relative z-10 px-8 md:px-16 py-12 flex flex-col md:flex-row justify-between items-end gap-8">
+<div class="flex gap-16">
+<div>
+<p class="text-[10px] text-stone-500 uppercase tracking-widest mb-1">Top Speed</p>
+<p class="text-xl text-white font-light">340 <span class="text-xs text-stone-400">KM/H</span></p>
+</div>
+<div>
+<p class="text-[10px] text-stone-500 uppercase tracking-widest mb-1">0-100 KM/H</p>
+<p class="text-xl text-white font-light">2.8 <span class="text-xs text-stone-400">SEC</span></p>
+</div>
+<div>
+<p class="text-[10px] text-stone-500 uppercase tracking-widest mb-1">Power</p>
+<p class="text-xl text-white font-light">720 <span class="text-xs text-stone-400">BHP</span></p>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-stone-600 text-[9px] uppercase tracking-[0.4em] mb-4">Discover More</span>
+<div class="w-[1px] h-16 bg-gradient-to-b from-accent-olive to-transparent"></div>
+</div>
+</div>
+</main>
+
+</body></html>

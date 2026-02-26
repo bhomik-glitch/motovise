@@ -14,13 +14,27 @@ datasource db {
 // USERS & AUTHENTICATION
 // ============================================
 
+// Renaming Role to UserRole to free up 'Role' name for the new entity
+enum UserRole {
+  CUSTOMER
+  MANAGER
+  ADMIN
+}
+
 model User {
   id            String  @id @default(cuid())
   email         String  @unique
   password      String // bcrypt hashed
   name          String
   phone         String?
-  role          Role    @default(CUSTOMER)
+  
+  // RBAC Relation (Step 2: Required)
+  roleId        String
+  roleRef       Role   @relation(fields: [roleId], references: [id])
+  
+  // Legacy Enum (Deprecated - to be removed in Phase 7b)
+  role          UserRole @default(CUSTOMER)
+
   isActive      Boolean @default(true)
   emailVerified Boolean @default(false)
 
@@ -35,13 +49,45 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([email])
+  @@index([roleId]) // Index for new relation
   @@index([role])
 }
 
-enum Role {
-  CUSTOMER
-  MANAGER
-  ADMIN
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  users       User[]
+  permissions RolePermission[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g., 'product.create'
+  description String?
+  roles       RolePermission[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  assignedAt   DateTime   @default(now())
+  assignedBy   String?    // Audit: who granted this?
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
 }
 
 model ManagerPermissions {
@@ -130,6 +176,7 @@ model Product {
   orderItems    OrderItem[]
   cartItems     CartItem[]
   inventoryLogs InventoryLog[]
+  productImages ProductImage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -138,6 +185,18 @@ model Product {
   @@index([categoryId])
   @@index([isActive])
   @@index([sku])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  url       String
+  publicId  String
+  isPrimary Boolean  @default(false)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
 }
 
 model Category {
@@ -219,6 +278,30 @@ model Order {
   // Idempotency
   idempotencyKey String? @unique
 
+  // ===============================
+  // Phase 8 Risk Engine Extensions
+  // ===============================
+
+  // --- RTO & Return Tracking ---
+  is_rto             Boolean @default(false)
+  is_customer_return Boolean @default(false)
+
+  // --- Fraud Scoring ---
+  rule_score       Int          @default(0)
+  is_manual_review Boolean      @default(false)
+  review_status    ReviewStatus?
+
+  // --- Chargeback Tracking ---
+  chargeback        Boolean  @default(false)
+  chargeback_amount Decimal? @db.Decimal(10, 2)
+  chargeback_date   DateTime?
+
+  // --- Payment Attempt Tracking ---
+  payment_attempts Int @default(0)
+
+  // --- Shipping Snapshot for Aggregation ---
+  shippingPincode String @default("")
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -229,6 +312,7 @@ model Order {
   @@index([paymentStatus])
   @@index([createdAt])
   @@index([orderStatus, createdAt])
+  @@index([shippingPincode])
 }
 
 enum OrderStatus {
@@ -251,6 +335,13 @@ enum PaymentStatus {
 enum PaymentMethod {
   RAZORPAY
   COD
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CALLED
 }
 
 model OrderItem {
@@ -416,4 +507,56 @@ model OrderSequence {
   updatedAt DateTime @updatedAt
 
   @@index([date])
+}
+
+// ============================================
+// RISK ENGINE (Phase 8A)
+// ============================================
+
+model PincodeRisk {
+  pincode          String    @id
+  totalOrders30d   Int       @default(0)
+  rtoCount30d      Int       @default(0)
+  rtoPercentage    Decimal   @default(0) @db.Decimal(5, 2)
+  riskLevel        RiskLevel @default(NORMAL)
+  lastUpdated      DateTime  @updatedAt
+  lastEvaluatedAt  DateTime? // Phase 8B: timestamp of last cron aggregation run
+
+  @@map("pincode_risk")
+}
+
+enum RiskLevel {
+  NORMAL
+  HIGH
+}
+
+// ─── ALERTS SYSTEM ─────────────────────────────────────────────────────────────
+
+enum AlertType {
+  OVERALL_RTO
+  PINCODE_RTO
+  CHARGEBACK_RATE
+  MANUAL_REVIEW_QUEUE
+}
+
+enum AlertStatus {
+  ACTIVE
+  RESOLVED
+}
+
+model Alert {
+  id               String      @id @default(cuid())
+  type             AlertType
+  pincode          String?     @db.VarChar(10) // Uniqueness logic for PINCODE_RTO
+  metricValue      Decimal     @db.Decimal(10, 2)
+  thresholdValue   Decimal     @db.Decimal(10, 2)
+  status           AlertStatus
+  firstTriggeredAt DateTime
+  lastNotifiedAt   DateTime?
+  resolvedAt       DateTime?
+  metadata         Json?
+  createdAt        DateTime    @default(now())
+
+  @@index([type, status])
+  @@index([type, status, pincode])
 }

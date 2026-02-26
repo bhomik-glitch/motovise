@@ -9,13 +9,13 @@ import {
     Request,
     Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../rbac/guards/permissions.guard';
+import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @ApiTags('Orders')
@@ -27,6 +27,17 @@ export class OrdersController {
 
     @Post()
     @ApiOperation({ summary: 'Create order from cart' })
+    @ApiResponse({
+        status: 201,
+        description:
+            'Order created. Response includes fraud scoring fields: ' +
+            'rule_score (Int), is_manual_review (Boolean), ' +
+            'review_status (Pending | null — non-null only when is_manual_review=true).',
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'COD not available for high-risk pincode, or cart is empty',
+    })
     createOrder(@Request() req, @Body() createOrderDto: CreateOrderDto) {
         return this.ordersService.createOrder(req.user.sub, createOrderDto);
     }
@@ -48,16 +59,16 @@ export class OrdersController {
     }
 
     @Get()
-    @UseGuards(RolesGuard)
-    @Roles('ADMIN')
+    @UseGuards(PermissionsGuard)
+    @RequirePermissions('order.read')
     @ApiOperation({ summary: 'Get all orders (Admin only)' })
     getAllOrders(@Query() query: PaginationQueryDto) {
         return this.ordersService.getAllOrders(query.page, query.limit);
     }
 
     @Patch(':id/status')
-    @UseGuards(RolesGuard)
-    @Roles('ADMIN')
+    @UseGuards(PermissionsGuard)
+    @RequirePermissions('order.update')
     @ApiOperation({ summary: 'Update order status (Admin only)' })
     updateOrderStatus(
         @Param('id') id: string,

@@ -12,6 +12,16 @@ import { AddressesModule } from './addresses/addresses.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AdminAnalyticsModule } from './admin-analytics/admin-analytics.module';
 import { HealthModule } from './health/health.module';
+import { RbacModule } from './rbac/rbac.module';
+import { UsersModule } from './users/users.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { RiskModule } from './risk/risk.module';
+import { ManualReviewModule } from './manual-review/manual-review.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { AlertsModule } from './alerts/alerts.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { RedisModule } from './redis/redis.module';
+import { CachedConfigModule } from './config/cached-config.module';
 
 @Module({
     imports: [
@@ -27,6 +37,8 @@ import { HealthModule } from './health/health.module';
             ],
         }),
         PrismaModule,
+        RbacModule,
+        UsersModule,
         AuthModule,
         ProductsModule,
         CategoriesModule,
@@ -36,6 +48,14 @@ import { HealthModule } from './health/health.module';
         PaymentsModule,
         AdminAnalyticsModule,
         HealthModule,
+        ScheduleModule.forRoot(),
+        RiskModule,
+        ManualReviewModule,
+        DashboardModule,
+        AlertsModule,
+        NotificationsModule,
+        RedisModule,
+        CachedConfigModule,
     ],
     providers: [
         {

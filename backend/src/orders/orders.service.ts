@@ -1,19 +1,32 @@
 import {
     Injectable,
+    Logger,
     NotFoundException,
     BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { RiskService } from '../risk/risk.service';
+import { FraudService } from './fraud.service';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class OrdersService {
-    constructor(private prisma: PrismaService) { }
+    private readonly logger = new Logger(OrdersService.name);
+
+    constructor(
+        private prisma: PrismaService,
+        private riskService: RiskService,
+        private fraudService: FraudService,
+        private readonly redis: RedisService,
+    ) { }
 
     async createOrder(userId: string, createOrderDto: CreateOrderDto) {
-        const { addressId, notes } = createOrderDto;
+        const { addressId, notes, paymentMethod: rawPaymentMethod } = createOrderDto;
 
+        // Normalise: default to COD if not provided
+        const paymentMethod = (rawPaymentMethod || 'COD').toUpperCase();
         // Get user info
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
@@ -41,22 +54,28 @@ export class OrdersService {
 
         // Verify address belongs to user
         const address = await this.prisma.address.findFirst({
-            where: {
-                id: addressId,
-                userId,
-            },
+            where: { id: addressId, userId },
         });
 
         if (!address) {
             throw new NotFoundException('Address not found');
         }
 
-        // Generate order number BEFORE transaction
+        // Generate order number BEFORE transaction (avoids holding locks)
         const orderNumber = await this.generateOrderNumber();
 
         // Create order with items in a transaction
         // CRITICAL FIX: Stock validation and deduction moved INSIDE transaction
         const order = await this.prisma.$transaction(async (tx) => {
+            // ── Phase 8C: COD Enforcement ────────────────────────────────────
+            // Runs BEFORE stock mutation and BEFORE payment creation.
+            // A BadRequestException here causes full transaction rollback —
+            // no order row, no stock reduction, no payment intent.
+            await this.riskService.enforceCodeEligibility(
+                address.postalCode,
+                paymentMethod,
+            );
+
             // Validate stock and product availability INSIDE transaction
             for (const item of cart.items) {
                 const product = await tx.product.findUnique({
@@ -84,6 +103,29 @@ export class OrdersService {
             const tax = subtotal * 0.18; // 18% tax
             const total = subtotal + tax;
 
+            // Sum total item quantity for fraud scoring
+            const totalQuantity = cart.items.reduce(
+                (sum, item) => sum + item.quantity,
+                0,
+            );
+
+            // ── Phase 8D: Fraud Scoring ──────────────────────────────────────
+            // Runs INSIDE the transaction so all DB reads use the same snapshot.
+            // Any exception here triggers full rollback — no partial state.
+            // payment_attempts = 0 at creation time (incremented externally on retry).
+            const fraudResult = await this.fraudService.calculateFraudScore(tx, {
+                userId,
+                orderTotal: total,
+                pincode: address.postalCode,
+                paymentAttempts: 0,
+                totalQuantity,
+            });
+
+            this.logger.log(
+                `[Phase8D] Order ${orderNumber} — rule_score=${fraudResult.rule_score} ` +
+                `is_manual_review=${fraudResult.is_manual_review}`,
+            );
+
             // Create order
             const newOrder = await tx.order.create({
                 data: {
@@ -97,8 +139,17 @@ export class OrdersService {
                     tax,
                     total,
                     shippingAddressId: addressId,
-                    billingAddressId: addressId, // Using same address for billing
+                    billingAddressId: addressId,
                     customerNotes: notes,
+                    // Phase 8: Snapshot pincode at creation (immutable for risk aggregation)
+                    shippingPincode: address.postalCode,
+                    // Phase 8D: Fraud score fields
+                    rule_score: fraudResult.rule_score,
+                    is_manual_review: fraudResult.is_manual_review,
+                    // Conditional spread: review_status ONLY set when flagged
+                    ...(fraudResult.is_manual_review && {
+                        review_status: fraudResult.review_status,
+                    }),
                     items: {
                         create: cart.items.map((item) => ({
                             productId: item.productId,
@@ -127,11 +178,29 @@ export class OrdersService {
                 },
             });
 
-            // Stock will be deducted ONLY when payment is confirmed
-            // This prevents inventory lockup for abandoned/failed payments
+            // CRITICAL FIX: Stock reservation MUST happen at order creation
+            // We use updateMany for atomic decrement and safety against concurrent negative stock
+            for (const item of cart.items) {
+                const updated = await tx.product.updateMany({
+                    where: {
+                        id: item.productId,
+                        stock: { gte: item.quantity }, // Prevent negative stock
+                    },
+                    data: {
+                        stock: { decrement: item.quantity },
+                    },
+                });
 
-            return newOrder;
+                if (updated.count === 0) {
+                    throw new BadRequestException(
+                        `Failed to reserve stock for ${item.product.name}. Insufficient availability at checkout.`,
+                    );
+                }
+            } return newOrder;
         });
+
+        // Cache Invalidation
+        await this.redis.del('dashboard:mtd');
 
         return order;
     }
@@ -301,6 +370,9 @@ export class OrdersService {
                 },
             },
         });
+
+        // Cache Invalidation
+        await this.redis.del('dashboard:mtd');
 
         return updatedOrder;
     }

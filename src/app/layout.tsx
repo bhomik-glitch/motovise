@@ -1,13 +1,10 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/components/providers/AuthProvider";
-
-const inter = Inter({ subsets: ["latin"] });
+import type { Metadata } from 'next';
+import './globals.css';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 
 export const metadata: Metadata = {
-    title: "E-commerce Store",
-    description: "Production-ready E-commerce platform",
+    title: 'E-commerce Store',
+    description: 'Production-ready E-commerce platform',
 };
 
 export default function RootLayout({
@@ -17,7 +14,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={inter.className}>
+            <body className="bg-black text-white antialiased">
                 <AuthProvider>{children}</AuthProvider>
             </body>
         </html>

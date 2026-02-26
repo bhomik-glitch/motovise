@@ -32,6 +32,17 @@ export class AuthService {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Fetch Customer Role
+        const customerRole = await this.prisma.role.findUnique({
+            where: { name: 'Customer' },
+        });
+
+        if (!customerRole) {
+            // Fallback or error? Seed should guarantee this.
+            // But let's throw friendly error
+            throw new Error('System setup error: "Customer" role not found.');
+        }
+
         // Create user
         const user = await this.prisma.user.create({
             data: {
@@ -39,7 +50,8 @@ export class AuthService {
                 password: hashedPassword,
                 name,
                 phone,
-                role: 'CUSTOMER', // Default role
+                role: 'CUSTOMER', // Legacy
+                roleRef: { connect: { id: customerRole.id } }, // New Relation
             },
             select: {
                 id: true,

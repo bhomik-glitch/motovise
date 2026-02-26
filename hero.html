@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Motovise Luxury Hero Section</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#000000",
+                        "accent-olive": "#8FAE1B",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    animation: {
+                        'reveal-intro': 'fadeOut 1.2s cubic-bezier(0.7, 0, 0.3, 1) 2.5s forwards',
+                        'hero-fade-in': 'fadeIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) 3.2s forwards',
+                        'logo-reveal': 'fadeIn 0.8s ease-out 3.5s forwards',
+                    },
+                    keyframes: {
+                        fadeOut: {
+                            '0%': { opacity: '1', visibility: 'visible' },
+                            '100%': { opacity: '0', visibility: 'hidden' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .hero-gradient {
+                background: radial-gradient(circle at 50% 50%, rgba(143, 174, 27, 0.12) 0%, rgba(0, 0, 0, 1) 85%);
+            }
+            .car-silhouette-mask {
+                mask-image: linear-gradient(to bottom, black 50%, transparent 95%);
+            }
+            .ghost-nav-link {
+                @apply text-[10px] font-medium tracking-[0.3em] uppercase text-white/40 hover:text-white transition-all duration-500;
+            }
+            .delay-content {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-black font-display text-white antialiased overflow-hidden">
+<div class="fixed inset-0 z-[100] bg-black flex items-center justify-center animate-reveal-intro">
+<div class="flex flex-col items-center gap-4">
+<div class="w-16 h-[1px] bg-accent-olive/50 scale-x-0 animate-[scaleX_1.5s_ease-in-out_forwards]"></div>
+<span class="text-xs tracking-[0.8em] uppercase font-light text-white/60">Motovise</span>
+</div>
+</div>
+<div class="relative flex min-h-screen w-full flex-col bg-black">
+<div class="absolute top-0 left-1/4 w-[50%] h-[50%] bg-accent-olive/10 blur-[180px] rounded-full pointer-events-none opacity-60"></div>
+<div class="absolute bottom-0 right-1/4 w-[40%] h-[40%] bg-accent-olive/5 blur-[150px] rounded-full pointer-events-none opacity-40"></div>
+<header class="relative z-50 flex items-center justify-between px-12 py-10 opacity-0 animate-logo-reveal">
+<div class="flex items-center gap-3">
+<div class="text-accent-olive">
+<svg class="w-6 h-6" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.8261 17.4264C16.7203 18.1174 20.2244 18.5217 24 18.5217C27.7756 18.5217 31.2797 18.1174 34.1739 17.4264C36.9144 16.7722 39.9967 15.2331 41.3563 14.1648L24.8486 40.6391C24.4571 41.267 23.5429 41.267 23.1514 40.6391L6.64374 14.1648C8.00331 15.2331 11.0856 16.7722 13.8261 17.4264Z" fill="currentColor"></path>
+</svg>
+</div>
+<h1 class="text-sm font-bold tracking-[0.5em] uppercase">Motovise</h1>
+</div>
+<nav class="hidden lg:flex items-center gap-12">
+<a class="ghost-nav-link" href="#">Collection</a>
+<a class="ghost-nav-link" href="#">Bespoke</a>
+<a class="ghost-nav-link" href="#">Heritage</a>
+<a class="ghost-nav-link" href="#">Concierge</a>
+</nav>
+<div class="flex items-center gap-8">
+<button class="text-white/40 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+<div class="w-8 h-8 rounded-full border border-white/10 bg-center bg-cover grayscale hover:grayscale-0 transition-all duration-700" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAyAeH2KVaXs78US5mXIHmSXL53YdMBVzxSX49vEFcajioaYPEhLoFG8x3inbu3qtXIILbgJlFYeMlNf2XiZeqcTalLLyRRXJ826OcN9vRFaB-4E2BNhiTU4eIV__gvuU4NwzBj9Mx8PSAWrw8SNQ5pVSdMPYylXdNahQwG8b2k2wmZaPor_8wQk8B1kiPZ2WxYdN_6ScnjfRXIWGI_IP4h3W9tzU_Z5iu8kx4a7F-cC_IjmATsZClSJ3LKQz5LRLaZPT9OulOJod0')"></div>
+</div>
+</header>
+<main class="relative flex-1 flex flex-col items-center justify-center text-center px-4 -mt-10">
+<div class="z-20 flex flex-col items-center gap-8 max-w-5xl delay-content animate-hero-fade-in">
+<div class="flex flex-col gap-4">
+<h2 class="text-accent-olive/80 font-medium tracking-[0.4em] uppercase text-[10px]">
+                        Give your car wings
+                    </h2>
+<h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter text-white leading-[0.95] max-w-4xl">
+                        Engineered for the <br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/30">Extraordinary</span>
+</h1>
+</div>
+<div class="mt-4">
+<button class="group relative px-12 py-4 border border-accent-olive/30 hover:border-accent-olive transition-all duration-700 overflow-hidden">
+<span class="relative z-10 text-white text-[11px] font-bold tracking-[0.3em] uppercase">Explore the Collection</span>
+<div class="absolute inset-0 bg-accent-olive/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+<div class="absolute -inset-1 bg-accent-olive/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+</div>
+</div>
+<div class="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
+<div class="relative w-full h-full hero-gradient">
+<div class="absolute inset-0 bg-no-repeat bg-center bg-contain opacity-25 car-silhouette-mask scale-110 lg:scale-125 mix-blend-screen" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAlVdiOFJidbgfZ12GHA7_J2ZKgdfm6uynkI4SDcUhMtks1s6gMXyNgiYWObDUFPJOn-V8kKoAI6CfUWVJrrkiFNWHcJ5YA_cHKwOxyeLAYm1lsoEVIHeem0WC1TSFvbfFSJvhem2rTtWYYGYguC7ErrgyFSklDFdRjFjxPbdPxJjcGHfsTQXnMPqXdOa7VJH2bWxXcTfwVq3d3rlPoHWBDCbXXQyjWkNlHzEDwTXmlKZ1HQW0GCZPqfqsbfomE_XzMM7dC8A5XLJs')">
+</div>
+</div>
+</div>
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-6 opacity-0 animate-logo-reveal">
+<div class="w-[1px] h-16 bg-gradient-to-b from-white/20 via-white/10 to-transparent"></div>
+</div>
+</main>
+<footer class="relative z-50 flex items-end justify-between px-12 pb-12 opacity-0 animate-logo-reveal">
+<div class="flex flex-col gap-2">
+<div class="h-[1px] w-8 bg-accent-olive/40"></div>
+<span class="text-[9px] text-white/30 font-bold tracking-[0.2em] uppercase">Ref. 04-921 Performance</span>
+</div>
+<div class="flex gap-10">
+<a class="text-white/20 hover:text-accent-olive transition-all duration-500" href="#">
+<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+</a>
+<a class="text-white/20 hover:text-accent-olive transition-all duration-500" href="#">
+<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
+</a>
+</div>
+</footer>
+</div>
+
+</body></html>

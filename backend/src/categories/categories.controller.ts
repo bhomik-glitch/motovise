@@ -13,8 +13,8 @@ import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../rbac/guards/permissions.guard';
+import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 
 @ApiTags('Categories')
 @Controller('categories')
@@ -22,8 +22,8 @@ export class CategoriesController {
     constructor(private readonly categoriesService: CategoriesService) { }
 
     @Post()
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('ADMIN')
+    @UseGuards(JwtAuthGuard, PermissionsGuard)
+    @RequirePermissions('category.create')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create category (Admin only)' })
     create(@Body() createCategoryDto: CreateCategoryDto) {
@@ -55,8 +55,8 @@ export class CategoriesController {
     }
 
     @Patch(':id')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('ADMIN')
+    @UseGuards(JwtAuthGuard, PermissionsGuard)
+    @RequirePermissions('category.update')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Update category (Admin only)' })
     update(
@@ -67,8 +67,8 @@ export class CategoriesController {
     }
 
     @Delete(':id')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('ADMIN')
+    @UseGuards(JwtAuthGuard, PermissionsGuard)
+    @RequirePermissions('category.delete')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Delete category (Admin only)' })
     remove(@Param('id') id: string) {

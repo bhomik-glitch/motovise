@@ -12,6 +12,7 @@ import { PaymentGateway } from './interfaces/payment-gateway.interface';
 import { CreatePaymentDto, PaymentMethod } from './dto/create-payment.dto';
 import { VerifyPaymentDto } from './dto/verify-payment.dto';
 import { OrderStatus, PaymentStatus, Prisma } from '@prisma/client';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class PaymentsService {
@@ -20,6 +21,7 @@ export class PaymentsService {
     constructor(
         private prisma: PrismaService,
         @Inject('PaymentGateway') private gateway: PaymentGateway,
+        private readonly redis: RedisService,
     ) { }
 
     /**
@@ -467,6 +469,9 @@ export class PaymentsService {
                 where: { cartId: cart.id },
             });
         }
+
+        // Cache Invalidation
+        await this.redis.del('dashboard:mtd');
 
         // Transaction will commit here
         // All changes are atomic: either ALL succeed or ALL rollback

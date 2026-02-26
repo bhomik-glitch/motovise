@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsIn } from 'class-validator';
 
 export class CreateOrderDto {
     @ApiProperty({ example: 'address-id' })
@@ -10,4 +10,15 @@ export class CreateOrderDto {
     @IsString()
     @IsOptional()
     notes?: string;
+
+    @ApiProperty({
+        example: 'COD',
+        enum: ['COD', 'PREPAID', 'UPI'],
+        required: false,
+        description: 'Payment method. Defaults to COD when omitted.',
+    })
+    @IsString()
+    @IsOptional()
+    @IsIn(['COD', 'PREPAID', 'UPI'])
+    paymentMethod?: string;
 }

@@ -3,6 +3,7 @@ import { PaymentsService } from './payments.service';
 import { PaymentsController } from './payments.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { MockGatewayService } from './gateways/mock-gateway.service';
+import { RedisModule } from '../redis/redis.module';
 
 /**
  * Payments Module
@@ -17,7 +18,7 @@ import { MockGatewayService } from './gateways/mock-gateway.service';
  * To switch gateways, simply change the useClass in the provider below.
  */
 @Module({
-    imports: [PrismaModule],
+    imports: [PrismaModule, RedisModule],
     controllers: [PaymentsController],
     providers: [
         PaymentsService,

@@ -1,13 +1,65 @@
+
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+const ROLES = [
+    'Admin',
+    'Manager',
+    'Product Manager',
+    'Inventory Manager',
+    'Support',
+    'Finance',
+    'Analyst',
+    'Developer',
+    'Customer',
+];
+
+const PERMISSIONS = [
+    'product.create',
+    'product.update',
+    'product.delete',
+    'price.change.request',
+    'price.change.approve.manager',
+    'price.change.approve.admin',
+    'refund.initiate',
+    'refund.approve.manager',
+    'refund.approve.finance',
+    'user.manage',
+    'audit.view',
+    'analytics.view',
+    'export.bulk',
+];
+
+const ROLE_PERMISSIONS: Record<string, string[]> = {
+    'Admin': PERMISSIONS,
+    'Manager': [
+        'product.create', 'product.update', 'product.delete',
+        'price.change.approve.manager',
+        'refund.approve.manager',
+        'user.manage',
+        'analytics.view',
+        'export.bulk'
+    ],
+    'Product Manager': ['product.create', 'product.update', 'price.change.request'],
+    'Inventory Manager': ['product.update', 'export.bulk'],
+    'Support': ['user.manage', 'refund.initiate'],
+    'Finance': ['refund.approve.finance', 'analytics.view', 'export.bulk'],
+    'Analyst': ['analytics.view', 'export.bulk', 'audit.view'],
+    'Developer': ['audit.view', 'analytics.view'],
+    'Customer': []
+};
+
 async function main() {
-    console.log('🌱 Starting simplified database seed...\n');
+    console.log('🌱 Starting database seed...\n');
 
     // Clear existing data
     console.log('🗑️  Clearing existing data...');
+    // Order matters for relational integrity
+    await prisma.rolePermission.deleteMany();
+    await prisma.permission.deleteMany();
+
     await prisma.orderItem.deleteMany();
     await prisma.order.deleteMany();
     await prisma.orderSequence.deleteMany();
@@ -19,23 +71,69 @@ async function main() {
     await prisma.category.deleteMany();
     await prisma.refreshToken.deleteMany();
     await prisma.user.deleteMany();
+    await prisma.role.deleteMany(); // Delete roles after users
+
     console.log('✅ Cleared\n');
+
+    // 1. Seed Permissions
+    console.log('🔐 Seeding Permissions...');
+    for (const key of PERMISSIONS) {
+        await prisma.permission.create({
+            data: { key, description: `Permission for ${key}` },
+        });
+    }
+
+    // 2. Seed Roles
+    console.log('🎭 Seeding Roles...');
+    const roleMap: Record<string, string> = {};
+    for (const name of ROLES) {
+        const role = await prisma.role.create({
+            data: { name, description: `Role ${name}` },
+        });
+        roleMap[name] = role.id;
+    }
+
+    // 3. Assign Permissions
+    console.log('🔗 Assigning Permissions...');
+    for (const [roleName, perms] of Object.entries(ROLE_PERMISSIONS)) {
+        const roleId = roleMap[roleName];
+        if (!roleId) continue;
+
+        for (const permKey of perms) {
+            const permission = await prisma.permission.findUnique({ where: { key: permKey } });
+            if (permission) {
+                await prisma.rolePermission.create({
+                    data: {
+                        roleId,
+                        permissionId: permission.id,
+                        assignedBy: 'SEED',
+                    },
+                });
+            }
+        }
+    }
 
     const hashedPassword = await bcrypt.hash('Test@1234', 10);
 
-    // 1. Create Users
+    // 4. Create Users
     console.log('👥 Creating users...');
-    const admin = await prisma.user.create({
+
+    // Admin
+    const adminRoleId = roleMap['Admin'];
+    await prisma.user.create({
         data: {
             email: 'admin@ecommerce.com',
             password: hashedPassword,
             name: 'Admin User',
-            role: 'ADMIN',
             phone: '+1-555-0001',
             emailVerified: true,
+            role: 'ADMIN', // Legacy Enum
+            roleRef: { connect: { id: adminRoleId } } // New Relation
         },
     });
 
+    // Customers
+    const customerRoleId = roleMap['Customer'];
     const customers = [];
     for (let i = 1; i <= 20; i++) {
         const customer = await prisma.user.create({
@@ -43,16 +141,17 @@ async function main() {
                 email: `customer${i}@gmail.com`,
                 password: hashedPassword,
                 name: `Customer ${i}`,
-                role: 'CUSTOMER',
                 phone: `+1-555-${String(100 + i).padStart(4, '0')}`,
                 emailVerified: true,
+                role: 'CUSTOMER', // Legacy Enum
+                roleRef: { connect: { id: customerRoleId } } // New Relation
             },
         });
         customers.push(customer);
     }
-    console.log(`✅ Created ${customers.length + 1} users\n`);
+    console.log(`✅ Created Admin + ${customers.length} customers\n`);
 
-    // 2. Create Categories
+    // 5. Create Categories
     console.log('📦 Creating categories...');
     const categories = [];
     const categoryNames = ['Electronics', 'Clothing', 'Books', 'Home & Garden', 'Sports'];
@@ -66,9 +165,8 @@ async function main() {
         });
         categories.push(category);
     }
-    console.log(`✅ Created ${categories.length} categories\n`);
 
-    // 3. Create Products
+    // 6. Create Products
     console.log('🛍️  Creating products...');
     const products = [];
 
@@ -142,7 +240,7 @@ async function main() {
 
     console.log(`✅ Created ${products.length} products\n`);
 
-    // 4. Create Addresses
+    // 7. Create Addresses
     console.log('📍 Creating addresses...');
     const addresses = [];
     for (let i = 0; i < 15; i++) {
@@ -162,9 +260,8 @@ async function main() {
         });
         addresses.push(address);
     }
-    console.log(`✅ Created ${addresses.length} addresses\n`);
 
-    // 5. Create Carts
+    // 8. Create Carts
     console.log('🛒 Creating carts...');
     for (let i = 0; i < 10; i++) {
         const customer = customers[i];
@@ -180,36 +277,10 @@ async function main() {
             },
         });
     }
-    console.log(`✅ Created 10 carts\n`);
-
-    // Print Summary
-    console.log('========================================');
-    console.log('📊 DATABASE SEED SUMMARY');
-    console.log('========================================\n');
-
-    const counts = {
-        users: await prisma.user.count(),
-        categories: await prisma.category.count(),
-        products: await prisma.product.count(),
-        addresses: await prisma.address.count(),
-        carts: await prisma.cart.count(),
-        cartItems: await prisma.cartItem.count(),
-    };
-
-    console.log(`👥 Users: ${counts.users}`);
-    console.log(`📦 Categories: ${counts.categories}`);
-    console.log(`🛍️  Products: ${counts.products} (25 active, 5 inactive)`);
-    console.log(`📍 Addresses: ${counts.addresses}`);
-    console.log(`🛒 Carts: ${counts.carts} (${counts.cartItems} items)`);
 
     console.log('\n========================================');
     console.log('✅ Database seeding completed!');
     console.log('========================================\n');
-
-    console.log('🔑 Test Credentials:');
-    console.log('   Admin: admin@ecommerce.com / Test@1234');
-    console.log('   Customer: customer1@gmail.com / Test@1234');
-    console.log('');
 }
 
 main()

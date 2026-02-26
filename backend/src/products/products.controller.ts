@@ -15,8 +15,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FilterProductDto } from './dto/filter-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../rbac/guards/permissions.guard';
+import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 
 @ApiTags('Products')
 @Controller('products')
@@ -24,8 +24,8 @@ export class ProductsController {
     constructor(private readonly productsService: ProductsService) { }
 
     @Post()
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('ADMIN')
+    @UseGuards(JwtAuthGuard, PermissionsGuard)
+    @RequirePermissions('product.create')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create product (Admin only)' })
     create(@Body() createProductDto: CreateProductDto) {
@@ -57,8 +57,8 @@ export class ProductsController {
     }
 
     @Patch(':id')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('ADMIN')
+    @UseGuards(JwtAuthGuard, PermissionsGuard)
+    @RequirePermissions('product.update')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Update product (Admin only)' })
     update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
@@ -66,8 +66,8 @@ export class ProductsController {
     }
 
     @Delete(':id')
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('ADMIN')
+    @UseGuards(JwtAuthGuard, PermissionsGuard)
+    @RequirePermissions('product.delete')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Delete product (Admin only)' })
     remove(@Param('id') id: string) {

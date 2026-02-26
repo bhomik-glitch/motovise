@@ -43,7 +43,13 @@ const config: Config = {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
+                "accent-olive": "#8FAE1B",
+                "background-dark": "#000000",
             },
+            fontFamily: {
+                "display": ["var(--font-manrope)", "Manrope", "sans-serif"],
+            },
+
             borderRadius: {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",
