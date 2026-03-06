@@ -226,33 +226,37 @@ export function ReviewStep({ cart, address, shippingMethodId, paymentMethod, not
             )}
 
             {/* CTA */}
-            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
-                <Button variant="outline" size="lg" onClick={onBack} disabled={placeOrderMutation.isPending || placed}>
+            <div className="flex flex-col gap-3 pt-4 sm:flex-row">
+                <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={onBack}
+                    disabled={placeOrderMutation.isPending || placed}
+                    className="w-full sm:w-auto min-h-[48px] text-base"
+                >
                     Back
                 </Button>
-                <motion.div className="flex-1 sm:flex-none sm:min-w-[220px]" whileTap={{ scale: 0.98 }}>
-                    <Button
-                        onClick={() => placeOrderMutation.mutate()}
-                        disabled={placeOrderMutation.isPending || placed}
-                        size="lg"
-                        className="w-full gap-2 font-semibold text-base"
-                    >
-                        {placed ? (
-                            <>
-                                <CheckCircle2 size={18} className="animate-bounce" /> Order Placed!
-                            </>
-                        ) : placeOrderMutation.isPending ? (
-                            <>
-                                <Loader2 size={18} className="animate-spin" /> Placing Order…
-                            </>
-                        ) : (
-                            <>
-                                <ShoppingBag size={18} />
-                                {paymentMethod === "COD" ? `Pay ${formatPrice(total)} on Delivery` : `Pay ${formatPrice(total)} Now`}
-                            </>
-                        )}
-                    </Button>
-                </motion.div>
+                <Button
+                    onClick={() => placeOrderMutation.mutate()}
+                    disabled={placeOrderMutation.isPending || placed}
+                    size="lg"
+                    className="w-full sm:flex-1 min-h-[48px] text-base gap-2 font-semibold"
+                >
+                    {placed ? (
+                        <>
+                            <CheckCircle2 size={18} className="animate-bounce" /> Order Placed!
+                        </>
+                    ) : placeOrderMutation.isPending ? (
+                        <>
+                            <Loader2 size={18} className="animate-spin" /> Placing Order…
+                        </>
+                    ) : (
+                        <>
+                            <ShoppingBag size={18} />
+                            {paymentMethod === "COD" ? `Pay ${formatPrice(total)} on Delivery` : `Pay ${formatPrice(total)} Now`}
+                        </>
+                    )}
+                </Button>
             </div>
         </div>
     );

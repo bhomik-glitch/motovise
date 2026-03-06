@@ -305,12 +305,12 @@ export function AddressStep({ selectedAddressId, onSelect, onNext }: AddressStep
                 )}
             </AnimatePresence>
 
-            <div className="pt-2">
+            <div className="pt-4">
                 <Button
                     onClick={onNext}
                     disabled={!selectedAddressId}
                     size="lg"
-                    className="w-full sm:w-auto sm:min-w-[180px] gap-2 font-semibold"
+                    className="w-full sm:w-auto sm:min-w-[180px] min-h-[48px] text-base gap-2 font-semibold"
                 >
                     Continue to Shipping
                 </Button>

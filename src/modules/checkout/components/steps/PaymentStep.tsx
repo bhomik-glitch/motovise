@@ -114,15 +114,20 @@ export function PaymentStep({ selectedMethod, onSelect, onNext, onBack }: Paymen
                 Your payment information is encrypted and secure. We never store your card details.
             </motion.div>
 
-            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
-                <Button variant="outline" size="lg" onClick={onBack} className="sm:w-auto">
+            <div className="flex flex-col gap-3 pt-4 sm:flex-row">
+                <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={onBack}
+                    className="w-full sm:w-auto min-h-[48px] text-base"
+                >
                     Back
                 </Button>
                 <Button
                     onClick={onNext}
                     disabled={!selectedMethod}
                     size="lg"
-                    className="flex-1 sm:flex-none sm:min-w-[180px] gap-2 font-semibold"
+                    className="w-full sm:flex-1 sm:min-w-[180px] min-h-[48px] text-base gap-2 font-semibold"
                 >
                     Review Order
                 </Button>

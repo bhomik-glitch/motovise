@@ -16,12 +16,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const router = useRouter();
     const pathname = usePathname();
     const [isMounted, setIsMounted] = useState(false);
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     const isLoginPage = pathname === '/admin/login';
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    // Close sidebar on route change
+    useEffect(() => {
+        setIsMobileSidebarOpen(false);
+    }, [pathname]);
 
     useEffect(() => {
         if (isBootstrapped && isMounted && !isLoginPage) {
@@ -49,16 +55,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     return (
-        <div className="flex h-screen w-full bg-slate-50 text-slate-900 overflow-hidden">
-            {/* Sidebar fixed width (260px) */}
-            <Sidebar />
+        <div className="flex h-screen w-full bg-slate-50 text-slate-900 overflow-hidden relative">
+            {/* Mobile Overlay */}
+            {isMobileSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-opacity"
+                    onClick={() => setIsMobileSidebarOpen(false)}
+                />
+            )}
 
-            <div className="flex flex-col flex-1 min-w-0">
+            {/* Sidebar fixed width (260px) */}
+            <Sidebar isOpen={isMobileSidebarOpen} onClose={() => setIsMobileSidebarOpen(false)} />
+
+            <div className="flex flex-col flex-1 min-w-0 h-full">
                 {/* Header fixed top */}
-                <Header />
+                <Header onMenuClick={() => setIsMobileSidebarOpen(true)} />
 
                 {/* Content scrollable */}
-                <main className="flex-1 overflow-y-auto p-6 bg-slate-50">
+                <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50">
                     {children}
                 </main>
             </div>
