@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateConfigDto } from './dto/update-config.dto';
 
@@ -11,25 +11,17 @@ export class AdminConfigService {
 
     /**
      * Gets the single canonical configuration record.
-     * Auto-initializes if it does not exist.
      */
     async getConfig() {
-        let config = await this.prisma.systemConfig.findUnique({
+        const config = await this.prisma.systemConfig.findUnique({
             where: { id: this.CONFIG_ID }
         });
 
         if (!config) {
-            this.logger.log('SystemConfig not found, auto-initializing default configuration.');
-            config = await this.prisma.systemConfig.create({
-                data: {
-                    id: this.CONFIG_ID,
-                    codThreshold: 0,
-                    fraudThreshold: 60,
-                    alertThreshold: 10,
-                    enforcementMode: 'DISABLE'
-                }
-            });
+            this.logger.error('System configuration not found in database.');
+            throw new NotFoundException('System configuration not initialized');
         }
+
         return config;
     }
 

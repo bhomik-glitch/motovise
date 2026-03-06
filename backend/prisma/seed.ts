@@ -294,6 +294,20 @@ async function main() {
         });
     }
 
+    // 9. Create SystemConfig
+    console.log('⚙️  Creating system configuration...');
+    await prisma.systemConfig.upsert({
+        where: { id: 'singleton' },
+        update: {},
+        create: {
+            id: 'singleton',
+            codThreshold: 0,
+            fraudThreshold: 60,
+            alertThreshold: 10,
+            enforcementMode: 'DISABLE'
+        },
+    });
+
     console.log('\n========================================');
     console.log('✅ Database seeding completed!');
     console.log('========================================\n');
