@@ -9,17 +9,29 @@ import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
 
-interface ProductCardProps {
-    product: Product;
-    className?: string;
-    onAddToCart?: (product: Product) => void;
-}
+import { useRouter } from 'next/navigation';
 
 export function ProductCard({ product, className, onAddToCart }: ProductCardProps) {
-    // Generate a mock rating between 3.5 and 5.0 for UI purposes (as it's not in the type)
-    const rating = React.useMemo(() => {
+    const router = useRouter();
+
+    const pastelColors = [
+        '#dbeafe', // blue-100
+        '#dcfce7', // green-100
+        '#fee2e2', // red-100
+        '#fef9c3', // yellow-100
+        '#f3e8ff', // purple-100
+        '#fce7f3', // pink-100
+        '#e0e7ff', // indigo-100
+        '#ffedd5'  // orange-100
+    ];
+
+    // Generate a mock rating and color based on ID
+    const { rating, pastelColor } = React.useMemo(() => {
         const hash = product.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-        return 3.5 + (hash % 15) / 10; // e.g. 3.5 to 4.9
+        return {
+            rating: 3.5 + (hash % 15) / 10,
+            pastelColor: pastelColors[hash % pastelColors.length]
+        };
     }, [product.id]);
 
     const isMockNew = product.createdAt ? new Date(product.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) : false;
@@ -30,8 +42,6 @@ export function ProductCard({ product, className, onAddToCart }: ProductCardProp
         currency: product.currency || 'USD',
     }).format(product.price);
 
-    const mainImage = product.images?.[0] || '/placeholder.png'; // Fallback if no image
-
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -40,21 +50,29 @@ export function ProductCard({ product, className, onAddToCart }: ProductCardProp
         }
     };
 
+    const handleCardClick = () => {
+        router.push(`/product/${product.slug}`);
+    };
+
+    const [imageError, setImageError] = React.useState(false);
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            onClick={handleCardClick}
             className={cn(
-                'group relative flex flex-col overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm ring-1 ring-border transition-all hover:shadow-md',
+                'group relative flex flex-col overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm ring-1 ring-border transition-all hover:shadow-md cursor-pointer',
                 className
             )}
         >
             {/* Image Container */}
-            <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
-                {/* Link overlaid on the image area */}
-                <Link href={`/product/${product.slug}`} className="absolute inset-0 z-0 outline-none" tabIndex={-1}>
-                    <span className="sr-only">View {product.name}</span>
-                </Link>
+            <div className="relative aspect-[4/5] w-full overflow-hidden">
+                {/* Pastel Box Placeholder */}
+                <div
+                    className="absolute inset-0 z-0"
+                    style={{ backgroundColor: pastelColor }}
+                />
 
                 {/* Badges */}
                 <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-2">
@@ -76,24 +94,21 @@ export function ProductCard({ product, className, onAddToCart }: ProductCardProp
                 </div>
 
                 {/* Main Image with Zoom on Hover */}
-                {product.images?.length > 0 ? (
+                {product.images?.length > 0 && !imageError && (
                     <motion.div
-                        className="h-full w-full"
+                        className="relative h-full w-full z-10"
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.4, ease: 'easeOut' }}
                     >
                         <Image
-                            src={mainImage}
+                            src={product.images[0]}
                             alt={product.name}
                             fill
                             className="object-cover object-center"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                            onError={() => setImageError(true)}
                         />
                     </motion.div>
-                ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-muted">
-                        <span className="text-muted-foreground">No image</span>
-                    </div>
                 )}
 
                 {/* Quick Add to Cart Button */}
@@ -118,14 +133,12 @@ export function ProductCard({ product, className, onAddToCart }: ProductCardProp
 
             {/* Content Container */}
             <div className="flex flex-1 flex-col p-4">
-                <Link href={`/product/${product.slug}`} className="mb-1 text-sm text-muted-foreground outline-none hover:text-foreground">
+                <div className="mb-1 text-sm text-muted-foreground outline-none hover:text-foreground">
                     {typeof product.category === 'string' ? product.category : product.category?.name ?? ''}
-                </Link>
-                <Link href={`/product/${product.slug}`} className="outline-none">
-                    <h3 className="line-clamp-2 text-base font-medium leading-tight text-foreground transition-colors group-hover:text-primary">
-                        {product.name}
-                    </h3>
-                </Link>
+                </div>
+                <h3 className="line-clamp-2 text-base font-medium leading-tight text-foreground transition-colors group-hover:text-primary">
+                    {product.name}
+                </h3>
 
                 <div className="mt-2 flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (

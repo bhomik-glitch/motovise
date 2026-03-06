@@ -12,10 +12,10 @@ export class CreateAddressDto {
     @IsNotEmpty()
     fullName: string;
 
-    @ApiProperty({ example: '+91 9876543210' })
+    @ApiProperty({ example: '+91 9876543210', required: false })
     @IsString()
-    @IsNotEmpty()
-    phone: string;
+    @IsOptional()
+    phone?: string;
 
     @ApiProperty({ example: '123 Main Street' })
     @IsString()

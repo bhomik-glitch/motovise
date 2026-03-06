@@ -178,25 +178,7 @@ export class OrdersService {
                 },
             });
 
-            // CRITICAL FIX: Stock reservation MUST happen at order creation
-            // We use updateMany for atomic decrement and safety against concurrent negative stock
-            for (const item of cart.items) {
-                const updated = await tx.product.updateMany({
-                    where: {
-                        id: item.productId,
-                        stock: { gte: item.quantity }, // Prevent negative stock
-                    },
-                    data: {
-                        stock: { decrement: item.quantity },
-                    },
-                });
-
-                if (updated.count === 0) {
-                    throw new BadRequestException(
-                        `Failed to reserve stock for ${item.product.name}. Insufficient availability at checkout.`,
-                    );
-                }
-            } return newOrder;
+            return newOrder;
         });
 
         // Cache Invalidation

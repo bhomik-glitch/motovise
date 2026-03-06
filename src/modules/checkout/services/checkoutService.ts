@@ -21,16 +21,16 @@ interface VerifyPaymentInput {
 export const checkoutService = {
     createOrder: async (data: CreateOrderInput): Promise<Order> => {
         const response = await api.post('/orders', data);
-        return response.data;
+        return response.data.data;
     },
 
     initiatePayment: async (data: InitiatePaymentInput) => {
         const response = await api.post('/payments/initiate', data);
-        return response.data; // { success, gatewayOrderId, amount, currency, orderNumber }
+        return response.data.data; // { success, gatewayOrderId, amount, currency, orderNumber }
     },
 
     verifyPayment: async (data: VerifyPaymentInput) => {
         const response = await api.post('/payments/verify', data);
-        return response.data; // { success, message, order }
+        return response.data.data; // { success, message, order }
     },
 };

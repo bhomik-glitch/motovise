@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { CheckoutStepper } from "./CheckoutStepper";
 import { OrderSummary } from "./OrderSummary";
 import { AddressStep } from "./steps/AddressStep";
@@ -48,9 +49,12 @@ export function CheckoutContainer() {
 
     const { cart, isLoading: cartLoading } = useCart();
 
+    const { status } = useSession();
+
     const { data: addresses } = useQuery({
         queryKey: ["addresses"],
         queryFn: addressService.getAddresses,
+        enabled: status === 'authenticated',
     });
 
     const selectedAddress = addresses?.find((a) => a.id === selectedAddressId);

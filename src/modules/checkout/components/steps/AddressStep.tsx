@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSession } from "next-auth/react";
 import { MapPin, Plus, Check, Loader2, Home, Briefcase, AlertCircle, X } from "lucide-react";
 import { addressService } from "@/modules/account/services/addressService";
 import { Address, CreateAddressInput } from "@/types/address";
@@ -222,9 +223,12 @@ export function AddressStep({ selectedAddressId, onSelect, onNext }: AddressStep
     const [showForm, setShowForm] = useState(false);
     const queryClient = useQueryClient();
 
+    const { status } = useSession();
+
     const { data: addresses, isLoading } = useQuery({
         queryKey: ["addresses"],
         queryFn: addressService.getAddresses,
+        enabled: status === 'authenticated',
     });
 
     const createMutation = useMutation({
@@ -237,10 +241,12 @@ export function AddressStep({ selectedAddressId, onSelect, onNext }: AddressStep
     });
 
     // Auto-select default address
-    if (!selectedAddressId && addresses?.length) {
-        const defaultAddr = addresses.find((a) => a.isDefault) ?? addresses[0];
-        if (defaultAddr) onSelect(defaultAddr.id);
-    }
+    useEffect(() => {
+        if (!selectedAddressId && addresses?.length) {
+            const defaultAddr = addresses.find((a) => a.isDefault) ?? addresses[0];
+            if (defaultAddr) onSelect(defaultAddr.id);
+        }
+    }, [selectedAddressId, addresses, onSelect]);
 
     return (
         <div className="space-y-5">
