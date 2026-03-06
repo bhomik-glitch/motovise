@@ -26,18 +26,22 @@ const nextConfig = {
         },
     },
     async rewrites() {
+        // This proxy is only used in local development.
+        // In production (Vercel), all API calls go directly to NEXT_PUBLIC_API_URL.
+        if (process.env.NODE_ENV === 'production') return [];
+
+        const backendUrl = process.env.BACKEND_URL;
+        if (!backendUrl) return [];
         return [
             {
-                // Proxy /nest/* → NestJS backend at localhost:4000.
+                // Proxy /nest/* → NestJS backend.
                 // Uses /nest/ prefix (NOT /api/) to avoid conflict with
                 // Next.js native API route handlers at src/app/api/*.
-                // Next.js always serves real API routes before rewrites.
                 source: '/nest/:path*',
-                destination: 'http://localhost:4000/:path*',
+                destination: `${backendUrl}/:path*`,
             },
         ];
     },
 };
 
 export default nextConfig;
-

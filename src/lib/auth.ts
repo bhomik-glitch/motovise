@@ -59,12 +59,11 @@ export const authOptions: NextAuthOptions = {
 
                     // 2. IMPORTANT: Call backend NestJS API to get their JWT
                     // This is needed for the backend JwtAuthGuard to work (e.g. for Cart)
-                    // We use the absolute path to backend since it's server-side
-                    const backendUrl = process.env.NODE_ENV === 'production'
-                        ? 'http://backend:4000/v1/auth/login' // Placeholder for prod
-                        : 'http://localhost:4000/v1/auth/login';
+                    // BACKEND_URL is server-side only (no NEXT_PUBLIC_) — never exposed to browser.
+                    const backendUrl = process.env.BACKEND_URL;
+                    if (!backendUrl) throw new Error("BACKEND_URL is not configured.");
 
-                    const backendResponse = await axios.post(backendUrl, {
+                    const backendResponse = await axios.post(`${backendUrl}/v1/auth/login`, {
                         email: credentials.email,
                         password: credentials.password
                     });

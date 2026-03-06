@@ -14,12 +14,14 @@ export async function POST(req: NextRequest) {
         }
 
         // Call backend NestJS API
-        const backendUrl = process.env.NODE_ENV === 'production'
-            ? 'http://backend:4000/v1/auth/register'
-            : 'http://localhost:4000/v1/auth/register';
+        // BACKEND_URL is server-side only — never exposed to the browser.
+        const backendUrl = process.env.BACKEND_URL;
+        if (!backendUrl) {
+            return NextResponse.json({ error: "Server configuration missing" }, { status: 500 });
+        }
 
         try {
-            const backendResponse = await axios.post(backendUrl, {
+            const backendResponse = await axios.post(`${backendUrl}/v1/auth/register`, {
                 name,
                 email,
                 password,
