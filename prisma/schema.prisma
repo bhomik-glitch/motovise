@@ -1,6 +1,3 @@
-// E-Commerce Platform - Prisma Schema (MVP Optimized)
-// Database: PostgreSQL
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,68 +7,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// USERS & AUTHENTICATION
-// ============================================
-
-// Renaming Role to UserRole to free up 'Role' name for the new entity
-enum UserRole {
-  CUSTOMER
-  MANAGER
-  ADMIN
-}
-
 model User {
-  id            String  @id @default(cuid())
-  email         String  @unique
-  password      String // bcrypt hashed
-  name          String
-  phone         String?
-  
-  // RBAC Relation (Step 2: Required)
-  roleId        String
-  roleRef       Role   @relation(fields: [roleId], references: [id])
-  
-  // Legacy Enum (Deprecated - to be removed in Phase 7b)
-  role          UserRole @default(CUSTOMER)
-
-  isActive      Boolean @default(true)
-  emailVerified Boolean @default(false)
-
-  // Relations
-  orders             Order[]
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  password           String
+  name               String
+  phone              String?
+  role               UserRole            @default(CUSTOMER)
+  isActive           Boolean             @default(true)
+  emailVerified      Boolean             @default(false)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  roleId             String
   addresses          Address[]
   cart               Cart?
-  refreshTokens      RefreshToken[]
   managerPermissions ManagerPermissions?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  orders             Order[]
+  refreshTokens      RefreshToken[]
+  roleRef            Role                @relation(fields: [roleId], references: [id])
 
   @@index([email])
-  @@index([roleId]) // Index for new relation
+  @@index([roleId])
   @@index([role])
 }
 
 model Role {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String           @id @default(cuid())
+  name        String           @unique
   description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   users       User[]
   permissions RolePermission[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+
   @@map("roles")
 }
 
 model Permission {
-  id          String   @id @default(cuid())
-  key         String   @unique // e.g., 'product.create'
+  id          String           @id @default(cuid())
+  key         String           @unique
   description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   roles       RolePermission[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
   @@map("permissions")
 }
@@ -79,107 +57,73 @@ model Permission {
 model RolePermission {
   roleId       String
   permissionId String
-
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-
   assignedAt   DateTime   @default(now())
-  assignedBy   String?    // Audit: who granted this?
+  assignedBy   String?
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
   @@map("role_permissions")
 }
 
 model ManagerPermissions {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Product Permissions
-  canViewProducts   Boolean @default(true)
-  canCreateProducts Boolean @default(false)
-  canEditProducts   Boolean @default(false)
-  canDeleteProducts Boolean @default(false)
-
-  // Order Permissions
-  canViewOrders        Boolean @default(true)
-  canUpdateOrderStatus Boolean @default(false)
-  canCancelOrders      Boolean @default(false)
-  canProcessRefunds    Boolean @default(false)
-
-  // Inventory Permissions
-  canManageInventory Boolean @default(false)
-
-  // Analytics Permissions
-  canViewAnalytics Boolean @default(false)
-  canExportData    Boolean @default(false)
-
-  // User Permissions
-  canViewCustomers Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  canViewProducts      Boolean  @default(true)
+  canCreateProducts    Boolean  @default(false)
+  canEditProducts      Boolean  @default(false)
+  canDeleteProducts    Boolean  @default(false)
+  canViewOrders        Boolean  @default(true)
+  canUpdateOrderStatus Boolean  @default(false)
+  canCancelOrders      Boolean  @default(false)
+  canProcessRefunds    Boolean  @default(false)
+  canManageInventory   Boolean  @default(false)
+  canViewAnalytics     Boolean  @default(false)
+  canExportData        Boolean  @default(false)
+  canViewCustomers     Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
 model RefreshToken {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id        String   @id @default(cuid())
+  userId    String
   token     String   @unique
   expiresAt DateTime
-
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([token])
 }
 
-// ============================================
-// PRODUCTS & CATEGORIES
-// ============================================
-
 model Product {
-  id          String  @id @default(cuid())
-  name        String
-  slug        String  @unique
-  description String? @db.Text
-
-  // Pricing
-  price          Decimal  @db.Decimal(10, 2)
-  compareAtPrice Decimal? @db.Decimal(10, 2)
-
-  // Inventory
-  sku           String? @unique
-  stock         Int     @default(0)
-  lowStockAlert Int     @default(10)
-
-  // Organization
-  categoryId String?
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
-  // Media
-  images    String[] // Array of image URLs
-  thumbnail String?
-
-  // Status
-  isActive   Boolean @default(true)
-  isFeatured Boolean @default(false)
-
-  // SEO
+  id              String         @id @default(cuid())
+  name            String
+  slug            String         @unique
+  description     String?
+  price           Decimal        @db.Decimal(10, 2)
+  compareAtPrice  Decimal?       @db.Decimal(10, 2)
+  sku             String?        @unique
+  stock           Int            @default(0)
+  lowStockAlert   Int            @default(10)
+  categoryId      String?
+  images          String[]
+  thumbnail       String?
+  isActive        Boolean        @default(true)
+  isFeatured      Boolean        @default(false)
   metaTitle       String?
   metaDescription String?
-
-  // Relations
-  orderItems    OrderItem[]
-  cartItems     CartItem[]
-  inventoryLogs InventoryLog[]
-  productImages ProductImage[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  cartItems       CartItem[]
+  inventoryLogs   InventoryLog[]
+  orderItems      OrderItem[]
+  category        Category?      @relation(fields: [categoryId], references: [id])
+  productImages   ProductImage[]
 
   @@index([slug])
   @@index([categoryId])
@@ -193,118 +137,72 @@ model ProductImage {
   publicId  String
   isPrimary Boolean  @default(false)
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
 }
 
 model Category {
-  id          String  @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
-  slug        String  @unique
+  slug        String     @unique
   description String?
   image       String?
-
-  // Hierarchy
-  parentId String?
-  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
-  children Category[] @relation("CategoryTree")
-
-  products Product[]
-
-  isActive  Boolean @default(true)
-  sortOrder Int     @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  parentId    String?
+  isActive    Boolean    @default(true)
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  products    Product[]
 
   @@index([slug])
   @@index([parentId])
 }
 
-// ============================================
-// ORDERS & PAYMENTS
-// ============================================
-
 model Order {
-  id          String @id @default(cuid())
-  orderNumber String @unique
-
-  // Customer
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  // Contact
-  customerEmail String
-  customerPhone String
-
-  // Amounts
-  subtotal     Decimal @db.Decimal(10, 2)
-  tax          Decimal @default(0) @db.Decimal(10, 2)
-  shippingCost Decimal @default(0) @db.Decimal(10, 2)
-  discount     Decimal @default(0) @db.Decimal(10, 2)
-  total        Decimal @db.Decimal(10, 2)
-
-  // Status
-  orderStatus   OrderStatus   @default(PENDING)
-  paymentStatus PaymentStatus @default(PENDING)
-
-  // Payment Gateway Integration
-  paymentMethod    PaymentMethod?
-  gatewayOrderId   String?        @unique
-  gatewayPaymentId String?
-
-  // Stock Deduction Tracking (Phase 5: Atomic Lock)
-  stockDeducted   Boolean   @default(false)
-  stockDeductedAt DateTime?
-
-  // Shipping
-  shippingAddressId String
-  shippingAddress   Address @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
-  billingAddressId  String
-  billingAddress    Address @relation("BillingAddress", fields: [billingAddressId], references: [id])
-
-  trackingNumber String?
-
-  // Relations
-  items   OrderItem[]
-  payment Payment?
-
-  // Notes
-  customerNotes String? @db.Text
-  internalNotes String? @db.Text
-
-  // Idempotency
-  idempotencyKey String? @unique
-
-  // ===============================
-  // Phase 8 Risk Engine Extensions
-  // ===============================
-
-  // --- RTO & Return Tracking ---
-  is_rto             Boolean @default(false)
-  is_customer_return Boolean @default(false)
-
-  // --- Fraud Scoring ---
-  rule_score       Int          @default(0)
-  is_manual_review Boolean      @default(false)
-  review_status    ReviewStatus?
-
-  // --- Chargeback Tracking ---
-  chargeback        Boolean  @default(false)
-  chargeback_amount Decimal? @db.Decimal(10, 2)
-  chargeback_date   DateTime?
-
-  // --- Payment Attempt Tracking ---
-  payment_attempts Int @default(0)
-
-  // --- Shipping Snapshot for Aggregation ---
-  shippingPincode String @default("")
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String         @id @default(cuid())
+  orderNumber        String         @unique
+  userId             String
+  customerEmail      String
+  customerPhone      String
+  subtotal           Decimal        @db.Decimal(10, 2)
+  tax                Decimal        @default(0) @db.Decimal(10, 2)
+  shippingCost       Decimal        @default(0) @db.Decimal(10, 2)
+  discount           Decimal        @default(0) @db.Decimal(10, 2)
+  total              Decimal        @db.Decimal(10, 2)
+  orderStatus        OrderStatus    @default(PENDING)
+  paymentStatus      PaymentStatus  @default(PENDING)
+  shippingAddressId  String
+  billingAddressId   String
+  trackingNumber     String?
+  customerNotes      String?
+  internalNotes      String?
+  idempotencyKey     String?        @unique
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  gatewayOrderId     String?        @unique
+  gatewayPaymentId   String?
+  paymentMethod      PaymentMethod?
+  stockDeducted      Boolean        @default(false)
+  stockDeductedAt    DateTime?
+  chargeback         Boolean        @default(false)
+  chargeback_amount  Decimal?       @db.Decimal(10, 2)
+  chargeback_date    DateTime?
+  is_customer_return Boolean        @default(false)
+  is_manual_review   Boolean        @default(false)
+  is_rto             Boolean        @default(false)
+  payment_attempts   Int            @default(0)
+  review_status      ReviewStatus?
+  rule_score         Int            @default(0)
+  shippingPincode    String         @default("")
+  billingAddress     Address        @relation("BillingAddress", fields: [billingAddressId], references: [id])
+  shippingAddress    Address        @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  user               User           @relation(fields: [userId], references: [id])
+  items              OrderItem[]
+  payment            Payment?
 
   @@index([userId])
   @@index([orderNumber])
@@ -313,9 +211,188 @@ model Order {
   @@index([createdAt])
   @@index([orderStatus, createdAt])
   @@index([shippingPincode])
-  // Phase 9B: composite indexes for heavy read paths
-  @@index([is_manual_review, review_status, createdAt]) // manual-review queue filter + sort
-  @@index([createdAt, orderStatus, is_rto])              // MTD RTO aggregation (range first)
+  @@index([is_manual_review, review_status, createdAt])
+  @@index([createdAt, orderStatus, is_rto])
+}
+
+model OrderItem {
+  id           String   @id @default(cuid())
+  orderId      String
+  productId    String
+  productName  String
+  productImage String?
+  quantity     Int
+  unitPrice    Decimal  @db.Decimal(10, 2)
+  totalPrice   Decimal  @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product  @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  orderId          String        @unique
+  gateway          String
+  gatewayOrderId   String?       @unique
+  gatewayPaymentId String?       @unique
+  gatewaySignature String?
+  amount           Decimal       @db.Decimal(10, 2)
+  currency         String        @default("INR")
+  status           PaymentStatus @default(PENDING)
+  method           String?
+  metadata         Json?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  order            Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([gatewayOrderId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([orderId, status])
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+
+  @@index([userId])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
+  @@index([cartId])
+  @@index([productId])
+}
+
+model Address {
+  id             String   @id @default(cuid())
+  userId         String
+  fullName       String
+  phone          String
+  addressLine1   String
+  addressLine2   String?
+  city           String
+  state          String
+  postalCode     String
+  country        String   @default("India")
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingOrders  Order[]  @relation("BillingAddress")
+  shippingOrders Order[]  @relation("ShippingAddress")
+
+  @@index([userId])
+}
+
+model InventoryLog {
+  id            String           @id @default(cuid())
+  productId     String
+  type          InventoryLogType
+  quantity      Int
+  previousStock Int
+  newStock      Int
+  reason        String?
+  reference     String?
+  performedBy   String?
+  createdAt     DateTime         @default(now())
+  product       Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([createdAt])
+}
+
+model OrderSequence {
+  id        String   @id @default(cuid())
+  date      String   @unique
+  sequence  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+}
+
+model PincodeRisk {
+  pincode         String    @id
+  totalOrders30d  Int       @default(0)
+  rtoCount30d     Int       @default(0)
+  rtoPercentage   Decimal   @default(0) @db.Decimal(5, 2)
+  riskLevel       RiskLevel @default(NORMAL)
+  lastUpdated     DateTime  @updatedAt
+  lastEvaluatedAt DateTime?
+
+  @@index([riskLevel, rtoPercentage])
+  @@map("pincode_risk")
+}
+
+model Alert {
+  id               String      @id @default(cuid())
+  type             AlertType
+  pincode          String?     @db.VarChar(10)
+  metricValue      Decimal     @db.Decimal(10, 2)
+  thresholdValue   Decimal     @db.Decimal(10, 2)
+  status           AlertStatus
+  firstTriggeredAt DateTime
+  lastNotifiedAt   DateTime?
+  resolvedAt       DateTime?
+  metadata         Json?
+  createdAt        DateTime    @default(now())
+
+  @@index([type, status])
+  @@index([type, status, pincode])
+  @@index([createdAt])
+}
+
+model MetricsSnapshot {
+  id                  String   @id @default(uuid())
+  date                DateTime @unique @db.Date
+  mtdGMV              Decimal  @db.Decimal(10, 2)
+  ordersCount         Int
+  prepaidCount        Int
+  prepaidPercentage   Decimal  @db.Decimal(5, 2)
+  rtoRate             Decimal  @db.Decimal(5, 2)
+  chargebackRate      Decimal  @db.Decimal(5, 2)
+  avgShippingCost     Decimal  @db.Decimal(10, 2)
+  manualReviewPending Int
+  createdAt           DateTime @default(now())
+
+  @@index([date])
+  @@map("metrics_snapshot")
+}
+
+model SystemConfig {
+  id                      String   @id @default(cuid())
+  maxLoginAttempts        Int
+  fraudRiskThreshold      Int
+  enableEmailVerification Boolean
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@map("system_config")
+}
+
+enum UserRole {
+  CUSTOMER
+  MANAGER
+  ADMIN
 }
 
 enum OrderStatus {
@@ -347,148 +424,6 @@ enum ReviewStatus {
   CALLED
 }
 
-model OrderItem {
-  id      String @id @default(cuid())
-  orderId String
-  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
-
-  // Snapshot at time of order
-  productName  String
-  productImage String?
-
-  quantity   Int
-  unitPrice  Decimal @db.Decimal(10, 2)
-  totalPrice Decimal @db.Decimal(10, 2)
-
-  createdAt DateTime @default(now())
-
-  @@index([orderId])
-  @@index([productId])
-}
-
-model Payment {
-  id      String @id @default(cuid())
-  orderId String @unique
-  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  // Payment Gateway
-  gateway          String // 'razorpay' | 'stripe'
-  gatewayOrderId   String? @unique
-  gatewayPaymentId String? @unique
-  gatewaySignature String?
-
-  amount   Decimal       @db.Decimal(10, 2)
-  currency String        @default("INR")
-  status   PaymentStatus @default(PENDING)
-
-  method String? // card, upi, netbanking
-
-  // Metadata
-  metadata Json?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([orderId])
-  @@index([gatewayOrderId])
-  @@index([status])
-  @@index([createdAt])
-  @@index([status, createdAt])
-  @@index([orderId, status]) // Phase 9B: payment lookup by order + status
-}
-
-// ============================================
-// CART
-// ============================================
-
-model Cart {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  items CartItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-}
-
-model CartItem {
-  id     String @id @default(cuid())
-  cartId String
-  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
-
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  quantity Int @default(1)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([cartId, productId])
-  @@index([cartId])
-  @@index([productId])
-}
-
-// ============================================
-// ADDRESS
-// ============================================
-
-model Address {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  fullName String
-  phone    String
-
-  addressLine1 String
-  addressLine2 String?
-  city         String
-  state        String
-  postalCode   String
-  country      String  @default("India")
-
-  isDefault Boolean @default(false)
-
-  shippingOrders Order[] @relation("ShippingAddress")
-  billingOrders  Order[] @relation("BillingAddress")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-}
-
-// ============================================
-// INVENTORY
-// ============================================
-
-model InventoryLog {
-  id        String  @id @default(cuid())
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  type          InventoryLogType
-  quantity      Int // Positive for additions, negative for reductions
-  previousStock Int
-  newStock      Int
-
-  reason      String?
-  reference   String? // Order ID, etc.
-  performedBy String? // User ID
-
-  createdAt DateTime @default(now())
-
-  @@index([productId])
-  @@index([createdAt])
-}
-
 enum InventoryLogType {
   PURCHASE
   SALE
@@ -498,45 +433,10 @@ enum InventoryLogType {
   RESTOCK
 }
 
-// ============================================
-// ORDER SEQUENCE (for atomic order number generation)
-// ============================================
-
-model OrderSequence {
-  id       String @id @default(cuid())
-  date     String @unique // YYYYMMDD format
-  sequence Int    @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([date])
-}
-
-// ============================================
-// RISK ENGINE (Phase 8A)
-// ============================================
-
-model PincodeRisk {
-  pincode          String    @id
-  totalOrders30d   Int       @default(0)
-  rtoCount30d      Int       @default(0)
-  rtoPercentage    Decimal   @default(0) @db.Decimal(5, 2)
-  riskLevel        RiskLevel @default(NORMAL)
-  lastUpdated      DateTime  @updatedAt
-  lastEvaluatedAt  DateTime? // Phase 8B: timestamp of last cron aggregation run
-
-  // Phase 9B: top HIGH-risk pincodes query (WHERE riskLevel=HIGH ORDER BY rtoPercentage DESC)
-  @@index([riskLevel, rtoPercentage])
-  @@map("pincode_risk")
-}
-
 enum RiskLevel {
   NORMAL
   HIGH
 }
-
-// ─── ALERTS SYSTEM ─────────────────────────────────────────────────────────────
 
 enum AlertType {
   OVERALL_RTO
@@ -545,71 +445,9 @@ enum AlertType {
   MANUAL_REVIEW_QUEUE
 }
 
+
 enum AlertStatus {
   ACTIVE
   RESOLVED
 }
 
-model Alert {
-  id               String      @id @default(cuid())
-  type             AlertType
-  pincode          String?     @db.VarChar(10) // Uniqueness logic for PINCODE_RTO
-  metricValue      Decimal     @db.Decimal(10, 2)
-  thresholdValue   Decimal     @db.Decimal(10, 2)
-  status           AlertStatus
-  firstTriggeredAt DateTime
-  lastNotifiedAt   DateTime?
-  resolvedAt       DateTime?
-  metadata         Json?
-  createdAt        DateTime    @default(now())
-
-  @@index([type, status])
-  @@index([type, status, pincode])
-  @@index([createdAt]) // Phase 9B: alert history ORDER BY createdAt DESC
-}
-
-// ─── SNAPSHOT METRICS TABLES (Phase 9C) ────────────────────────────────────────
-
-model MetricsSnapshot {
-  id                  String   @id @default(uuid())
-  date                DateTime @unique @db.Date    // UTC midnight — one row per calendar day
-  
-  // Raw counts (used in merge math — NOT percentages)
-  mtdGMV              Decimal  @db.Decimal(10, 2)
-  ordersCount         Int
-  prepaidCount        Int                          // Raw count — merge: prepaidCount/ordersCount
-  
-  // Informational percentages (stored for audit, NOT used in merge calculations)
-  prepaidPercentage   Decimal  @db.Decimal(5, 2)   // informational only
-  rtoRate             Decimal  @db.Decimal(5, 2)   // informational only
-  chargebackRate      Decimal  @db.Decimal(5, 2)   // informational only
-  avgShippingCost     Decimal  @db.Decimal(10, 2)
-  manualReviewPending Int                          // informational only — always overridden by live count
-
-  createdAt           DateTime @default(now())
-  // NO updatedAt — append-only table
-
-  @@index([date])
-  @@map("metrics_snapshot")
-}
-
-// ============================================
-// SYSTEM CONFIGURATION (Phase A11)
-// ============================================
-
-model SystemConfig {
-  id              String          @id @default("singleton") // Single-record invariant
-  codThreshold    Int             @default(0)  // 0-100
-  fraudThreshold  Int             @default(60) // 0-100
-  alertThreshold  Int             @default(10) // 0-100
-  enforcementMode EnforcementMode @default(DISABLE)
-
-  updatedAt       DateTime        @updatedAt
-
-  @@map("system_config")
-}
-
-enum EnforcementMode {
-  DISABLE
-  FLAG
-}

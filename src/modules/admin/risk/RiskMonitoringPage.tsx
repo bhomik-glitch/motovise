@@ -55,7 +55,7 @@ export default function RiskMonitoringPage() {
             <RiskTable
                 data={riskData}
                 isLoading={isLoadingRisk}
-                enforcementMode={configData?.codEnforcement}
+                codEnforcement={configData?.codEnforcement}
             />
         </div>
     );

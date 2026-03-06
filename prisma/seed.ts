@@ -144,6 +144,20 @@ async function main() {
   }
 
   console.log("✅ Products created");
+
+  // 5. System Configuration
+  await prisma.systemConfig.upsert({
+    where: { id: "DEFAULT_CONFIG" },
+    update: {},
+    create: {
+      id: "DEFAULT_CONFIG",
+      maxLoginAttempts: 5,
+      fraudRiskThreshold: 80,
+      enableEmailVerification: false,
+    },
+  });
+
+  console.log("✅ System configuration created");
   console.log("🌱 Database seeded successfully!");
 }
 

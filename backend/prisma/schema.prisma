@@ -445,12 +445,9 @@ enum AlertType {
   MANUAL_REVIEW_QUEUE
 }
 
+
 enum AlertStatus {
   ACTIVE
   RESOLVED
 }
 
-enum EnforcementMode {
-  DISABLE
-  FLAG
-}

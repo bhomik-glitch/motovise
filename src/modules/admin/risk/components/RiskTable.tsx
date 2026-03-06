@@ -6,10 +6,10 @@ import { MapPin } from 'lucide-react';
 interface RiskTableProps {
     data?: RiskPincode[];
     isLoading: boolean;
-    enforcementMode?: 'DISABLE' | 'FLAG';
+    codEnforcement?: 'DISABLE' | 'FLAG';
 }
 
-export function RiskTable({ data, isLoading, enforcementMode }: RiskTableProps) {
+export function RiskTable({ data, isLoading, codEnforcement }: RiskTableProps) {
     return (
         <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-sm">
             <table className="w-full text-left border-collapse">
@@ -38,7 +38,7 @@ export function RiskTable({ data, isLoading, enforcementMode }: RiskTableProps) 
                         </tr>
                     ) : (
                         data?.map((item) => {
-                            const codRestricted = item.riskLevel === 'HIGH' && enforcementMode === 'DISABLE';
+                            const codRestricted = item.riskLevel === 'HIGH' && codEnforcement === 'DISABLE';
 
                             return (
                                 <tr key={item.pincode} className="hover:bg-gray-50 transition-colors">
