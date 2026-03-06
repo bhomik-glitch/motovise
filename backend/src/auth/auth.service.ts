@@ -40,12 +40,12 @@ export class AuthService {
 
             // Fetch Customer Role
             const customerRole = await this.prisma.role.findUnique({
-                where: { name: 'Customer' },
+                where: { name: 'CUSTOMER' },
             });
 
             if (!customerRole) {
-                this.logger.error('System setup error: "Customer" role not found.');
-                throw new InternalServerErrorException('System configuration error: Default role not found.');
+                this.logger.error('System setup error: "CUSTOMER" role not found.');
+                throw new InternalServerErrorException('System configuration error: Default role not found. Database not seeded.');
             }
 
             // Create user
