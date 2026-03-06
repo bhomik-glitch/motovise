@@ -77,12 +77,31 @@ async function bootstrap() {
         : ['http://localhost:3000'];
 
     app.enableCors({
-        origin: [
-            "https://motovise-pied.vercel.app",
-            "http://localhost:3000"
-        ],
+        origin: (origin, callback) => {
+            const allowedOrigins = [
+                "http://localhost:3000",
+                "https://motovise-pied.vercel.app",
+            ];
+
+            if (
+                !origin ||
+                allowedOrigins.includes(origin) ||
+                origin.endsWith(".vercel.app")
+            ) {
+                return callback(null, true);
+            }
+
+            return callback(new Error("Not allowed by CORS"), false);
+        },
         credentials: true,
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization",
+            "Accept",
+            "Origin",
+            "X-Requested-With",
+        ],
     });
 
     // Global prefix
