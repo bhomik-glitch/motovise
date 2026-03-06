@@ -43,14 +43,10 @@ export const authOptions: NextAuthOptions = {
                         }
                     );
 
-                    if (res.status === 200) {
-                        // Assuming the structure is { user: {...}, accessToken: "..." }
-                        // Based on logs/audit observation
-                        const loginData = res.data.data || res.data;
-
+                    if (res.data.success) {
                         return {
-                            ...loginData.user,
-                            accessToken: loginData.accessToken,
+                            ...res.data.data.user,
+                            accessToken: res.data.data.accessToken,
                         };
                     }
 
