@@ -79,13 +79,14 @@ async function bootstrap() {
     app.enableCors({
         origin: (origin, callback) => {
             // Allow requests with no origin (server-to-server, curl, etc.)
-            // But for credentials: true, we must be careful. 
-            // In dev/test we might need to be more explicit.
             if (!origin) {
-                callback(null, true);
-                return;
+                return callback(null, true);
             }
-            if (allowedOrigins.includes(origin)) {
+
+            const isVercel = origin.endsWith('.vercel.app') || origin === 'https://motovise.vercel.app';
+            const isAllowedExplicitly = allowedOrigins.includes(origin);
+
+            if (isVercel || isAllowedExplicitly) {
                 callback(null, true);
             } else {
                 callback(new Error(`Origin ${origin} not allowed by CORS`));
