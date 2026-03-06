@@ -12,6 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -73,17 +74,21 @@ export class AuthService {
                 user,
             };
         } catch (error: any) {
+            // Unique constraint violation
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+            ) {
+                throw new ConflictException('Email already registered');
+            }
+
             this.logger.error(`Registration failed: ${error.message}`, error.stack);
 
-            if (error instanceof BadRequestException || error instanceof InternalServerErrorException) {
+            if (error instanceof BadRequestException || error instanceof InternalServerErrorException || error instanceof ConflictException) {
                 throw error;
             }
 
-            if (error.code === 'P2002') {
-                throw new BadRequestException('Email already exists');
-            }
-
-            throw new InternalServerErrorException('Registration failed');
+            throw new InternalServerErrorException('Unexpected error occurred during registration');
         }
     }
 

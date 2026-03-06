@@ -7,6 +7,8 @@ import {
     Request,
     Res,
     UnauthorizedException,
+    HttpCode,
+    HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
@@ -26,6 +28,7 @@ export class AuthController {
     ) { }
 
     @Post('register')
+    @HttpCode(HttpStatus.CREATED)
     @Throttle({ default: { ttl: 60000, limit: 3 } })
     @ApiOperation({ summary: 'Register a new user' })
     async register(@Body() registerDto: RegisterDto) {
