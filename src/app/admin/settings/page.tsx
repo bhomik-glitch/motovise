@@ -3,7 +3,6 @@
 import React from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { ConfigForm } from '@/modules/admin/settings/components/ConfigForm';
-import { EnforcementModeToggle } from '@/modules/admin/settings/components/EnforcementModeToggle';
 import { useSystemConfig } from '@/modules/admin/settings/hooks/useSystemConfig';
 
 export default function SettingsPage() {
@@ -36,7 +35,6 @@ export default function SettingsPage() {
                 ) : config ? (
                     <div className="bg-white shadow rounded-lg p-6">
                         <ConfigForm initialData={config} />
-                        <EnforcementModeToggle initialMode={config.enforcementMode} />
                     </div>
                 ) : null}
             </div>

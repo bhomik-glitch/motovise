@@ -6,9 +6,9 @@ import { SystemConfig } from '../settings.types';
 import { useUpdateSystemConfig } from '../hooks/useSystemConfig';
 
 const schema = z.object({
-    codThreshold: z.number().min(0).max(100),
-    fraudThreshold: z.number().min(0).max(100),
-    alertThreshold: z.number().min(0).max(100),
+    maxLoginAttempts: z.number().min(1).max(10),
+    fraudRiskThreshold: z.number().min(0).max(100),
+    enableEmailVerification: z.boolean(),
 });
 
 type ConfigFormData = z.infer<typeof schema>;
@@ -23,17 +23,17 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({ initialData }) => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ConfigFormData>({
         resolver: zodResolver(schema),
         defaultValues: {
-            codThreshold: initialData.codThreshold,
-            fraudThreshold: initialData.fraudThreshold,
-            alertThreshold: initialData.alertThreshold,
+            maxLoginAttempts: initialData.maxLoginAttempts,
+            fraudRiskThreshold: initialData.fraudRiskThreshold,
+            enableEmailVerification: initialData.enableEmailVerification,
         },
     });
 
     useEffect(() => {
         reset({
-            codThreshold: initialData.codThreshold,
-            fraudThreshold: initialData.fraudThreshold,
-            alertThreshold: initialData.alertThreshold,
+            maxLoginAttempts: initialData.maxLoginAttempts,
+            fraudRiskThreshold: initialData.fraudRiskThreshold,
+            enableEmailVerification: initialData.enableEmailVerification,
         });
     }, [initialData, reset]);
 
@@ -45,33 +45,35 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({ initialData }) => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">COD Restriction Threshold</label>
+                    <label className="block text-sm font-medium text-gray-700">Max Login Attempts</label>
                     <input
                         type="number"
-                        {...register('codThreshold', { valueAsNumber: true })}
+                        {...register('maxLoginAttempts', { valueAsNumber: true })}
                         className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
                     />
-                    {errors.codThreshold && <p className="mt-1 text-sm text-red-600">{errors.codThreshold.message}</p>}
+                    {errors.maxLoginAttempts && <p className="mt-1 text-sm text-red-600">{errors.maxLoginAttempts.message}</p>}
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Fraud Manual Review Threshold</label>
+                    <label className="block text-sm font-medium text-gray-700">Fraud Risk Threshold</label>
                     <input
                         type="number"
-                        {...register('fraudThreshold', { valueAsNumber: true })}
+                        {...register('fraudRiskThreshold', { valueAsNumber: true })}
                         className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
                     />
-                    {errors.fraudThreshold && <p className="mt-1 text-sm text-red-600">{errors.fraudThreshold.message}</p>}
+                    {errors.fraudRiskThreshold && <p className="mt-1 text-sm text-red-600">{errors.fraudRiskThreshold.message}</p>}
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Alert Trigger Threshold</label>
+                <div className="flex items-center space-x-3">
                     <input
-                        type="number"
-                        {...register('alertThreshold', { valueAsNumber: true })}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                        type="checkbox"
+                        id="enableEmailVerification"
+                        {...register('enableEmailVerification')}
+                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                     />
-                    {errors.alertThreshold && <p className="mt-1 text-sm text-red-600">{errors.alertThreshold.message}</p>}
+                    <label htmlFor="enableEmailVerification" className="text-sm font-medium text-gray-700">
+                        Enable Email Verification
+                    </label>
                 </div>
             </div>
 

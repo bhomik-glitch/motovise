@@ -1,13 +1,11 @@
 export interface SystemConfig {
-    codThreshold: number;
-    fraudThreshold: number;
-    alertThreshold: number;
-    enforcementMode: 'DISABLE' | 'FLAG';
+    maxLoginAttempts: number;
+    fraudRiskThreshold: number;
+    enableEmailVerification: boolean;
 }
 
 export interface UpdateSystemConfigDto {
-    codThreshold?: number;
-    fraudThreshold?: number;
-    alertThreshold?: number;
-    enforcementMode?: 'DISABLE' | 'FLAG';
+    maxLoginAttempts?: number;
+    fraudRiskThreshold?: number;
+    enableEmailVerification?: boolean;
 }
