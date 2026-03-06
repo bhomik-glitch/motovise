@@ -36,8 +36,15 @@ export class AddressesService {
 
         const address = await this.prisma.address.create({
             data: {
-                userId,
-                ...addressData,
+                user: { connect: { id: userId } },
+                fullName: addressData.fullName,
+                phone: addressData.phone ?? '',
+                addressLine1: addressData.addressLine1,
+                addressLine2: addressData.addressLine2,
+                city: addressData.city,
+                state: addressData.state,
+                postalCode: addressData.postalCode,
+                country: addressData.country ?? 'India',
                 isDefault: shouldBeDefault,
             },
         });
