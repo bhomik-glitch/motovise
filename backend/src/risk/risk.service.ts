@@ -236,8 +236,6 @@ export class RiskService {
                         lastEvaluatedAt: runAt,
                     },
                 });
-
-                // Removes simulated error block in Phase 8B test
             }
 
             // 7b. Reset stale pincodes to zero / NORMAL
@@ -283,5 +281,49 @@ export class RiskService {
     /** Rounds a number to 2 decimal places (safe for percentage display). */
     private roundToTwoDecimalPlaces(value: number): number {
         return Math.round(value * 100) / 100;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Phase A9 — Fraud Config and Pincodes
+    // ─────────────────────────────────────────────────────────────────────────
+
+    async getAllRiskPincodes() {
+        const records = await this.prisma.pincodeRisk.findMany({
+            orderBy: { rtoPercentage: 'desc' }
+        });
+        return records.map(record => ({
+            pincode: record.pincode,
+            totalOrders: record.totalOrders30d,
+            rtoRate: Number(record.rtoPercentage),
+            riskLevel: record.riskLevel
+        }));
+    }
+
+    private static localCodEnforcement: string | null = null;
+
+    async getFraudConfig() {
+        const cacheKey = `config:COD_HIGH_RISK_ACTION`;
+
+        let codEnforcement = await this.redis.get<string>(cacheKey);
+
+        if (!codEnforcement && RiskService.localCodEnforcement) {
+            codEnforcement = RiskService.localCodEnforcement;
+        }
+
+        if (!codEnforcement) {
+            codEnforcement = await this.configService.get<string>('COD_HIGH_RISK_ACTION', 'DISABLE');
+        }
+
+        const rtoThreshold = await this.configService.get<number>('RTO_HIGH_RISK_THRESHOLD', 30);
+        return { codEnforcement, rtoThreshold };
+    }
+
+    async updateFraudConfig(codEnforcement: 'DISABLE' | 'FLAG') {
+        const cacheKey = `config:COD_HIGH_RISK_ACTION`;
+
+        RiskService.localCodEnforcement = codEnforcement;
+        await this.redis.set(cacheKey, codEnforcement, 3600);
+
+        return this.getFraudConfig();
     }
 }

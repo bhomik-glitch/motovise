@@ -137,12 +137,38 @@ export class AlertsService {
     }
 
     /**
-     * Returns history of alerts (both ACTIVE and RESOLVED).
+     * Returns paginated and filtered history of alerts.
      */
-    async getAlertHistory() {
-        return this.prisma.alert.findMany({
-            orderBy: { createdAt: 'desc' },
-            take: 100
-        });
+    async getAlerts(query: {
+        status?: AlertStatus;
+        type?: AlertType;
+        pincode?: string;
+        page?: number;
+        limit?: number;
+    }) {
+        const { status, type, pincode, page = 1, limit = 20 } = query;
+        const skip = (page - 1) * limit;
+
+        const where: Prisma.AlertWhereInput = {};
+        if (status) where.status = status;
+        if (type) where.type = type;
+        if (pincode) where.pincode = { contains: pincode };
+
+        const [alerts, total] = await Promise.all([
+            this.prisma.alert.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limit,
+            }),
+            this.prisma.alert.count({ where }),
+        ]);
+
+        return {
+            alerts,
+            total,
+            page,
+            pages: Math.ceil(total / limit),
+        };
     }
 }

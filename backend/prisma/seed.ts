@@ -30,6 +30,10 @@ const PERMISSIONS = [
     'audit.view',
     'analytics.view',
     'export.bulk',
+    'fraud.view',
+    'fraud.config.update',
+    'rbac.manage',
+    'SYSTEM_CONFIG_EDIT'
 ];
 
 const ROLE_PERMISSIONS: Record<string, string[]> = {

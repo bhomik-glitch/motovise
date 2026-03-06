@@ -1,6 +1,9 @@
 import {
     Controller,
+    Get,
     Post,
+    Patch,
+    Body,
     HttpCode,
     HttpStatus,
     UseGuards,
@@ -43,5 +46,38 @@ export class RiskController {
     async triggerAggregation(): Promise<{ message: string }> {
         await this.riskService.aggregateLast30Days();
         return { message: 'Risk aggregation completed successfully.' };
+    }
+
+    /**
+     * GET /admin/risk/pincodes
+     * Fetch all high/medium/low risk pincodes
+     */
+    @Get('pincodes')
+    @RequirePermissions('fraud.view')
+    @ApiOperation({ summary: 'Get risk pincodes' })
+    async getPincodes() {
+        return this.riskService.getAllRiskPincodes();
+    }
+}
+
+@ApiTags('Risk Engine (Admin)')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@Controller('admin/config/fraud')
+export class FraudConfigController {
+    constructor(private readonly riskService: RiskService) { }
+
+    @Get()
+    @RequirePermissions('fraud.view')
+    @ApiOperation({ summary: 'Get fraud config' })
+    async getFraudConfig() {
+        return this.riskService.getFraudConfig();
+    }
+
+    @Patch()
+    @RequirePermissions('fraud.config.update')
+    @ApiOperation({ summary: 'Update fraud config' })
+    async updateFraudConfig(@Body() body: { codEnforcement: 'DISABLE' | 'FLAG' }) {
+        return this.riskService.updateFraudConfig(body.codEnforcement);
     }
 }

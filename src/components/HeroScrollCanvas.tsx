@@ -135,6 +135,7 @@ export default function HeroScrollCanvas() {
             window.removeEventListener('resize', onResize);
             cancelAnimationFrame(rafIdRef.current);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

@@ -1,51 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
     :root {
-        --background: 0 0% 100%;
-        --foreground: 222.2 84% 4.9%;
-        --card: 0 0% 100%;
-        --card-foreground: 222.2 84% 4.9%;
+        /* Pastel Automotive Theme */
+        --background: 210 33% 98%;          /* #F8FAFC */
+        --section-bg: 231 77% 96%;          /* #EEF2FF */
+        --foreground: 222 84% 5%;           /* #0F172A */
+        --card: 0 0% 100%;                  /* #FFFFFF */
+        --card-foreground: 222 84% 5%;
+
         --popover: 0 0% 100%;
-        --popover-foreground: 222.2 84% 4.9%;
-        --primary: 222.2 47.4% 11.2%;
-        --primary-foreground: 210 40% 98%;
-        --secondary: 210 40% 96.1%;
-        --secondary-foreground: 222.2 47.4% 11.2%;
-        --muted: 210 40% 96.1%;
-        --muted-foreground: 215.4 16.3% 46.9%;
-        --accent: 210 40% 96.1%;
-        --accent-foreground: 222.2 47.4% 11.2%;
-        --destructive: 0 84.2% 60.2%;
+        --popover-foreground: 222 84% 5%;
+
+        /* Primary: soft indigo #7C9CF5 */
+        --primary: 225 86% 72%;
+        --primary-foreground: 0 0% 100%;
+
+        /* Secondary: lavender #A5B4FC */
+        --secondary: 231 77% 96%;
+        --secondary-foreground: 222 50% 11%;
+
+        /* Highlight: warm peach #FDBA74 */
+        --highlight: 27 98% 72%;
+
+        --muted: 231 40% 95%;
+        --muted-foreground: 215 20% 45%;
+
+        --accent: 225 86% 72%;
+        --accent-foreground: 0 0% 100%;
+
+        --destructive: 0 84% 60%;
         --destructive-foreground: 210 40% 98%;
-        --border: 214.3 31.8% 91.4%;
-        --input: 214.3 31.8% 91.4%;
-        --ring: 222.2 84% 4.9%;
-        --radius: 0.5rem;
+
+        --border: 214 32% 91%;              /* #E2E8F0 */
+        --input: 214 32% 91%;
+        --ring: 225 86% 72%;
+        --radius: 0.75rem;
+
+        /* Automotive palette as direct CSS vars */
+        --color-bg: #F8FAFC;
+        --color-section: #EEF2FF;
+        --color-card: #FFFFFF;
+        --color-primary: #7C9CF5;
+        --color-secondary: #A5B4FC;
+        --color-highlight: #FDBA74;
+        --color-text: #0F172A;
+        --color-muted: #64748B;
+        --color-border: #E2E8F0;
     }
 
     .dark {
-        --background: 222.2 84% 4.9%;
+        --background: 222 84% 5%;
         --foreground: 210 40% 98%;
-        --card: 222.2 84% 4.9%;
+        --card: 217 33% 10%;
         --card-foreground: 210 40% 98%;
-        --popover: 222.2 84% 4.9%;
+        --popover: 217 33% 10%;
         --popover-foreground: 210 40% 98%;
-        --primary: 210 40% 98%;
-        --primary-foreground: 222.2 47.4% 11.2%;
-        --secondary: 217.2 32.6% 17.5%;
+        --primary: 225 86% 72%;
+        --primary-foreground: 222 47% 11%;
+        --secondary: 217 33% 18%;
         --secondary-foreground: 210 40% 98%;
-        --muted: 217.2 32.6% 17.5%;
-        --muted-foreground: 215 20.2% 65.1%;
-        --accent: 217.2 32.6% 17.5%;
-        --accent-foreground: 210 40% 98%;
-        --destructive: 0 62.8% 30.6%;
+        --muted: 217 33% 18%;
+        --muted-foreground: 215 20% 65%;
+        --accent: 225 86% 72%;
+        --accent-foreground: 222 47% 11%;
+        --destructive: 0 63% 31%;
         --destructive-foreground: 210 40% 98%;
-        --border: 217.2 32.6% 17.5%;
-        --input: 217.2 32.6% 17.5%;
-        --ring: 212.7 26.8% 83.9%;
+        --border: 217 33% 18%;
+        --input: 217 33% 18%;
+        --ring: 225 86% 72%;
+
+        --color-bg: #0F172A;
+        --color-section: #1E293B;
+        --color-card: #1E293B;
+        --color-primary: #7C9CF5;
+        --color-secondary: #A5B4FC;
+        --color-highlight: #FDBA74;
+        --color-text: #F8FAFC;
+        --color-muted: #94A3B8;
+        --color-border: #334155;
     }
 }
 
@@ -54,16 +91,24 @@
         @apply border-border;
     }
 
-    html,
-    body {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    html, body {
         margin: 0;
         padding: 0;
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-family: 'DM Sans', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     /* Custom Sleek Scrollbar */
     ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+        width: 5px;
+        height: 5px;
     }
 
     ::-webkit-scrollbar-track {
@@ -71,20 +116,61 @@
     }
 
     ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
+        background: var(--color-primary);
         border-radius: 20px;
-        border: 2px solid transparent;
-        background-clip: content-box;
+        opacity: 0.5;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.5);
-        background-clip: content-box;
+        background: var(--color-secondary);
     }
 
-    /* Firefox support */
     * {
         scrollbar-width: thin;
-        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        scrollbar-color: var(--color-primary) transparent;
+    }
+}
+
+@layer components {
+    .font-display {
+        font-family: 'Syne', sans-serif;
+    }
+
+    /* Frosted Glass Utility */
+    .glass {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .dark .glass {
+        background: rgba(15, 23, 42, 0.7);
+        border-bottom: 1px solid rgba(51, 65, 85, 0.8);
+    }
+
+    /* Glow Hover Effect */
+    .btn-glow {
+        transition: all 0.25s ease;
+        box-shadow: 0 0 0 0 rgba(124, 156, 245, 0);
+    }
+
+    .btn-glow:hover {
+        box-shadow: 0 0 24px 0 rgba(124, 156, 245, 0.45);
+        transform: translateY(-1px);
+    }
+
+    /* Pastel Section Background */
+    .section-pastel {
+        background-color: var(--color-section);
+    }
+
+    /* Hero gradient overlay */
+    .hero-gradient {
+        background: linear-gradient(
+            to top,
+            rgba(238, 242, 255, 0.9) 0%,
+            transparent 50%
+        );
     }
 }

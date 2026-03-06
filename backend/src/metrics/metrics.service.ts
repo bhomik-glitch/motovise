@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
+import { MetricsSnapshotService } from '../metrics-snapshot/metrics-snapshot.service';
 import { Prisma } from '@prisma/client';
 
 export interface ExecutiveMetrics {
@@ -25,13 +26,15 @@ export class MetricsService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly redis: RedisService,
+        private readonly snapshotService: MetricsSnapshotService,
     ) { }
 
     /**
      * Executes parallel queries to fetch executive dashboard metrics.
-     * All time boundaries strictly computed in UTC.
-     * Valid Order definition consistently applied.
-     * 
+     * Rule 7 & 8: Fallbacks to full legacy aggregate if snapshot is missing.
+     * Rule 1: Merges raw counts for MTD metrics.
+     * Rule 6: Rolling metrics remain full live queries.
+     *
      * This is the SINGLE SOURCE OF TRUTH for both Dashboard and Alerts.
      */
     async getExecutiveMetrics(skipCache: boolean = false): Promise<ExecutiveMetrics> {
@@ -49,25 +52,73 @@ export class MetricsService {
 
         const validOrderFilter = { orderStatus: { not: 'CANCELLED' } as const };
 
+        // ============================================
+        // 1. FAST PATH: SNAPSHOT + DELTA
+        // ============================================
+        const snapshot = await this.snapshotService.getLatestForCurrentMonth();
+
+        let mtdGMV = 0;
+        let mtdOrders = 0;
+        let mtdPrepaidCount = 0;
+
+        if (snapshot) {
+            // Rule 5: UTC strict boundaries
+            const todayMidnightUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+            // Rule 1: We only aggregate today's delta
+            const [todayAggregates, todayPrepaid] = await Promise.all([
+                this.prisma.order.aggregate({
+                    where: { ...validOrderFilter, createdAt: { gte: todayMidnightUTC } },
+                    _sum: { total: true },
+                    _count: true,
+                }),
+                this.prisma.order.count({
+                    where: { ...validOrderFilter, createdAt: { gte: todayMidnightUTC }, paymentMethod: { not: 'COD' } },
+                })
+            ]);
+
+            // Merge snapshot with delta (raw counts only!)
+            mtdGMV = Number(snapshot.mtdGMV) + (todayAggregates._sum.total ? Number(todayAggregates._sum.total) : 0);
+            mtdOrders = snapshot.ordersCount + todayAggregates._count;
+            mtdPrepaidCount = snapshot.prepaidCount + todayPrepaid;
+
+        } else {
+            // ============================================
+            // 2. FALLBACK PATH: FULL LEGACY AGGREGATION
+            // Rule 7 & 8: First day of month or cold start
+            // ============================================
+            this.logger.warn('No metrics snapshot found for current month. Falling back to full aggregation.');
+            const mtdStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+
+            const [mtdAggregates, mtdPrepaid] = await Promise.all([
+                this.prisma.order.aggregate({
+                    where: { ...validOrderFilter, createdAt: { gte: mtdStart } },
+                    _sum: { total: true },
+                    _count: true,
+                }),
+                this.prisma.order.count({
+                    where: { ...validOrderFilter, createdAt: { gte: mtdStart }, paymentMethod: { not: 'COD' } },
+                })
+            ]);
+
+            mtdGMV = mtdAggregates._sum.total ? Number(mtdAggregates._sum.total) : 0;
+            mtdOrders = mtdAggregates._count;
+            mtdPrepaidCount = mtdPrepaid;
+        }
+
+        // ============================================
+        // 3. LIVE ROLLING METRICS (Rule 6)
+        // These can NEVER be snapshotted daily as they span before-month boundaries
+        // ============================================
         const [
-            mtdAggregates,
-            mtdPrepaidCount,
             rtoDenominatorCount,
             rtoNumeratorCount,
             chargebackDenominatorCount,
             chargebackNumeratorCount,
             shippingCostAggregates,
-            manualReviewPendingCount,
+            manualReviewPendingCount, // Rule 3: Always live
             topHighRiskPincodes,
         ] = await Promise.all([
-            this.prisma.order.aggregate({
-                where: { ...validOrderFilter, createdAt: { gte: mtdStart } },
-                _sum: { total: true },
-                _count: true,
-            }),
-            this.prisma.order.count({
-                where: { ...validOrderFilter, createdAt: { gte: mtdStart }, paymentMethod: { not: 'COD' } },
-            }),
             this.prisma.order.count({
                 where: {
                     ...validOrderFilter,
@@ -120,13 +171,10 @@ export class MetricsService {
             return formatDecimal((numerator / denominator) * 100);
         };
 
-        const totalOrdersMtd = mtdAggregates._count;
-        const gmvMtdValue = mtdAggregates._sum.total ? Number(mtdAggregates._sum.total) : 0;
-
         const result = {
-            gmv_mtd: formatDecimal(gmvMtdValue),
-            orders_mtd: totalOrdersMtd,
-            prepaid_percentage_mtd: getPercentage(mtdPrepaidCount, totalOrdersMtd),
+            gmv_mtd: formatDecimal(mtdGMV),
+            orders_mtd: mtdOrders,
+            prepaid_percentage_mtd: getPercentage(mtdPrepaidCount, mtdOrders),
             rto_percentage_7d: getPercentage(rtoNumeratorCount, rtoDenominatorCount),
             chargeback_percentage_30d: getPercentage(chargebackNumeratorCount, chargebackDenominatorCount),
             avg_shipping_cost_30d: shippingCostAggregates._avg.shippingCost ? formatDecimal(Number(shippingCostAggregates._avg.shippingCost)) : 0,

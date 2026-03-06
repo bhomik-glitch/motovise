@@ -63,7 +63,7 @@ async function validatePhase8A() {
             // check if table exists by simple query
             const count = await prisma.pincodeRisk.count();
             logger.log(`✅ PincodeRisk table exists (Row count: ${count})`);
-        } catch (e) {
+        } catch (e: any) {
             logger.error(`❌ PincodeRisk table access failed: ${e.message}`);
             process.exit(1);
         }
@@ -77,7 +77,7 @@ async function validatePhase8A() {
             await riskService.getRiskByPincode('123456');
             const duration = Date.now() - start;
             logger.log(`✅ getRiskByPincode executed in ${duration}ms`);
-        } catch (e) {
+        } catch (e: any) {
             logger.error(`❌ getRiskByPincode threw error: ${e.message}`);
             process.exit(1);
         }
@@ -88,7 +88,7 @@ async function validatePhase8A() {
         // but we can trust the log output if we run this.
 
         logger.log('✅ Phase 8A Validation Complete.');
-    } catch (err) {
+    } catch (err: any) {
         logger.error(`Validation Failed: ${err.message}`);
         process.exit(1);
     } finally {

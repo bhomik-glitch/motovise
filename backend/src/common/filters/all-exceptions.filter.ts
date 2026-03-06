@@ -44,15 +44,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
             }
         }
 
-        // Log error with details
-        this.logger.error({
-            statusCode: status,
-            timestamp: new Date().toISOString(),
-            path: request.url,
-            method: request.method,
-            message: message as unknown,
-            stack: exception instanceof Error ? exception.stack : undefined,
-        });
+        // Log error with details (Skip logging for common noisy 404s like favicon.ico)
+        if (request.url !== '/favicon.ico') {
+            this.logger.error({
+                statusCode: status,
+                timestamp: new Date().toISOString(),
+                path: request.url,
+                method: request.method,
+                message: message as unknown,
+                stack: exception instanceof Error ? exception.stack : undefined,
+            });
+        }
 
         // Standardized error response
         response.status(status).json({

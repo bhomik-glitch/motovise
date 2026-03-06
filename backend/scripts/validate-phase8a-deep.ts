@@ -136,10 +136,10 @@ async function validateDeep() {
 
         // B. Verify Stock (Expectation: Unchanged for PENDING order)
         const storedProduct = await prisma.product.findUnique({ where: { id: product.id } });
-        if (storedProduct.stock === INITIAL_STOCK) {
+        if (storedProduct?.stock === INITIAL_STOCK) {
             logger.log('✅ Stock unchanged (Correct for PENDING COD order).');
         } else {
-            logger.warn(`⚠️ Stock changed from ${INITIAL_STOCK} to ${storedProduct.stock}. Logic might have changed?`);
+            logger.warn(`⚠️ Stock changed from ${INITIAL_STOCK} to ${storedProduct?.stock}. Logic might have changed?`);
         }
 
         // C. Verify Cart (Expectation: Should be Cleared? or Not?)
@@ -168,7 +168,7 @@ async function validateDeep() {
 
         logger.log('🎉 PHASE 8A DEEP VALIDATION PASSED.');
 
-    } catch (err) {
+    } catch (err: any) {
         logger.error(`❌ Validation Failed: ${err.message}`, err.stack);
         process.exit(1);
     } finally {

@@ -27,7 +27,7 @@ async function main() {
         // Be careful not to drop UserRole if it's the one we want to keep (renamed from Role)
         // But currently in DB it should be 'Role' (the enum).
 
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
     } finally {
         await prisma.$disconnect();

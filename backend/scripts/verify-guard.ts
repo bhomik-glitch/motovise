@@ -36,7 +36,7 @@ async function runTests() {
     try {
         const result = await guard.canActivate(mockContext);
         console.log('[PASS] No permissions required -> Allowed');
-    } catch (e) {
+    } catch (e: any) {
         console.error('[FAIL] No permissions required -> Denied', e);
     }
 
@@ -47,7 +47,7 @@ async function runTests() {
     try {
         const result = await guard.canActivate(mockContext);
         console.log('[PASS] Permissions present -> Allowed');
-    } catch (e) {
+    } catch (e: any) {
         console.error('[FAIL] Permissions present -> Denied', e);
     }
 
@@ -57,7 +57,7 @@ async function runTests() {
     try {
         await guard.canActivate(mockContext);
         console.error('[FAIL] Permissions missing -> Allowed (Should Deny)');
-    } catch (e) {
+    } catch (e: any) {
         if (e instanceof ForbiddenException) {
             console.log('[PASS] Permissions missing -> Denied (ForbiddenException)');
         } else {
@@ -67,7 +67,7 @@ async function runTests() {
 
     // Test 4: Context Attachment
     reflector.getAllAndOverride = () => ['perm.A'];
-    const request = {};
+    const request: Record<string, any> = {};
     const contextWithRequest = {
         getHandler: () => { },
         getClass: () => { },

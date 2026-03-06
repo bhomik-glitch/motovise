@@ -6,6 +6,7 @@ const config: Config = {
         "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
         "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
         "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+        "./src/modules/**/*.{js,ts,jsx,tsx,mdx}",
     ],
     theme: {
         extend: {
@@ -43,17 +44,47 @@ const config: Config = {
                     DEFAULT: "hsl(var(--card))",
                     foreground: "hsl(var(--card-foreground))",
                 },
-                "accent-olive": "#8FAE1B",
-                "background-dark": "#000000",
+                // Motovise Pastel Automotive Palette
+                motovise: {
+                    bg: "#F8FAFC",
+                    section: "#EEF2FF",
+                    primary: "#7C9CF5",
+                    secondary: "#A5B4FC",
+                    highlight: "#FDBA74",
+                    text: "#0F172A",
+                    muted: "#64748B",
+                    border: "#E2E8F0",
+                },
             },
             fontFamily: {
-                "display": ["var(--font-manrope)", "Manrope", "sans-serif"],
+                "display": ["'Syne'", "sans-serif"],
+                "sans": ["'DM Sans'", "system-ui", "sans-serif"],
             },
-
             borderRadius: {
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
+                xl: "1rem",
+                "2xl": "1.25rem",
+            },
+            boxShadow: {
+                "glow-primary": "0 0 24px rgba(124, 156, 245, 0.45)",
+                "glow-sm": "0 0 12px rgba(124, 156, 245, 0.3)",
+                "card-hover": "0 20px 60px rgba(124, 156, 245, 0.2), 0 4px 16px rgba(0,0,0,0.08)",
+            },
+            animation: {
+                "fade-up": "fadeUp 0.5s ease forwards",
+                "slide-in-right": "slideInRight 0.5s ease forwards",
+            },
+            keyframes: {
+                fadeUp: {
+                    "0%": { opacity: "0", transform: "translateY(30px)" },
+                    "100%": { opacity: "1", transform: "translateY(0)" },
+                },
+                slideInRight: {
+                    "0%": { opacity: "0", transform: "translateX(60px)" },
+                    "100%": { opacity: "1", transform: "translateX(0)" },
+                },
             },
         },
     },

@@ -170,7 +170,7 @@ async function main() {
                 console.log(`Analyst Stats: Analytics=${res1.status}, DeleteProd=${res2.status}`);
                 validationResults.endpointMatrix.analyst = 'FAIL';
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error('Analyst test error:', e.message);
             validationResults.endpointMatrix.analyst = 'FAIL';
         }
@@ -197,7 +197,7 @@ async function main() {
                 console.log(`Customer Stats: Analytics=${res1.status}, CreateProd=${res2.status}`);
                 validationResults.endpointMatrix.customer = 'FAIL';
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error('Customer test error:', e.message);
             validationResults.endpointMatrix.customer = 'FAIL';
         }

@@ -1,36 +1,47 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { RiskService } from './risk.service';
+import { DistributedLockService } from '../redis/distributed-lock.service';
 
 /**
- * RiskCron — Nightly pincode risk aggregation cron job.
+ * RiskCron — Nightly pincode risk aggregation cron job (Phase 9D).
  *
- * Runs at 02:00 every day (cron: '0 2 * * *').
+ * Runs at 02:00 every day.
  *
- * ⚠️  LIMITATION — Single-instance overlap prevention only:
- *     The `isRunning` flag prevents overlapping execution on a single process.
- *     In a multi-pod/distributed deployment, use a distributed lock (e.g. Redis
- *     Redlock) instead. This is intentionally deferred to Phase 8G (Alerts).
+ * Distributed lock (Redis SET NX EX) ensures only ONE instance executes
+ * across a horizontally scaled deployment. The in-memory isRunning mutex
+ * has been fully removed — distributed lock is the sole guard.
+ *
+ * Redis-down behaviour: cron skips execution and logs at ERROR level.
+ * Lock key : lock:risk-aggregation
+ * TTL      : 300 s (5 min) — must be ≥2× observed worst-case runtime
  */
 @Injectable()
 export class RiskCron {
     private readonly logger = new Logger(RiskCron.name);
-    private isRunning = false;
 
-    constructor(private readonly riskService: RiskService) { }
+    private static readonly LOCK_KEY = 'lock:risk-aggregation';
+    private static readonly LOCK_TTL = 300; // seconds
+
+    constructor(
+        private readonly riskService: RiskService,
+        private readonly lockService: DistributedLockService,
+    ) { }
 
     @Cron('0 2 * * *', { name: 'pincode-risk-aggregation' })
     async handlePincodeRiskAggregation(): Promise<void> {
-        if (this.isRunning) {
-            this.logger.warn(
-                '[RiskCron] Aggregation already in progress — skipping overlapping run.',
-            );
+        const acquired = await this.lockService.acquireLock(
+            RiskCron.LOCK_KEY,
+            RiskCron.LOCK_TTL,
+        );
+
+        if (!acquired) {
+            this.logger.log('[RiskCron] Skipped — lock already held');
             return;
         }
 
-        this.isRunning = true;
         const startTime = Date.now();
-        this.logger.log('[RiskCron] Nightly cron triggered.');
+        this.logger.log('[RiskCron] Nightly aggregation started.');
 
         try {
             await this.riskService.aggregateLast30Days();
@@ -40,9 +51,12 @@ export class RiskCron {
                 error.stack,
             );
         } finally {
-            this.isRunning = false;
+            await this.lockService.releaseLock(
+                RiskCron.LOCK_KEY,
+                Date.now() - startTime,
+            );
             this.logger.log(
-                `[RiskCron] Cron finished in ${Date.now() - startTime}ms.`,
+                `[RiskCron] Finished in ${Date.now() - startTime}ms.`,
             );
         }
     }

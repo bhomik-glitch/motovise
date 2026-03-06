@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import helmet from 'helmet';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     const isProduction = process.env.NODE_ENV === 'production';
@@ -46,6 +47,9 @@ async function bootstrap() {
     // Helmet — security headers (disable CSP for API-only)
     app.use(helmet({ contentSecurityPolicy: false }));
 
+    // Cookie Parser for HTTP-only refresh tokens
+    app.use(cookieParser());
+
     // Trust Railway / reverse-proxy for correct client IP
     const expressApp = app.getHttpAdapter().getInstance();
     expressApp.set('trust proxy', 1);
@@ -75,6 +79,8 @@ async function bootstrap() {
     app.enableCors({
         origin: (origin, callback) => {
             // Allow requests with no origin (server-to-server, curl, etc.)
+            // But for credentials: true, we must be careful. 
+            // In dev/test we might need to be more explicit.
             if (!origin) {
                 callback(null, true);
                 return;
@@ -86,6 +92,7 @@ async function bootstrap() {
             }
         },
         credentials: true,
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     });
 
     // Global prefix

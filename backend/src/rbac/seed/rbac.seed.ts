@@ -32,6 +32,9 @@ const PERMISSIONS = [
     // Phase 8E: Manual Review
     'order.review.view',   // View the review queue (Admin, Finance, Support)
     'order.review.action', // Take review actions (Admin, Finance only)
+    'ALERT_VIEW',           // Phase A8: View alerts monitoring
+    'fraud.view',          // Phase A9: View risk & fraud
+    'fraud.config.update', // Phase A9: Update fraud config
 ];
 
 const ROLE_PERMISSIONS: Record<string, string[]> = {

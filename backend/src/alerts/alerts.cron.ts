@@ -1,40 +1,64 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { AlertsService } from './alerts.service';
+import { DistributedLockService } from '../redis/distributed-lock.service';
 
+/**
+ * AlertsCron — Hourly alert threshold evaluation cron job (Phase 9D).
+ *
+ * Executes every hour.
+ *
+ * Distributed lock (Redis SET NX EX) ensures only ONE instance executes
+ * across a horizontally scaled deployment. The in-memory isRunning mutex
+ * has been fully removed — distributed lock is the sole guard.
+ *
+ * Redis-down behaviour: cron skips execution and logs at ERROR level.
+ * Lock key : lock:alert-evaluation
+ * TTL      : 120 s (2 min) — must be ≥2× observed worst-case runtime
+ */
 @Injectable()
 export class AlertsCron {
     private readonly logger = new Logger(AlertsCron.name);
-    private isRunning = false;
 
-    constructor(private readonly alertsService: AlertsService) { }
+    private static readonly LOCK_KEY = 'lock:alert-evaluation';
+    private static readonly LOCK_TTL = 120; // seconds
 
-    /**
-     * Executes every hour to check executive metrics against thresholds.
-     * 
-     * Comment 3 — Cron Concurrency Limitation (Future Scaling Note):
-     * Current implementation uses an in-memory `isRunning` mutex flag to 
-     * prevent overlapping cron executions. 
-     * ⚠️ Limitation: This protects only single-instance deployments. 
-     * In horizontally scaled environments, a distributed lock (DB or Redis) 
-     * will be required. Acceptable for current architecture.
-     */
+    constructor(
+        private readonly alertsService: AlertsService,
+        private readonly lockService: DistributedLockService,
+    ) { }
+
     @Cron(CronExpression.EVERY_HOUR)
-    async handleCron() {
-        if (this.isRunning) {
-            this.logger.warn('Previous alert threshold evaluation is still running. Skipping this cycle.');
+    async handleCron(): Promise<void> {
+        const acquired = await this.lockService.acquireLock(
+            AlertsCron.LOCK_KEY,
+            AlertsCron.LOCK_TTL,
+        );
+
+        if (!acquired) {
+            this.logger.log('[AlertsCron] Skipped — lock already held');
             return;
         }
 
-        this.isRunning = true;
+        const startTime = Date.now();
+        this.logger.log('[AlertsCron] Alert threshold evaluation started.');
+
         try {
-            this.logger.log('Starting scheduled alert threshold evaluation cycle...');
             await this.alertsService.evaluateThresholds();
-            this.logger.log('Alert evaluation cycle completed successfully.');
+            this.logger.log('[AlertsCron] Alert evaluation cycle completed successfully.');
         } catch (error) {
-            this.logger.error('Error during scheduled alert evaluation cycle', error);
+            this.logger.error(
+                `[AlertsCron] Alert evaluation failed after ${Date.now() - startTime}ms: ${error.message}`,
+                error.stack,
+            );
         } finally {
-            this.isRunning = false;
+            await this.lockService.releaseLock(
+                AlertsCron.LOCK_KEY,
+                Date.now() - startTime,
+            );
+            this.logger.log(
+                `[AlertsCron] Finished in ${Date.now() - startTime}ms.`,
+            );
         }
     }
 }

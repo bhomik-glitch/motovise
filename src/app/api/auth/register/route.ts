@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import bcrypt from "bcryptjs";
+import axios from "axios";
 
 export async function POST(req: NextRequest) {
     try {
-        const { name, email, password } = await req.json();
+        const body = await req.json();
+        const { name, email, password } = body;
 
         if (!name || !email || !password) {
             return NextResponse.json(
@@ -13,44 +13,39 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Check if user already exists
-        const existingUser = await prisma.user.findUnique({
-            where: { email },
-        });
+        // Call backend NestJS API
+        const backendUrl = process.env.NODE_ENV === 'production'
+            ? 'http://backend:4000/v1/auth/register'
+            : 'http://localhost:4000/v1/auth/register';
 
-        if (existingUser) {
-            return NextResponse.json(
-                { error: "User already exists" },
-                { status: 400 }
-            );
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create user
-        const user = await prisma.user.create({
-            data: {
+        try {
+            const backendResponse = await axios.post(backendUrl, {
                 name,
                 email,
-                password: hashedPassword,
-                role: "CUSTOMER", // Default role
-            },
-        });
+                password,
+                // Add any other required fields for backend register
+            });
 
-        return NextResponse.json(
-            {
-                user: {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
+            // Backend return { success: true, data: { user, message } } via TransformInterceptor
+            // or { message, user } directly if not intercepted.
+            // Let's assume standard response based on our audit.
+            const result = backendResponse.data.data || backendResponse.data;
+
+            return NextResponse.json(
+                {
+                    user: result.user,
+                    message: "User registered successfully",
                 },
-            },
-            { status: 201 }
-        );
+                { status: 201 }
+            );
+        } catch (axiosError: any) {
+            console.error("Backend registration error:", axiosError.response?.data || axiosError.message);
+            const status = axiosError.response?.status || 500;
+            const message = axiosError.response?.data?.message || "Registration failed on backend";
+            return NextResponse.json({ error: message }, { status });
+        }
     } catch (error) {
-        console.error("Registration error:", error);
+        console.error("Registration route error:", error);
         return NextResponse.json(
             { error: "Internal server error" },
             { status: 500 }

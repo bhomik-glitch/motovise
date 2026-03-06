@@ -4,7 +4,14 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
-import { Role } from "@prisma/client";
+import axios from "axios";
+
+// Define UserRole locally if Prisma export is failing in this environment
+export enum UserRole {
+    CUSTOMER = "CUSTOMER",
+    MANAGER = "MANAGER",
+    ADMIN = "ADMIN",
+}
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma) as any,
@@ -23,37 +30,59 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
+                console.log("NextAuth: Authorize attempt for", credentials?.email);
                 if (!credentials?.email || !credentials?.password) {
+                    console.log("NextAuth: Missing email or password");
                     throw new Error("Invalid credentials");
                 }
 
-                const user = await prisma.user.findUnique({
-                    where: { email: credentials.email },
-                    include: {
-                        managerPermissions: true,
-                    },
-                });
+                try {
+                    // 1. First verify with local DB for speed and permissions include
+                    const user = await prisma.user.findUnique({
+                        where: { email: credentials.email },
+                    });
 
-                if (!user || !user.password) {
-                    throw new Error("Invalid credentials");
+                    if (!user || !user.password) {
+                        console.log("NextAuth: User not found or no password");
+                        throw new Error("Invalid credentials");
+                    }
+
+                    const isValid = await bcrypt.compare(
+                        credentials.password,
+                        user.password
+                    );
+
+                    if (!isValid) {
+                        console.log("NextAuth: Password mismatch");
+                        throw new Error("Invalid credentials");
+                    }
+
+                    // 2. IMPORTANT: Call backend NestJS API to get their JWT
+                    // This is needed for the backend JwtAuthGuard to work (e.g. for Cart)
+                    // We use the absolute path to backend since it's server-side
+                    const backendUrl = process.env.NODE_ENV === 'production'
+                        ? 'http://backend:4000/v1/auth/login' // Placeholder for prod
+                        : 'http://localhost:4000/v1/auth/login';
+
+                    const backendResponse = await axios.post(backendUrl, {
+                        email: credentials.email,
+                        password: credentials.password
+                    });
+
+                    const { accessToken } = backendResponse.data.data;
+
+                    console.log("NextAuth: Authorize successful for", user.email);
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        name: user.name,
+                        role: user.role,
+                        accessToken: accessToken, // Attach backend JWT
+                    };
+                } catch (error: any) {
+                    console.error("NextAuth: Authorize error (Backend likely down):", error.message);
+                    throw new Error("Login service is currently unavailable. Please try again later.");
                 }
-
-                const isValid = await bcrypt.compare(
-                    credentials.password,
-                    user.password
-                );
-
-                if (!isValid) {
-                    throw new Error("Invalid credentials");
-                }
-
-                return {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    role: user.role,
-                    image: user.image,
-                };
             },
         }),
         ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -70,6 +99,7 @@ export const authOptions: NextAuthOptions = {
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
+                token.accessToken = (user as any).accessToken;
             }
 
             // Handle session updates
@@ -82,7 +112,8 @@ export const authOptions: NextAuthOptions = {
         async session({ session, token }) {
             if (token && session.user) {
                 session.user.id = token.id as string;
-                session.user.role = token.role as Role;
+                session.user.role = token.role as UserRole;
+                (session.user as any).accessToken = token.accessToken;
             }
             return session;
         },

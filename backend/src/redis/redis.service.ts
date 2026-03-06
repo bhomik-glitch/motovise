@@ -46,7 +46,20 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
             if (this.connected) {
                 this.connected = false;
             }
-            this.logger.error(`Connection failed: ${error.message}`);
+
+            const env = this.configService.get<string>('NODE_ENV');
+            const isLocal = host === 'localhost' || host === '127.0.0.1';
+
+            if (env === 'development' && isLocal) {
+                // In development, we downgrade the error to a warning to avoid "red" logs,
+                // as everything falls back to mock/no-cache automatically.
+                this.logger.warn(
+                    `Redis offline at ${host}:${port}. Functional fallbacks active (Caching & Locks disabled). ` +
+                    `To enable, please start a local Redis server.`,
+                );
+            } else {
+                this.logger.error(`Connection failed: ${error.message}`);
+            }
         });
 
         this.client.on('ready', () => {

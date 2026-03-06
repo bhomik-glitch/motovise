@@ -29,7 +29,8 @@ async function runTests() {
     }
 
     const mockRedis = new MockRedis();
-    const metricsService = new MetricsService(mockPrisma as any, mockRedis as any);
+    const mockSnapshot = { getLatestForCurrentMonth: jest.fn().mockResolvedValue(null) };
+    const metricsService = new MetricsService(mockPrisma as any, mockRedis as any, mockSnapshot as any);
 
     try {
         console.log('[Test 1] Cache Miss');
