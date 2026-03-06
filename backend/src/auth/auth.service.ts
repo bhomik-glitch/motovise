@@ -3,6 +3,9 @@ import {
     ConflictException,
     UnauthorizedException,
     NotFoundException,
+    BadRequestException,
+    InternalServerErrorException,
+    Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
@@ -12,6 +15,8 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
+    private readonly logger = new Logger(AuthService.name);
+
     constructor(
         private prisma: PrismaService,
         private jwtService: JwtService,
@@ -20,53 +25,66 @@ export class AuthService {
     async register(registerDto: RegisterDto) {
         const { email, password, name, phone } = registerDto;
 
-        // Check if user exists
-        const existingUser = await this.prisma.user.findUnique({
-            where: { email },
-        });
+        try {
+            // Check if user exists
+            const existingUser = await this.prisma.user.findUnique({
+                where: { email },
+            });
 
-        if (existingUser) {
-            throw new ConflictException('User with this email already exists');
+            if (existingUser) {
+                throw new BadRequestException('User with this email already exists');
+            }
+
+            // Hash password
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            // Fetch Customer Role
+            const customerRole = await this.prisma.role.findUnique({
+                where: { name: 'Customer' },
+            });
+
+            if (!customerRole) {
+                this.logger.error('System setup error: "Customer" role not found.');
+                throw new InternalServerErrorException('System configuration error: Default role not found.');
+            }
+
+            // Create user
+            const user = await this.prisma.user.create({
+                data: {
+                    email,
+                    password: hashedPassword,
+                    name,
+                    phone,
+                    role: 'CUSTOMER', // Legacy
+                    roleRef: { connect: { id: customerRole.id } }, // New Relation
+                },
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    phone: true,
+                    role: true,
+                    createdAt: true,
+                },
+            });
+
+            return {
+                message: 'User registered successfully',
+                user,
+            };
+        } catch (error: any) {
+            this.logger.error(`Registration failed: ${error.message}`, error.stack);
+
+            if (error instanceof BadRequestException || error instanceof InternalServerErrorException) {
+                throw error;
+            }
+
+            if (error.code === 'P2002') {
+                throw new BadRequestException('Email already exists');
+            }
+
+            throw new InternalServerErrorException('Registration failed');
         }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Fetch Customer Role
-        const customerRole = await this.prisma.role.findUnique({
-            where: { name: 'Customer' },
-        });
-
-        if (!customerRole) {
-            // Fallback or error? Seed should guarantee this.
-            // But let's throw friendly error
-            throw new Error('System setup error: "Customer" role not found.');
-        }
-
-        // Create user
-        const user = await this.prisma.user.create({
-            data: {
-                email,
-                password: hashedPassword,
-                name,
-                phone,
-                role: 'CUSTOMER', // Legacy
-                roleRef: { connect: { id: customerRole.id } }, // New Relation
-            },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                phone: true,
-                role: true,
-                createdAt: true,
-            },
-        });
-
-        return {
-            message: 'User registered successfully',
-            user,
-        };
     }
 
     async login(loginDto: LoginDto) {

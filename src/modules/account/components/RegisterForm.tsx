@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/Label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { useRouter } from "next/navigation"
 
+import api from "@/lib/api-client"
+
 const registerSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),
     email: z.string().email({ message: "Please enter a valid email address." }),
@@ -40,21 +42,12 @@ export function RegisterForm() {
         setError(null)
 
         try {
-            const response = await fetch("/api/auth/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-            })
-
-            if (!response.ok) {
-                const result = await response.json()
-                throw new Error(result.message || "Registration failed")
-            }
+            await api.post("/auth/register", data)
 
             // Automatically redirect to login after successful registration
             router.push("/login?registered=true")
         } catch (err: any) {
-            setError(err.message || "An unexpected error occurred. Please try again.")
+            setError(err.message || "Registration failed")
         } finally {
             setIsLoading(false)
         }

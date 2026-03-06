@@ -77,21 +77,10 @@ async function bootstrap() {
         : ['http://localhost:3000'];
 
     app.enableCors({
-        origin: (origin, callback) => {
-            // Allow requests with no origin (server-to-server, curl, etc.)
-            if (!origin) {
-                return callback(null, true);
-            }
-
-            const isVercel = origin.endsWith('.vercel.app') || origin === 'https://motovise.vercel.app';
-            const isAllowedExplicitly = allowedOrigins.includes(origin);
-
-            if (isVercel || isAllowedExplicitly) {
-                callback(null, true);
-            } else {
-                callback(new Error(`Origin ${origin} not allowed by CORS`));
-            }
-        },
+        origin: [
+            "https://motovise-pied.vercel.app",
+            "http://localhost:3000"
+        ],
         credentials: true,
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     });

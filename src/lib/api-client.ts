@@ -24,22 +24,19 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Global error handling
+// Response Interceptor: Structured error handling
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        // Log error for storefront monitoring
-        console.error('[API Error]:', error.response?.data || error.message);
+        const message =
+            error?.response?.data?.message ||
+            error?.response?.data?.error ||
+            "Unexpected server error";
 
-        // Handle specific status codes if necessary
-        if (error.response?.status === 401) {
-            // Token expired or invalid — force logout to clear stale session
-            if (typeof window !== 'undefined') {
-                signOut({ callbackUrl: '/login' });
-            }
-        }
-
-        return Promise.reject(error);
+        return Promise.reject({
+            message,
+            status: error?.response?.status,
+        });
     }
 );
 

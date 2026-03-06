@@ -1,6 +1,7 @@
 const axios = require('axios');
 
-const BASE_URL = 'http://localhost:4000/v1/auth';
+const BASE_URL = process.env.BASE_URL || 'https://motovise-production.up.railway.app/v1/auth';
+
 const TEST_EMAIL = `test_${Date.now()}@example.com`;
 const TEST_PASSWORD = 'Password123!';
 
