@@ -13,32 +13,18 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
 
     private validateEnvironment() {
-        const host = this.configService.get<string>('REDIS_HOST');
-        const port = this.configService.get<string>('REDIS_PORT');
+        const redisUrl = this.configService.get<string>('REDIS_URL');
 
-        if (!host) {
-            throw new Error('REDIS_HOST is missing in environment variables');
-        }
-
-        if (!port) {
-            throw new Error('REDIS_PORT is missing in environment variables');
-        }
-
-        if (isNaN(Number(port))) {
-            throw new Error('REDIS_PORT must be numeric');
+        if (!redisUrl) {
+            throw new Error('REDIS_URL is missing in environment variables');
         }
     }
 
     onModuleInit() {
-        const host = this.configService.get<string>('REDIS_HOST')!;
-        const port = parseInt(this.configService.get<string>('REDIS_PORT')!, 10);
-        const username = this.configService.get<string>('REDIS_USERNAME') || 'default';
-        const password = this.configService.get<string>('REDIS_PASSWORD');
+        const redisUrl = this.configService.get<string>('REDIS_URL')!;
+        const env = this.configService.get<string>('NODE_ENV');
 
-        this.client = new Redis({
-            host,
-            port,
-            ...(password ? { username, password } : {}),
+        this.client = new Redis(redisUrl, {
             lazyConnect: true,
             retryStrategy: () => null, // Disable automatic retries so we don't spam logs on failure
             maxRetriesPerRequest: null,
@@ -50,14 +36,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
                 this.connected = false;
             }
 
-            const env = this.configService.get<string>('NODE_ENV');
-            const isLocal = host === 'localhost' || host === '127.0.0.1';
-
-            if (env === 'development' && isLocal) {
+            if (env === 'development') {
                 // In development, we downgrade the error to a warning to avoid "red" logs,
                 // as everything falls back to mock/no-cache automatically.
                 this.logger.warn(
-                    `Redis offline at ${host}:${port}. Functional fallbacks active (Caching & Locks disabled). ` +
+                    `Redis offline. Functional fallbacks active (Caching & Locks disabled). ` +
                     `To enable, please start a local Redis server.`,
                 );
             } else {
@@ -67,7 +50,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
         this.client.on('ready', () => {
             this.connected = true;
-            this.logger.log(`Successfully connected to Redis at ${host}:${port}`);
+            this.logger.log(`Successfully connected to Redis`);
         });
 
         this.client.on('close', () => {
@@ -75,8 +58,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         });
 
         // Initialize connection
-        this.logger.log(`Attempting connection to Redis at ${host}:${port}...`);
-        this.client.connect().catch((err) => {
+        this.logger.log(`Attempting connection to Redis...`);
+        this.client.connect().catch((_err) => {
             // We catch the initial connect error so the application doesn't crash.
             // The 'error' event listener above will also fire and log the error.
         });
