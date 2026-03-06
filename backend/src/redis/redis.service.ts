@@ -32,10 +32,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     onModuleInit() {
         const host = this.configService.get<string>('REDIS_HOST')!;
         const port = parseInt(this.configService.get<string>('REDIS_PORT')!, 10);
+        const username = this.configService.get<string>('REDIS_USERNAME') || 'default';
+        const password = this.configService.get<string>('REDIS_PASSWORD');
 
         this.client = new Redis({
             host,
             port,
+            ...(password ? { username, password } : {}),
             lazyConnect: true,
             retryStrategy: () => null, // Disable automatic retries so we don't spam logs on failure
             maxRetriesPerRequest: null,
