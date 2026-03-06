@@ -4,6 +4,8 @@ import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ProductCard, ProductCardSkeleton } from './ProductCard';
 
+import type { Product } from '@/types/product';
+
 // Realistically this would fetch based on product category or tags
 const fetchRelatedProducts = async () => {
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -20,7 +22,7 @@ const fetchRelatedProducts = async () => {
         attributes: {},
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-    }));
+    })) as unknown as Product[];
 };
 
 export function RelatedProducts() {

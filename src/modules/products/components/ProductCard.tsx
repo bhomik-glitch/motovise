@@ -11,19 +11,25 @@ import type { Product } from '@/types/product';
 
 import { useRouter } from 'next/navigation';
 
+export interface ProductCardProps {
+    product: Product;
+    className?: string;
+    onAddToCart?: (product: Product) => void;
+}
+
+const pastelColors = [
+    '#dbeafe', // blue-100
+    '#dcfce7', // green-100
+    '#fee2e2', // red-100
+    '#fef9c3', // yellow-100
+    '#f3e8ff', // purple-100
+    '#fce7f3', // pink-100
+    '#e0e7ff', // indigo-100
+    '#ffedd5'  // orange-100
+];
+
 export function ProductCard({ product, className, onAddToCart }: ProductCardProps) {
     const router = useRouter();
-
-    const pastelColors = [
-        '#dbeafe', // blue-100
-        '#dcfce7', // green-100
-        '#fee2e2', // red-100
-        '#fef9c3', // yellow-100
-        '#f3e8ff', // purple-100
-        '#fce7f3', // pink-100
-        '#e0e7ff', // indigo-100
-        '#ffedd5'  // orange-100
-    ];
 
     // Generate a mock rating and color based on ID
     const { rating, pastelColor } = React.useMemo(() => {

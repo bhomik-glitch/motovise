@@ -136,10 +136,10 @@ function ProductsContent() {
                                 <ProductCardSkeleton key={i} />
                             ))}
                         </ProductGrid>
-                    ) : productsData && productsData.products.length > 0 ? (
+                    ) : productsData && (productsData.products?.length ?? 0) > 0 ? (
                         <>
                             <ProductGrid>
-                                {productsData.products.map((product) => (
+                                {productsData?.products?.map((product) => (
                                     <ProductCard
                                         key={product.id}
                                         product={product}
@@ -148,8 +148,8 @@ function ProductsContent() {
                                 ))}
                             </ProductGrid>
                             <Pagination
-                                currentPage={productsData.page}
-                                totalPages={Math.ceil(productsData.total / productsData.limit)}
+                                currentPage={productsData?.page ?? 1}
+                                totalPages={Math.ceil((productsData?.total ?? 0) / (productsData?.limit ?? 10))}
                                 onPageChange={setPage}
                                 className="mt-12"
                             />
