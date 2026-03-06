@@ -379,12 +379,12 @@ model MetricsSnapshot {
 }
 
 model SystemConfig {
-  id              String          @id @default("singleton")
-  codThreshold    Int             @default(0)
-  fraudThreshold  Int             @default(60)
-  alertThreshold  Int             @default(10)
-  enforcementMode EnforcementMode @default(DISABLE)
-  updatedAt       DateTime        @updatedAt
+  id                      String   @id @default(cuid())
+  maxLoginAttempts        Int
+  fraudRiskThreshold      Int
+  enableEmailVerification Boolean
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
   @@map("system_config")
 }

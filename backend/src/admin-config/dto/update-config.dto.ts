@@ -1,26 +1,19 @@
-import { IsNumber, Min, Max, IsEnum, IsOptional } from 'class-validator';
-import { EnforcementMode } from '@prisma/client';
+import { IsNumber, Min, Max, IsBoolean, IsOptional } from 'class-validator';
 
 export class UpdateConfigDto {
     @IsOptional()
     @IsNumber()
-    @Min(0)
-    @Max(100)
-    codThreshold?: number;
+    @Min(1)
+    @Max(10)
+    maxLoginAttempts?: number;
 
     @IsOptional()
     @IsNumber()
     @Min(0)
     @Max(100)
-    fraudThreshold?: number;
+    fraudRiskThreshold?: number;
 
     @IsOptional()
-    @IsNumber()
-    @Min(0)
-    @Max(100)
-    alertThreshold?: number;
-
-    @IsOptional()
-    @IsEnum(EnforcementMode)
-    enforcementMode?: EnforcementMode;
+    @IsBoolean()
+    enableEmailVerification?: boolean;
 }

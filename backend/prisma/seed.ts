@@ -297,14 +297,13 @@ async function main() {
     // 9. Create SystemConfig
     console.log('⚙️  Creating system configuration...');
     await prisma.systemConfig.upsert({
-        where: { id: 'singleton' },
+        where: { id: 'DEFAULT_CONFIG' },
         update: {},
         create: {
-            id: 'singleton',
-            codThreshold: 0,
-            fraudThreshold: 60,
-            alertThreshold: 10,
-            enforcementMode: 'DISABLE'
+            id: 'DEFAULT_CONFIG',
+            maxLoginAttempts: 5,
+            fraudRiskThreshold: 80,
+            enableEmailVerification: false
         },
     });
 

@@ -5,7 +5,7 @@ import { UpdateConfigDto } from './dto/update-config.dto';
 @Injectable()
 export class AdminConfigService {
     private readonly logger = new Logger(AdminConfigService.name);
-    private readonly CONFIG_ID = 'singleton';
+    private readonly CONFIG_ID = 'DEFAULT_CONFIG';
 
     constructor(private readonly prisma: PrismaService) { }
 
@@ -13,7 +13,7 @@ export class AdminConfigService {
      * Gets the single canonical configuration record.
      */
     async getConfig() {
-        const config = await this.prisma.systemConfig.findUnique({
+        const config = await this.prisma.systemConfig.findFirst({
             where: { id: this.CONFIG_ID }
         });
 
@@ -36,10 +36,9 @@ export class AdminConfigService {
             const updated = await tx.systemConfig.update({
                 where: { id: this.CONFIG_ID },
                 data: {
-                    ...(dto.codThreshold !== undefined && { codThreshold: dto.codThreshold }),
-                    ...(dto.fraudThreshold !== undefined && { fraudThreshold: dto.fraudThreshold }),
-                    ...(dto.alertThreshold !== undefined && { alertThreshold: dto.alertThreshold }),
-                    ...(dto.enforcementMode !== undefined && { enforcementMode: dto.enforcementMode }),
+                    ...(dto.maxLoginAttempts !== undefined && { maxLoginAttempts: dto.maxLoginAttempts }),
+                    ...(dto.fraudRiskThreshold !== undefined && { fraudRiskThreshold: dto.fraudRiskThreshold }),
+                    ...(dto.enableEmailVerification !== undefined && { enableEmailVerification: dto.enableEmailVerification }),
                 }
             });
             this.logger.log('System configuration updated successfully.');
