@@ -5,15 +5,15 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 const ROLES = [
-    'Admin',
-    'Manager',
+    'ADMIN',
+    'MANAGER',
     'Product Manager',
     'Inventory Manager',
     'Support',
     'Finance',
     'Analyst',
     'Developer',
-    'Customer',
+    'CUSTOMER',
 ];
 
 const PERMISSIONS = [
@@ -37,8 +37,8 @@ const PERMISSIONS = [
 ];
 
 const ROLE_PERMISSIONS: Record<string, string[]> = {
-    'Admin': PERMISSIONS,
-    'Manager': [
+    'ADMIN': PERMISSIONS,
+    'MANAGER': [
         'product.create', 'product.update', 'product.delete',
         'price.change.approve.manager',
         'refund.approve.manager',
@@ -52,7 +52,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     'Finance': ['refund.approve.finance', 'analytics.view', 'export.bulk'],
     'Analyst': ['analytics.view', 'export.bulk', 'audit.view'],
     'Developer': ['audit.view', 'analytics.view'],
-    'Customer': []
+    'CUSTOMER': []
 };
 
 async function main() {
@@ -91,8 +91,10 @@ async function main() {
     console.log('🎭 Seeding Roles...');
     const roleMap: Record<string, string> = {};
     for (const name of ROLES) {
-        const role = await prisma.role.create({
-            data: { name, description: `Role ${name}` },
+        const role = await prisma.role.upsert({
+            where: { name },
+            update: {},
+            create: { name, description: `Role ${name}` },
         });
         roleMap[name] = role.id;
     }
@@ -123,9 +125,14 @@ async function main() {
     console.log('👥 Creating users...');
 
     // Admin
-    const adminRoleId = roleMap['Admin'];
-    await prisma.user.create({
-        data: {
+    const adminRoleId = roleMap['ADMIN'];
+    await prisma.user.upsert({
+        where: { email: 'admin@ecommerce.com' },
+        update: {
+            password: hashedPassword,
+            roleId: adminRoleId,
+        },
+        create: {
             email: 'admin@ecommerce.com',
             password: hashedPassword,
             name: 'Admin User',
@@ -137,11 +144,16 @@ async function main() {
     });
 
     // Customers
-    const customerRoleId = roleMap['Customer'];
+    const customerRoleId = roleMap['CUSTOMER'];
     const customers = [];
     for (let i = 1; i <= 20; i++) {
-        const customer = await prisma.user.create({
-            data: {
+        const customer = await prisma.user.upsert({
+            where: { email: `customer${i}@gmail.com` },
+            update: {
+                password: hashedPassword,
+                roleId: customerRoleId,
+            },
+            create: {
                 email: `customer${i}@gmail.com`,
                 password: hashedPassword,
                 name: `Customer ${i}`,

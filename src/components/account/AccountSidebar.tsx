@@ -7,7 +7,7 @@ import { motion } from "framer-motion"
 import { User, ShoppingBag, MapPin, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Card } from "@/components/ui/Card"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 
 const sidebarItems = [
     { name: "Profile", href: "/account", icon: User },
@@ -17,6 +17,7 @@ const sidebarItems = [
 
 export function AccountSidebar() {
     const pathname = usePathname()
+    const { data: session } = useSession()
 
     return (
         <Card className="p-2 md:p-4 border-b md:border-0 shadow-sm md:ring-1 md:ring-black/5 dark:md:ring-white/10 md:rounded-xl rounded-none md:overflow-hidden bg-white dark:bg-slate-950 flex-shrink-0 z-10 sticky top-0 md:static">
@@ -53,18 +54,22 @@ export function AccountSidebar() {
                         </Link>
                     )
                 })}
-                <div className="hidden md:block my-2 h-px bg-slate-100 dark:bg-slate-800" role="separator" />
-                <button
-                    onClick={() => signOut({ callbackUrl: "/" })}
-                    className="group flex items-center px-4 py-3 md:px-3 md:py-2 text-sm font-medium rounded-full md:rounded-lg text-destructive hover:bg-destructive/10 transition-all duration-200 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
-                    aria-label="Sign Out"
-                >
-                    <LogOut
-                        className="mr-2 md:mr-3 h-4 w-4 md:h-5 md:w-5 flex-shrink-0 text-destructive/70 group-hover:text-destructive"
-                        aria-hidden="true"
-                    />
-                    Sign Out
-                </button>
+                {session && (
+                    <>
+                        <div className="hidden md:block my-2 h-px bg-slate-100 dark:bg-slate-800" role="separator" />
+                        <button
+                            onClick={() => signOut({ callbackUrl: "/" })}
+                            className="group flex items-center px-4 py-3 md:px-3 md:py-2 text-sm font-medium rounded-full md:rounded-lg text-destructive hover:bg-destructive/10 transition-all duration-200 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive"
+                            aria-label="Sign Out"
+                        >
+                            <LogOut
+                                className="mr-2 md:mr-3 h-4 w-4 md:h-5 md:w-5 flex-shrink-0 text-destructive/70 group-hover:text-destructive"
+                                aria-hidden="true"
+                            />
+                            Sign Out
+                        </button>
+                    </>
+                )}
             </nav>
         </Card>
     )

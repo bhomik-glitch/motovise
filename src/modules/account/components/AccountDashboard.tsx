@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Badge } from "@/components/ui/Badge"
 import { ProfileHeader } from "@/components/account/ProfileHeader"
@@ -9,8 +10,15 @@ import { PageSkeleton } from "@/components/ui/PageSkeleton"
 
 export function AccountDashboard() {
     const { data: session, status } = useSession()
+    const router = useRouter()
 
-    if (status === "loading") {
+    React.useEffect(() => {
+        if (status === "unauthenticated") {
+            router.push("/login")
+        }
+    }, [status, router])
+
+    if (status === "loading" || status === "unauthenticated") {
         return <PageSkeleton />
     }
 
