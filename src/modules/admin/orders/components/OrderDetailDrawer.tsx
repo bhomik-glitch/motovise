@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import { X, Package, CreditCard, ShieldAlert, Truck, FileText, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatPrice } from '@/lib/utils';
 import { FraudScoreBadge } from './FraudScoreBadge';
 import { RiskBadge } from './RiskBadge';
 import { OrderActionsPanel } from './OrderActionsPanel';
@@ -63,9 +64,6 @@ function formatDate(iso: string) {
     }
 }
 
-function formatCurrency(amount: number) {
-    return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-}
 
 export function OrderDetailDrawer({ orderId, isOpen, onClose, onToast }: OrderDetailDrawerProps) {
     const { data: order, isLoading } = useOrderDetails(orderId);
@@ -152,7 +150,7 @@ export function OrderDetailDrawer({ orderId, isOpen, onClose, onToast }: OrderDe
                                         </span>
                                     }
                                 />
-                                <Row label="Total Amount" value={<span className="font-bold text-slate-900">{formatCurrency(order.totalAmount)}</span>} />
+                                <Row label="Total Amount" value={<span className="font-bold text-slate-900">{formatPrice(order.totalAmount)}</span>} />
                             </Section>
 
                             {/* Items */}
@@ -165,7 +163,7 @@ export function OrderDetailDrawer({ orderId, isOpen, onClose, onToast }: OrderDe
                                                     <p className="text-sm font-medium text-slate-800">{item.productName}</p>
                                                     <p className="text-xs text-slate-500">SKU: {item.sku} · Qty: {item.quantity}</p>
                                                 </div>
-                                                <p className="text-sm font-semibold text-slate-700">{formatCurrency(item.totalPrice)}</p>
+                                                <p className="text-sm font-semibold text-slate-700">{formatPrice(item.totalPrice)}</p>
                                             </div>
                                         ))}
                                     </div>

@@ -4,7 +4,7 @@ import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ShoppingCart, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-import { formatCurrency } from "@/lib/utils"
+import { formatPrice } from "@/lib/utils"
 import Image from "next/image"
 
 interface StickyAddToCartProps {
@@ -42,13 +42,13 @@ export function StickyAddToCart({ product, onAdd, isAdding, isVisible }: StickyA
                             </div>
                             <div className="min-w-0">
                                 <h3 className="font-semibold text-sm truncate">{product.name}</h3>
-                                <p className="text-sm font-medium text-primary">{formatCurrency(product.price)}</p>
+                                <p className="text-sm font-medium text-primary">{formatPrice(product.price)}</p>
                             </div>
                         </div>
 
                         <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
                             <div className="sm:hidden flex flex-col">
-                                <span className="font-semibold">{formatCurrency(product.price)}</span>
+                                <span className="font-semibold">{formatPrice(product.price)}</span>
                             </div>
 
                             <Button

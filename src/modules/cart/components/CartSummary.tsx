@@ -1,4 +1,4 @@
-import { formatCurrency } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -29,7 +29,7 @@ export function CartSummary({
                 transition={{ duration: 0.2 }}
                 className="inline-block"
             >
-                {formatCurrency(value)}
+                {formatPrice(value)}
             </motion.span>
         </AnimatePresence>
     );
@@ -56,14 +56,14 @@ export function CartSummary({
                         <span>Shipping estimate</span>
                     </dt>
                     <dd className="text-sm font-medium text-gray-900">
-                        {shippingEstimate === 0 ? 'Calculated at checkout' : formatCurrency(shippingEstimate)}
+                        {shippingEstimate === 0 ? 'Calculated at checkout' : formatPrice(shippingEstimate)}
                     </dd>
                 </div>
 
                 {taxEstimate > 0 && (
                     <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                         <dt className="flex text-sm text-gray-600">Tax estimate</dt>
-                        <dd className="text-sm font-medium text-gray-900">{formatCurrency(taxEstimate)}</dd>
+                        <dd className="text-sm font-medium text-gray-900">{formatPrice(taxEstimate)}</dd>
                     </div>
                 )}
 

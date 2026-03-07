@@ -3,6 +3,7 @@
 import React from 'react';
 import { AlertOctagon, ExternalLink, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatPrice } from '@/lib/utils';
 import { FraudScoreBadge } from './FraudScoreBadge';
 import { RiskBadge } from './RiskBadge';
 import type { Order } from '../orders.types';
@@ -50,10 +51,6 @@ function formatDate(iso: string) {
     } catch {
         return iso;
     }
-}
-
-function formatCurrency(amount: number) {
-    return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 }
 
 export function OrdersTable({ orders, isLoading, onRowClick }: OrdersTableProps) {
@@ -125,7 +122,7 @@ export function OrdersTable({ orders, isLoading, onRowClick }: OrdersTableProps)
                                     {order.customerName}
                                 </td>
                                 <td className="px-4 py-3.5 text-slate-800 font-semibold whitespace-nowrap">
-                                    {formatCurrency(order.totalAmount)}
+                                    {formatPrice(order.totalAmount)}
                                 </td>
                                 <td className="px-4 py-3.5 text-slate-600 whitespace-nowrap">
                                     {order.paymentMethod}

@@ -9,6 +9,7 @@ import {
     ChevronDown,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatPrice } from '@/lib/utils';
 import type { Payment } from '../payments.types';
 
 interface PaymentsTableProps {
@@ -36,13 +37,6 @@ function formatDate(iso: string) {
 }
 
 /** INR currency formatting — never display raw numbers on a financial dashboard */
-function formatCurrency(value: number) {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        minimumFractionDigits: 2,
-    }).format(value);
-}
 
 // ── Sub-components ─────────────────────────────────────────
 
@@ -179,12 +173,12 @@ export function PaymentsTable({ payments, isLoading, onViewAttempts }: PaymentsT
 
                                 {/* Amount (formatted INR) */}
                                 <td className="px-4 py-3.5 text-slate-800 font-semibold whitespace-nowrap">
-                                    {formatCurrency(payment.amount)}
+                                    {formatPrice(payment.amount)}
                                 </td>
 
                                 {/* Shipping cost */}
                                 <td className="px-4 py-3.5 text-slate-600 whitespace-nowrap">
-                                    {formatCurrency(payment.shippingCost)}
+                                    {formatPrice(payment.shippingCost)}
                                 </td>
 
                                 {/* Chargeback flag */}

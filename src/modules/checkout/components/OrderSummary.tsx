@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, ChevronDown, ChevronUp, Package } from "lucide-react";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { Cart } from "@/types/cart";
 import { ShippingMethod } from "@/types/checkout";
 
@@ -12,10 +12,6 @@ interface OrderSummaryProps {
     cart: Cart | undefined;
     shippingMethod: ShippingMethod | null;
     isLoading?: boolean;
-}
-
-function formatPrice(paise: number) {
-    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(paise / 100);
 }
 
 export function OrderSummary({ cart, shippingMethod, isLoading }: OrderSummaryProps) {
@@ -89,8 +85,8 @@ export function OrderSummary({ cart, shippingMethod, isLoading }: OrderSummaryPr
                                                 </span>
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium truncate">{item.product?.name}</p>
-                                                <p className="text-xs text-muted-foreground">
+                                                <p className="text-sm font-medium break-words leading-tight">{item.product?.name}</p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">
                                                     {formatPrice(item.product?.price ?? 0)} × {item.quantity}
                                                 </p>
                                             </div>

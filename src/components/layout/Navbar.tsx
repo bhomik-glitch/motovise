@@ -35,7 +35,7 @@ export function Navbar() {
         { href: '/products', label: 'Products' },
     ];
 
-    const cartCount = cart?.items?.length ?? 0;
+    const cartCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
     const actions = [
         { href: '/cart', icon: ShoppingBag, label: 'Cart', badge: cartCount > 0 ? cartCount : null },

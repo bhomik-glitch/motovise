@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { checkoutService } from "@/modules/checkout/services/checkoutService";
 import { Address } from "@/types/address";
 import { SHIPPING_METHODS, ShippingMethod } from "@/types/checkout";
@@ -27,10 +27,6 @@ interface ReviewStepProps {
     notes: string;
     onEdit: (step: "address" | "shipping" | "payment") => void;
     onBack: () => void;
-}
-
-function formatPrice(paise: number) {
-    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(paise / 100);
 }
 
 function Section({ title, onEdit, children }: { title: string; onEdit: () => void; children: React.ReactNode }) {
@@ -190,8 +186,8 @@ export function ReviewStep({ cart, address, shippingMethodId, paymentMethod, not
                                 />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">{item.product?.name}</p>
-                                <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                                <p className="text-sm font-medium break-words leading-tight">{item.product?.name}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">Qty: {item.quantity}</p>
                             </div>
                             <p className="text-sm font-medium flex-shrink-0">
                                 {formatPrice((item.product?.price ?? 0) * item.quantity)}

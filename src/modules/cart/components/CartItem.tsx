@@ -4,7 +4,7 @@ import { Trash2, RotateCcw } from 'lucide-react';
 import { motion, useDragControls, AnimatePresence } from 'framer-motion';
 import { CartItem as CartItemType } from '@/types/cart';
 import { QuantitySelector } from './QuantitySelector';
-import { formatCurrency } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils';
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 
@@ -131,13 +131,13 @@ export function CartItem({ item, onUpdateQuantity, onRemove, isUpdating, isRemov
                                 <p className="text-gray-500">{typeof product?.category === 'string' ? product.category : product?.category?.name || 'Category'}</p>
                             </div>
                             <p className="mt-1 text-sm font-medium text-gray-900 sm:hidden">
-                                {formatCurrency(product?.price || 0)}
+                                {formatPrice(product?.price || 0)}
                             </p>
                         </div>
 
                         <div className="mt-4 sm:mt-0 sm:pr-9 flex flex-col items-start sm:items-end justify-between">
                             <p className="hidden text-base font-medium text-gray-900 sm:block">
-                                {formatCurrency(itemTotal)}
+                                {formatPrice(itemTotal)}
                             </p>
 
                             <div className="mt-4 flex items-center gap-4">

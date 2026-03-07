@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Truck, Zap, Package, Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SHIPPING_METHODS, ShippingMethod } from "@/types/checkout";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 
 interface ShippingStepProps {
     selectedMethodId: string | null;
@@ -18,11 +18,6 @@ const ICONS: Record<string, React.ReactNode> = {
     express: <Zap size={18} />,
     "next-day": <Package size={18} />,
 };
-
-function formatPrice(paise: number) {
-    if (paise === 0) return "Free";
-    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(paise / 100);
-}
 
 export function ShippingStep({ selectedMethodId, onSelect, onNext, onBack }: ShippingStepProps) {
     return (
@@ -72,7 +67,7 @@ export function ShippingStep({ selectedMethodId, onSelect, onNext, onBack }: Shi
 
                             <div className="text-right flex-shrink-0">
                                 <p className={cn("text-sm font-bold", method.price === 0 && "text-green-600 dark:text-green-400")}>
-                                    {formatPrice(method.price)}
+                                    {method.price === 0 ? "Free" : formatPrice(method.price)}
                                 </p>
                                 <p className="text-[11px] text-muted-foreground">
                                     {method.estimatedDays === "1" ? "Tomorrow" : `${method.estimatedDays} days`}

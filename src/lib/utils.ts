@@ -17,3 +17,15 @@ export function formatCurrency(amount: number, currency: string = 'USD') {
         currency,
     }).format(amount);
 }
+
+/**
+ * Formats a price in INR.
+ * Safe for both paise and rupees as it doesn't auto-divide.
+ */
+export function formatPrice(price: number) {
+    return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 2,
+    }).format(price);
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatPrice } from '@/lib/utils';
 import { DashboardMetrics as IDashboardMetrics } from '../dashboard.types';
 import {
     TrendingUp,
@@ -32,14 +33,13 @@ export const DashboardMetrics: React.FC<Props> = ({ metrics, isLoading }) => {
         );
     }
 
-    const formatCurrency = (val: number) => `$${val.toFixed(2)}`;
     const formatPercent = (val: number) => `${val.toFixed(2)}%`;
     const formatNumber = (val: number) => val.toLocaleString();
 
     const metricCards = [
         {
             label: 'MTD GMV',
-            value: formatCurrency(metrics.mtdGMV || 0),
+            value: formatPrice(metrics.mtdGMV || 0),
             icon: <DollarSign className="w-5 h-5 text-emerald-500" />,
             trend: 'up',
             bgColor: 'bg-emerald-50'
@@ -74,7 +74,7 @@ export const DashboardMetrics: React.FC<Props> = ({ metrics, isLoading }) => {
         },
         {
             label: 'Avg Shipping Cost',
-            value: formatCurrency(metrics.avgShippingCost || 0),
+            value: formatPrice(metrics.avgShippingCost || 0),
             icon: <Truck className="w-5 h-5 text-slate-500" />,
             trend: null,
             bgColor: 'bg-slate-50'

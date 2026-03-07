@@ -11,6 +11,7 @@ import { ShippingStep } from "./steps/ShippingStep";
 import { PaymentStep } from "./steps/PaymentStep";
 import { ReviewStep } from "./steps/ReviewStep";
 import { useCart } from "@/modules/cart/hooks/useCart";
+import { useRouter } from "next/navigation";
 import { addressService } from "@/modules/account/services/addressService";
 import { CheckoutStep, SHIPPING_METHODS } from "@/types/checkout";
 import { queryKeys } from "@/lib/queryKeys";
@@ -33,6 +34,7 @@ const stepVariants = {
 };
 
 export function CheckoutContainer() {
+    const router = useRouter();
     const [currentStep, setCurrentStep] = useState<CheckoutStep>("address");
     const [direction, setDirection] = useState(1);
     const [completedSteps, setCompletedSteps] = useState<Record<CheckoutStep, boolean>>({
@@ -54,6 +56,12 @@ export function CheckoutContainer() {
     });
 
     const { status } = useSession();
+
+    // Redirect if cart is empty after loading
+    if (!cartLoading && (!cart || (cart.items && cart.items.length === 0))) {
+        router.push("/cart");
+        return null;
+    }
 
     const { data: addresses } = useQuery({
         queryKey: queryKeys.addresses,

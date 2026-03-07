@@ -9,7 +9,7 @@ import { ChevronLeft, Package, CreditCard, MapPin, ExternalLink, RefreshCcw } fr
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
 import { OrderTimeline, OrderTimelineStatus } from '@/components/account/OrderTimeline'
-import { formatCurrency } from '@/lib/utils'
+import { formatPrice } from '@/lib/utils'
 
 // Mock fetching order detail
 const mockOrder = {
@@ -140,10 +140,10 @@ export default function OrderDetailPage() {
                                                 <h3 className="font-medium text-sm sm:text-base line-clamp-2">{item.name}</h3>
                                                 <p className="mt-1 text-sm text-muted-foreground">Qty: {item.quantity}</p>
                                             </div>
-                                            <p className="text-sm font-semibold mt-2 sm:mt-0">{formatCurrency(item.price)}</p>
+                                            <p className="text-sm font-semibold mt-2 sm:mt-0">{formatPrice(item.price)}</p>
                                         </div>
                                         <p className="text-xs font-medium text-muted-foreground flex justify-end">
-                                            Line Total: <span className="text-foreground ml-1">{formatCurrency(item.price * item.quantity)}</span>
+                                            Line Total: <span className="text-foreground ml-1">{formatPrice(item.price * item.quantity)}</span>
                                         </p>
                                     </div>
                                 </motion.div>
@@ -164,17 +164,17 @@ export default function OrderDetailPage() {
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Subtotal</span>
-                                    <span>{formatCurrency(mockOrder.subtotal)}</span>
+                                    <span>{formatPrice(mockOrder.subtotal)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Shipping</span>
-                                    <span>{formatCurrency(mockOrder.shippingFee)}</span>
+                                    <span>{formatPrice(mockOrder.shippingFee)}</span>
                                 </div>
                             </div>
                             <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                                 <div className="flex justify-between font-semibold">
                                     <span>Total</span>
-                                    <span>{formatCurrency(mockOrder.totalAmount)}</span>
+                                    <span>{formatPrice(mockOrder.totalAmount)}</span>
                                 </div>
                                 <div className="mt-2 text-xs text-muted-foreground flex justify-between">
                                     <span>Status</span>
