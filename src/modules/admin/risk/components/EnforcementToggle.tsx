@@ -30,10 +30,9 @@ export function EnforcementToggle({ config }: EnforcementToggleProps) {
     };
 
     return (
-        <div className="bg-white p-6 border border-gray-200 rounded-lg shadow-sm mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white rounded-xl border p-6 flex flex-col gap-4">
             <div>
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <Shield size={20} className="text-gray-500" />
+                <h3 className="text-sm font-semibold text-gray-900">
                     COD Enforcement Mode
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">
@@ -41,26 +40,39 @@ export function EnforcementToggle({ config }: EnforcementToggleProps) {
                 </p>
             </div>
 
-            <div className="w-full md:w-auto grid grid-cols-2 gap-2 relative group">
-                <Button
-                    variant={activeMode === 'DISABLE' ? 'default' : 'outline'}
-                    disabled={!canUpdate || updateConfig.isPending}
-                    onClick={() => handleModeChange('DISABLE')}
-                    className="w-full"
-                >
-                    Disable
-                </Button>
-                <Button
-                    variant={activeMode === 'FLAG' ? 'default' : 'outline'}
-                    disabled={!canUpdate || updateConfig.isPending}
-                    onClick={() => handleModeChange('FLAG')}
-                    className="w-full"
-                >
-                    Flag
-                </Button>
+            <div className="flex justify-start relative group">
+                <div className={cn(
+                    "flex rounded-lg border bg-gray-100 p-1",
+                    !canUpdate && "opacity-60 cursor-not-allowed"
+                )}>
+                    <button
+                        onClick={() => handleModeChange('DISABLE')}
+                        disabled={!canUpdate || updateConfig.isPending}
+                        className={cn(
+                            "px-4 py-1.5 text-sm rounded-md transition-all duration-200 ease-out active:scale-95",
+                            activeMode === 'DISABLE'
+                                ? "bg-white shadow text-gray-900"
+                                : "text-gray-500 hover:text-gray-700 hover:bg-white/60"
+                        )}
+                    >
+                        Disable
+                    </button>
+                    <button
+                        onClick={() => handleModeChange('FLAG')}
+                        disabled={!canUpdate || updateConfig.isPending}
+                        className={cn(
+                            "px-4 py-1.5 text-sm rounded-md transition-all duration-200 ease-out active:scale-95",
+                            activeMode === 'FLAG'
+                                ? "bg-white shadow text-gray-900"
+                                : "text-gray-500 hover:text-gray-700 hover:bg-white/60"
+                        )}
+                    >
+                        Flag
+                    </button>
+                </div>
 
                 {!canUpdate && (
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs py-1 px-2 rounded pointer-events-none">
+                    <div className="absolute bottom-full left-0 mb-2 w-max opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs py-1 px-2 rounded pointer-events-none">
                         Insufficient permission
                     </div>
                 )}
