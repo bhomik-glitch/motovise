@@ -281,52 +281,73 @@ async function main() {
 
     // 7. Create Addresses
     console.log('📍 Creating addresses...');
-    const addresses = [];
-    for (let i = 0; i < 15; i++) {
-        const customer = customers[i];
-        let address = await prisma.address.findFirst({ where: { userId: customer.id } });
-        if (!address) {
-            address = await prisma.address.create({
-                data: {
-                    userId: customer.id,
-                    fullName: customer.name,
-                    phone: customer.phone || '+1-555-9999',
-                    addressLine1: `${100 + i} Main St`,
-                    city: 'New York',
-                    state: 'NY',
-                    postalCode: `${10000 + i}`,
-                    country: 'USA',
-                    isDefault: true,
-                },
-            });
+    try {
+        const addresses = [];
+        // Only seed addresses for the first 15 customers found
+        for (const customer of customers.slice(0, 15)) {
+            let address = await prisma.address.findFirst({ where: { userId: customer.id } });
+            if (!address) {
+                address = await prisma.address.create({
+                    data: {
+                        userId: customer.id,
+                        fullName: customer.name,
+                        phone: customer.phone || '+1-555-9999',
+                        addressLine1: `${100 + Math.floor(Math.random() * 900)} Main St`,
+                        city: 'New York',
+                        state: 'NY',
+                        postalCode: `${10000 + Math.floor(Math.random() * 90000)}`,
+                        country: 'USA',
+                        isDefault: true,
+                    },
+                });
+            }
+            addresses.push(address);
         }
-        addresses.push(address);
+        console.log(`✅ Seeded ${addresses.length} addresses`);
+    } catch (error) {
+        console.warn('⚠️ Address seeding skipped:', error.message);
     }
 
     // 8. Create Carts
     console.log('🛒 Creating carts...');
-    for (let i = 0; i < 10; i++) {
-        const customer = customers[i];
-        const cart = await prisma.cart.upsert({
-            where: { userId: customer.id },
-            update: {},
-            create: { userId: customer.id },
-        });
+    try {
+        const dbProducts = await prisma.product.findMany();
+        if (!customers.length || !dbProducts.length) {
+            console.log("⚠️ Skipping cart seed (missing users or products)");
+        } else {
+            const cartsSeeded = [];
+            for (const customer of customers.slice(0, 10)) {
+                const cart = await prisma.cart.upsert({
+                    where: { userId: customer.id },
+                    update: {},
+                    create: { userId: customer.id },
+                });
 
-        await prisma.cartItem.upsert({
-            where: {
-                cartId_productId: {
-                    cartId: cart.id,
-                    productId: products[i % 25].id,
+                // Pick a random product from what's actually in the DB
+                const product = dbProducts[Math.floor(Math.random() * dbProducts.length)];
+
+                if (product) {
+                    await prisma.cartItem.upsert({
+                        where: {
+                            cartId_productId: {
+                                cartId: cart.id,
+                                productId: product.id,
+                            }
+                        },
+                        update: {},
+                        create: {
+                            cartId: cart.id,
+                            productId: product.id,
+                            quantity: 1,
+                        },
+                    });
+                    cartsSeeded.push(cart);
                 }
-            },
-            update: {},
-            create: {
-                cartId: cart.id,
-                productId: products[i % 25].id,
-                quantity: 2,
-            },
-        });
+            }
+            console.log(`✅ Seeded ${cartsSeeded.length} carts with items`);
+        }
+    } catch (error) {
+        console.warn('⚠️ Cart seeding skipped:', error.message);
     }
 
     // 9. Create SystemConfig
