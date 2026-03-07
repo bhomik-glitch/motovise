@@ -101,7 +101,7 @@ export function ReviewStep({ cart, address, shippingMethodId, paymentMethod, not
         },
         onSuccess: ({ orderId, orderNumber, paymentStatus }) => {
             setPlaced(true);
-            queryClient.invalidateQueries({ queryKey: ["cart"] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.cart });
             setTimeout(() => {
                 router.push(`/success?orderId=${orderId}&orderNumber=${orderNumber}&paymentStatus=${paymentStatus}`);
             }, 600);

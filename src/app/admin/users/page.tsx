@@ -5,6 +5,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { useUsers } from '@/modules/admin/rbac/hooks/useUsers';
 import { useRoles } from '@/modules/admin/rbac/hooks/useRoles';
 import { UsersTable } from '@/modules/admin/rbac/users/UsersTable';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function UsersManagementPage() {
     const { data: users = [], isLoading: isLoadingUsers, error: usersError } = useUsers();
@@ -34,8 +35,10 @@ export default function UsersManagementPage() {
                 )}
 
                 {isLoading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <div className="space-y-3">
+                        {[...Array(8)].map((_, i) => (
+                            <Skeleton key={i} className="h-12 w-full rounded-lg" />
+                        ))}
                     </div>
                 ) : (
                     <UsersTable users={users} roles={roles} />

@@ -4,6 +4,7 @@ import React from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { useRoles } from '@/modules/admin/rbac/hooks/useRoles';
 import { RolesTable } from '@/modules/admin/rbac/roles/RolesTable';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function RolesManagementPage() {
     const { data: roles = [], isLoading, error } = useRoles();
@@ -29,8 +30,10 @@ export default function RolesManagementPage() {
                 )}
 
                 {isLoading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <div className="space-y-3">
+                        {[...Array(6)].map((_, i) => (
+                            <Skeleton key={i} className="h-12 w-full rounded-lg" />
+                        ))}
                     </div>
                 ) : (
                     <RolesTable roles={roles} />

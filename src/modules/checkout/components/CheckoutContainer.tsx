@@ -13,6 +13,7 @@ import { ReviewStep } from "./steps/ReviewStep";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { addressService } from "@/modules/account/services/addressService";
 import { CheckoutStep, SHIPPING_METHODS } from "@/types/checkout";
+import { queryKeys } from "@/lib/queryKeys";
 
 const STEP_ORDER: CheckoutStep[] = ["address", "shipping", "payment", "review"];
 
@@ -47,12 +48,15 @@ export function CheckoutContainer() {
     const [paymentMethod, setPaymentMethod] = useState<"RAZORPAY" | "COD" | null>(null);
     const [notes] = useState("");
 
-    const { cart, isLoading: cartLoading } = useCart();
+    const { cart, isLoading: cartLoading } = useCart({
+        refetchOnWindowFocus: false,
+        staleTime: 0,
+    });
 
     const { status } = useSession();
 
     const { data: addresses } = useQuery({
-        queryKey: ["addresses"],
+        queryKey: queryKeys.addresses,
         queryFn: addressService.getAddresses,
         enabled: status === 'authenticated',
     });

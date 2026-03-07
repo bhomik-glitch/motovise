@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { adminRBACService } from '../adminRBACService';
+import { queryKeys } from '@/lib/queryKeys';
 
 export const useUsers = () => {
     return useQuery({
-        queryKey: ['admin', 'users'],
+        queryKey: queryKeys.users,
         queryFn: () => adminRBACService.fetchUsers(),
     });
 };

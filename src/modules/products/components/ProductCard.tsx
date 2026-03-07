@@ -15,6 +15,7 @@ export interface ProductCardProps {
     product: Product;
     className?: string;
     onAddToCart?: (product: Product) => void;
+    isLoading?: boolean;
 }
 
 const pastelColors = [
@@ -28,7 +29,7 @@ const pastelColors = [
     '#ffedd5'  // orange-100
 ];
 
-export function ProductCard({ product, className, onAddToCart }: ProductCardProps) {
+export function ProductCard({ product, className, onAddToCart, isLoading }: ProductCardProps) {
     const router = useRouter();
 
     // Generate a mock rating and color based on ID
@@ -119,11 +120,13 @@ export function ProductCard({ product, className, onAddToCart }: ProductCardProp
                 <div className="absolute inset-x-0 bottom-0 z-20 translate-y-full px-4 pb-4 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
                     <Button
                         onClick={handleAddToCart}
-                        disabled={product.stock <= 0}
+                        disabled={product.stock <= 0 || isLoading}
                         className="w-full rounded-xl py-6 font-semibold shadow-lg"
                         size="lg"
                     >
-                        {product.stock > 0 ? (
+                        {isLoading ? (
+                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        ) : product.stock > 0 ? (
                             <>
                                 <ShoppingCart className="mr-2 h-5 w-5" />
                                 Add to Cart
