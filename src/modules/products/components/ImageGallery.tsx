@@ -46,8 +46,15 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
     if (!images || images.length === 0) {
         return (
-            <div className="flex aspect-square w-full items-center justify-center rounded-3xl bg-muted">
-                <p className="text-muted-foreground">No imagery available</p>
+            <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-muted ring-1 ring-border">
+                <Image
+                    src="/images/product-placeholder.png"
+                    alt="Product placeholder"
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority
+                />
             </div>
         );
     }
@@ -70,25 +77,19 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                         onClick={() => !isCurrentErrored && setIsZoomed(!isZoomed)}
                         onMouseLeave={() => setIsZoomed(false)}
                     >
-                        {!isCurrentErrored ? (
-                            <Image
-                                src={images[currentIndex]}
-                                alt={`${productName} - Image ${currentIndex + 1}`}
-                                fill
-                                className={cn(
-                                    "object-cover object-center transition-transform duration-200",
-                                    isZoomed ? "scale-[2]" : "scale-100"
-                                )}
-                                style={isZoomed ? { transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` } : undefined}
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                                priority
-                                onError={() => handleImageError(currentIndex)}
-                            />
-                        ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-blue-50">
-                                <p className="text-muted-foreground text-sm font-medium">Image unavailable</p>
-                            </div>
-                        )}
+                        <Image
+                            src={(!isCurrentErrored && images[currentIndex]) ? images[currentIndex] : "/images/product-placeholder.png"}
+                            alt={`${productName} - Image ${currentIndex + 1}`}
+                            fill
+                            className={cn(
+                                "object-cover object-center transition-transform duration-200",
+                                isZoomed ? "scale-[2]" : "scale-100"
+                            )}
+                            style={isZoomed ? { transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` } : undefined}
+                            sizes="(max-width: 768px) 100vw, 600px"
+                            priority
+                            onError={() => handleImageError(currentIndex)}
+                        />
                     </motion.div>
                 </AnimatePresence>
 
@@ -147,18 +148,14 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                                     currentIndex === idx ? "ring-primary opacity-100" : "ring-transparent opacity-60"
                                 )}
                             >
-                                {!isErrored ? (
-                                    <Image
-                                        src={img}
-                                        alt={`Thumbnail ${idx + 1}`}
-                                        fill
-                                        className="object-cover object-center"
-                                        sizes="10vw"
-                                        onError={() => handleImageError(idx)}
-                                    />
-                                ) : (
-                                    <div className="h-full w-full bg-blue-50" />
-                                )}
+                                <Image
+                                    src={(!isErrored && img) ? img : "/images/product-placeholder.png"}
+                                    alt={`${productName} thumbnail ${idx + 1}`}
+                                    width={80}
+                                    height={80}
+                                    className="h-full w-full object-cover object-center"
+                                    onError={() => handleImageError(idx)}
+                                />
                             </button>
                         );
                     })}

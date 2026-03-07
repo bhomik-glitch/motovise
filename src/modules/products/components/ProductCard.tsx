@@ -73,8 +73,8 @@ export function ProductCard({ product, className, onAddToCart }: ProductCardProp
             )}
         >
             {/* Image Container */}
-            <div className="relative aspect-[4/5] w-full overflow-hidden">
-                {/* Pastel Box Placeholder */}
+            <div className="relative aspect-square w-full overflow-hidden">
+                {/* Pastel Box Placeholder (Visual interest) */}
                 <div
                     className="absolute inset-0 z-0"
                     style={{ backgroundColor: pastelColor }}
@@ -100,22 +100,20 @@ export function ProductCard({ product, className, onAddToCart }: ProductCardProp
                 </div>
 
                 {/* Main Image with Zoom on Hover */}
-                {product.images?.length > 0 && !imageError && (
-                    <motion.div
-                        className="relative h-full w-full z-10"
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ duration: 0.4, ease: 'easeOut' }}
-                    >
-                        <Image
-                            src={product.images[0]}
-                            alt={product.name}
-                            fill
-                            className="object-cover object-center"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                            onError={() => setImageError(true)}
-                        />
-                    </motion.div>
-                )}
+                <motion.div
+                    className="relative h-full w-full z-10"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                >
+                    <Image
+                        src={(!imageError && (product.thumbnail || (product.images && product.images.length > 0))) ? (product.thumbnail || product.images![0]) : '/images/product-placeholder.png'}
+                        alt={product.name}
+                        fill
+                        className="object-cover object-center"
+                        sizes="(max-width:768px) 50vw, (max-width:1200px) 33vw, 25vw"
+                        onError={() => setImageError(true)}
+                    />
+                </motion.div>
 
                 {/* Quick Add to Cart Button */}
                 <div className="absolute inset-x-0 bottom-0 z-20 translate-y-full px-4 pb-4 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">

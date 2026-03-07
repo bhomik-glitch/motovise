@@ -76,22 +76,79 @@ async function main() {
         isFeatured: boolean;
     };
 
-    const products: ProductSeed[] = Array.from({ length: 20 }, (_, i) => {
-        const n = i + 1;
-        const price = 499 + n * 100; // 599 → 2499
-        return {
-            name: `Product ${n}`,
-            slug: `product-${n}`,
-            price,
-            compareAtPrice: Math.round(price * 1.2),
-            stock: 50 + n * 5,         // 55 → 150
-            description: `Test product ${n} for end-to-end system validation. This product is used to verify the browsing, cart, checkout, and order creation flows.`,
-            thumbnail: `${PLACEHOLDER_IMAGE}+${n}`,
-            images: [`${PLACEHOLDER_IMAGE}+${n}`],
+    const products: ProductSeed[] = [
+        {
+            name: "Duo ConnectX Wireless CarPlay Adapter",
+            slug: "duo-connectx",
+            price: 7999,
+            compareAtPrice: 9999,
+            stock: 45,
+            description: "Upgrade your car to wireless CarPlay with the Duo ConnectX. Fast stable connection, automatic pairing, and zero latency. Compatible with all factory CarPlay cars.",
+            thumbnail: "/images/products/duo-connectx/1.png",
+            images: [
+                "/images/products/duo-connectx/1.png",
+                "/images/products/duo-connectx/2.png",
+                "/images/products/duo-connectx/3.png",
+                "/images/products/duo-connectx/4.png",
+                "/images/products/duo-connectx/5.png",
+                "/images/products/duo-connectx/6.png",
+                "/images/products/duo-connectx/7.png",
+                "/images/products/duo-connectx/8.png",
+                "/images/products/duo-connectx/9.png"
+            ],
             isActive: true,
-            isFeatured: n <= 4,        // first 4 are featured
-        };
-    });
+            isFeatured: true,
+        },
+        {
+            name: "Duo Connect B Wireless CarPlay Adapter",
+            slug: "duo-connect-b",
+            price: 6499,
+            compareAtPrice: 7999,
+            stock: 30,
+            description: "The classic Duo Connect B offers a slim design and reliable performance. Enjoy high-quality audio and responsive touch controls without the cables.",
+            thumbnail: "/images/products/duo-connect-b/1.png",
+            images: [
+                "/images/products/duo-connect-b/1.png",
+                "/images/products/duo-connect-b/2.png",
+                "/images/products/duo-connect-b/3.png",
+                "/images/products/duo-connect-b/4.png",
+                "/images/products/duo-connect-b/5.png",
+                "/images/products/duo-connect-b/6.png",
+                "/images/products/duo-connect-b/7.png",
+                "/images/products/duo-connect-b/8.png",
+                "/images/products/duo-connect-b/9.png",
+                "/images/products/duo-connect-b/10.png",
+                "/images/products/duo-connect-b/11.png",
+                "/images/products/duo-connect-b/12.png"
+            ],
+            isActive: true,
+            isFeatured: true,
+        },
+        {
+            name: "Playbox Max Video Box CarPlay Adapter",
+            slug: "playbox-max",
+            price: 12999,
+            compareAtPrice: 15999,
+            stock: 20,
+            description: "Transform your car screen into a powerful android tablet. Watch YouTube, Netflix, and more on your car display. Supports wireless CarPlay and Android Auto.",
+            thumbnail: "/images/products/playbox-max/1.png",
+            images: ["/images/products/playbox-max/1.png"],
+            isActive: true,
+            isFeatured: true,
+        },
+        {
+            name: "Y2 CarPlay Adapter",
+            slug: "y2-adapter",
+            price: 5499,
+            compareAtPrice: 6999,
+            stock: 50,
+            description: "Compact and efficient, the Y2 adapter is the perfect entry-level solution for wireless CarPlay. Mini size, hidden design, and high performance.",
+            thumbnail: "/images/products/y2-adapter/1.png",
+            images: ["/images/products/y2-adapter/1.png"],
+            isActive: true,
+            isFeatured: true,
+        }
+    ];
 
     // ── 3. Upsert products (idempotent — safe to run multiple times) ─────────────
     let created = 0;

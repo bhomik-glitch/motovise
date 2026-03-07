@@ -114,14 +114,14 @@ function FeaturedProductCard({
             <Link href={`/product/${product.slug}`} className="absolute inset-0 z-10" aria-label={product.name} />
 
             {/* Image */}
-            <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F8FAFC]">
+            <div className="relative aspect-square w-full overflow-hidden bg-[#F8FAFC]">
                 <Image
-                    src={productImage}
+                    src={product.thumbnail || product.images?.[0] || "/images/product-placeholder.png"}
                     alt={product.name}
                     fill
                     className="object-cover transition-transform duration-500"
                     style={{ transform: hovered ? 'scale(1.05)' : 'scale(1)' }}
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    sizes="(max-width:768px) 50vw, 300px"
                 />
 
                 {/* Badge (Mocking since real data might not have it) */}

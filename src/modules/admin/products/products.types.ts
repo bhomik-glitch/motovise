@@ -19,6 +19,8 @@ export interface Product {
         name: string;
     };
     categoryId: string;
+    images?: string[];
+    thumbnail?: string;
     createdAt: string;
 }
 

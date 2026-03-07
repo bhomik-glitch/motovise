@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -176,15 +177,14 @@ export function ReviewStep({ cart, address, shippingMethodId, paymentMethod, not
                 <div className="space-y-3">
                     {cart?.items.map((item) => (
                         <div key={item.productId} className="flex gap-3 items-center">
-                            <div className="h-12 w-12 rounded-lg bg-muted overflow-hidden flex-shrink-0 ring-1 ring-black/5">
-                                {item.product?.images?.[0] ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={item.product.images[0]} alt={item.product.name} className="h-full w-full object-cover" />
-                                ) : (
-                                    <div className="h-full w-full flex items-center justify-center text-muted-foreground">
-                                        <Package size={16} />
-                                    </div>
-                                )}
+                            <div className="relative h-12 w-12 rounded-lg bg-muted overflow-hidden flex-shrink-0 ring-1 ring-black/5">
+                                <Image
+                                    src={item.product?.thumbnail || item.product?.images?.[0] || '/images/product-placeholder.png'}
+                                    alt={item.product?.name || "Product"}
+                                    fill
+                                    className="object-cover"
+                                    sizes="48px"
+                                />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium truncate">{item.product?.name}</p>

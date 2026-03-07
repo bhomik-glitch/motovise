@@ -107,20 +107,14 @@ export function CartItem({ item, onUpdateQuantity, onRemove, isUpdating, isRemov
                 }}
                 className="flex py-6 sm:py-8 bg-white dark:bg-slate-950 relative z-10 w-full cursor-grab active:cursor-grabbing"
             >
-                <div className="flex-shrink-0 relative w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shadow-sm pointer-events-none">
-                    {product?.images?.[0] ? (
-                        <Image
-                            src={product.images[0]}
-                            alt={product.name}
-                            fill
-                            className="object-cover object-center"
-                            sizes="(max-width: 768px) 96px, 128px"
-                        />
-                    ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                            No image
-                        </div>
-                    )}
+                <div className="flex-shrink-0 relative aspect-square w-20 sm:w-24 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shadow-sm pointer-events-none">
+                    <Image
+                        src={product?.thumbnail || product?.images?.[0] || '/images/product-placeholder.png'}
+                        alt={product?.name || 'Product'}
+                        fill
+                        className="object-cover object-center"
+                        sizes="80px"
+                    />
                 </div>
 
                 <div className="ml-4 flex-1 flex flex-col justify-between sm:ml-6">

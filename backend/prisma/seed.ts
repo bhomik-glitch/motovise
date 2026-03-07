@@ -183,89 +183,101 @@ async function main() {
 
     // 6. Create Products
     console.log('🛍️  Creating products...');
+    const productsData = [
+        {
+            name: "Duo ConnectX Wireless CarPlay Adapter",
+            slug: "duo-connectx",
+            price: 7999,
+            stock: 45,
+            description: "Upgrade your car to wireless CarPlay with the Duo ConnectX. Fast stable connection, automatic pairing, and zero latency. Compatible with all factory CarPlay cars.",
+            thumbnail: "/images/products/duo-connectx/1.png",
+            images: [
+                "/images/products/duo-connectx/1.png",
+                "/images/products/duo-connectx/2.png",
+                "/images/products/duo-connectx/3.png",
+                "/images/products/duo-connectx/4.png",
+                "/images/products/duo-connectx/5.png",
+                "/images/products/duo-connectx/6.png",
+                "/images/products/duo-connectx/7.png",
+                "/images/products/duo-connectx/8.png",
+                "/images/products/duo-connectx/9.png"
+            ],
+            isActive: true,
+            isFeatured: true,
+            categoryId: categories[0].id,
+        },
+        {
+            name: "Duo Connect B Wireless CarPlay Adapter",
+            slug: "duo-connect-b",
+            price: 6499,
+            stock: 30,
+            description: "The classic Duo Connect B offers a slim design and reliable performance. Enjoy high-quality audio and responsive touch controls without the cables.",
+            thumbnail: "/images/products/duo-connect-b/1.png",
+            images: [
+                "/images/products/duo-connect-b/1.png",
+                "/images/products/duo-connect-b/2.png",
+                "/images/products/duo-connect-b/3.png",
+                "/images/products/duo-connect-b/4.png",
+                "/images/products/duo-connect-b/5.png",
+                "/images/products/duo-connect-b/6.png",
+                "/images/products/duo-connect-b/7.png",
+                "/images/products/duo-connect-b/8.png",
+                "/images/products/duo-connect-b/9.png",
+                "/images/products/duo-connect-b/10.png",
+                "/images/products/duo-connect-b/11.png",
+                "/images/products/duo-connect-b/12.png"
+            ],
+            isActive: true,
+            isFeatured: true,
+            categoryId: categories[0].id,
+        },
+        {
+            name: "Playbox Max Video Box CarPlay Adapter",
+            slug: "playbox-max",
+            price: 12999,
+            stock: 20,
+            description: "Transform your car screen into a powerful android tablet. Watch YouTube, Netflix, and more on your car display. Supports wireless CarPlay and Android Auto.",
+            thumbnail: "/images/products/playbox-max/1.png",
+            images: ["/images/products/playbox-max/1.png"],
+            isActive: true,
+            isFeatured: true,
+            categoryId: categories[0].id,
+        },
+        {
+            name: "Y2 CarPlay Adapter",
+            slug: "y2-adapter",
+            price: 5499,
+            stock: 50,
+            description: "Compact and efficient, the Y2 adapter is the perfect entry-level solution for wireless CarPlay. Mini size, hidden design, and high performance.",
+            thumbnail: "/images/products/y2-adapter/1.png",
+            images: ["/images/products/y2-adapter/1.png"],
+            isActive: true,
+            isFeatured: true,
+            categoryId: categories[0].id,
+        }
+    ];
+
     const products = [];
-
-    // 5 low stock (5-10)
-    for (let i = 0; i < 5; i++) {
-        const slug = `low-stock-${i + 1}`;
+    for (const p of productsData) {
         const product = await prisma.product.upsert({
-            where: { slug },
-            update: {},
-            create: {
-                name: `Low Stock Product ${i + 1}`,
-                description: 'Test product',
-                price: 50 + i * 10,
-                stock: 5 + i,
-                categoryId: categories[i % 5].id,
-                slug,
-                images: ['https://via.placeholder.com/300'],
-                isActive: true,
+            where: { slug: p.slug },
+            update: {
+                name: p.name,
+                description: p.description,
+                price: p.price,
+                stock: p.stock,
+                categoryId: p.categoryId,
+                thumbnail: p.thumbnail,
+                images: p.images,
+                isActive: p.isActive,
+                isFeatured: p.isFeatured,
             },
+            create: p,
         });
         products.push(product);
     }
 
-    // 10 medium stock (20-50)
-    for (let i = 0; i < 10; i++) {
-        const slug = `medium-stock-${i + 1}`;
-        const product = await prisma.product.upsert({
-            where: { slug },
-            update: {},
-            create: {
-                name: `Medium Stock Product ${i + 1}`,
-                description: 'Test product',
-                price: 30 + i * 5,
-                stock: 20 + i * 3,
-                categoryId: categories[i % 5].id,
-                slug,
-                images: ['https://via.placeholder.com/300'],
-                isActive: true,
-            },
-        });
-        products.push(product);
-    }
-
-    // 10 high stock (100+)
-    for (let i = 0; i < 10; i++) {
-        const slug = `high-stock-${i + 1}`;
-        const product = await prisma.product.upsert({
-            where: { slug },
-            update: {},
-            create: {
-                name: `High Stock Product ${i + 1}`,
-                description: 'Test product',
-                price: 15 + i * 2,
-                stock: 100 + i * 50,
-                categoryId: categories[i % 5].id,
-                slug,
-                images: ['https://via.placeholder.com/300'],
-                isActive: true,
-            },
-        });
-        products.push(product);
-    }
-
-    // 5 inactive
-    for (let i = 0; i < 5; i++) {
-        const slug = `inactive-${i + 1}`;
-        const product = await prisma.product.upsert({
-            where: { slug },
-            update: {},
-            create: {
-                name: `Inactive Product ${i + 1}`,
-                description: 'Test product',
-                price: 25,
-                stock: 50,
-                categoryId: categories[i % 5].id,
-                slug,
-                images: ['https://via.placeholder.com/300'],
-                isActive: false,
-            },
-        });
-        products.push(product);
-    }
-
-    console.log(`✅ Created ${products.length} products\n`);
+    console.log(`✅ Upserted ${products.length} real products\n`);
 
     // 7. Create Addresses
     console.log('📍 Creating addresses...');
