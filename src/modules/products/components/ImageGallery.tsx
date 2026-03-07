@@ -131,9 +131,9 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                 )}
             </div>
 
-            {/* Thumbnails */}
+            {/* Thumbnails Slider */}
             {images.length > 1 && (
-                <div className="grid grid-cols-4 gap-4 sm:grid-cols-5 md:grid-cols-4 lg:grid-cols-5">
+                <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar scroll-smooth snap-x snap-mandatory">
                     {images.map((img, idx) => {
                         const isErrored = erroredImages.has(idx);
                         return (
@@ -144,16 +144,15 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                                     setIsZoomed(false);
                                 }}
                                 className={cn(
-                                    "relative aspect-square overflow-hidden rounded-xl bg-muted ring-2 ring-offset-2 ring-offset-background transition-all hover:opacity-100",
+                                    "relative aspect-square w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted ring-2 ring-offset-2 ring-offset-background transition-all hover:opacity-100 snap-center",
                                     currentIndex === idx ? "ring-primary opacity-100" : "ring-transparent opacity-60"
                                 )}
                             >
                                 <Image
                                     src={(!isErrored && img) ? img : "/images/product-placeholder.png"}
                                     alt={`${productName} thumbnail ${idx + 1}`}
-                                    width={80}
-                                    height={80}
-                                    className="h-full w-full object-cover object-center"
+                                    fill
+                                    className="object-cover object-center"
                                     onError={() => handleImageError(idx)}
                                 />
                             </button>
@@ -169,11 +168,12 @@ export function ImageGallerySkeleton() {
     return (
         <div className="flex flex-col gap-4">
             <div className="aspect-square w-full animate-pulse rounded-3xl bg-muted ring-1 ring-border" />
-            <div className="grid grid-cols-4 gap-4 sm:grid-cols-5 md:grid-cols-4 lg:grid-cols-5">
-                {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="aspect-square w-full animate-pulse rounded-xl bg-muted" />
+            <div className="flex gap-4 overflow-x-auto pb-2">
+                {[1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className="aspect-square w-20 flex-shrink-0 animate-pulse rounded-xl bg-muted" />
                 ))}
             </div>
         </div>
     );
 }
+
