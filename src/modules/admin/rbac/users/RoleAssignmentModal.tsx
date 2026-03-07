@@ -52,8 +52,8 @@ export function RoleAssignmentModal({ user, roles, onClose }: RoleAssignmentModa
                     setShowConfirm(false);
                     onClose();
                 },
-                onError: (error: any) => {
-                    toast.error(error.response?.data?.message || 'Failed to assign role');
+                onError: (error: unknown) => {
+                    toast.error((error as any)?.response?.data?.message || 'Failed to assign role');
                     setShowConfirm(false);
                 }
             }

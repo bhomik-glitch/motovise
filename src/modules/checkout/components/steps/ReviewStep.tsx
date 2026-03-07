@@ -16,6 +16,8 @@ import { checkoutService } from "@/modules/checkout/services/checkoutService";
 import { Address } from "@/types/address";
 import { SHIPPING_METHODS, ShippingMethod } from "@/types/checkout";
 import { Cart } from "@/types/cart";
+import { queryKeys } from "@/lib/queryKeys";
+import { PlaceOrderResponse } from "@/types/order";
 
 interface ReviewStepProps {
     cart: Cart | undefined;
@@ -61,8 +63,8 @@ export function ReviewStep({ cart, address, shippingMethodId, paymentMethod, not
     const shippingCost = shippingMethod?.price ?? 0;
     const total = subtotal + shippingCost;
 
-    const placeOrderMutation = useMutation({
-        mutationFn: async () => {
+    const placeOrderMutation = useMutation<PlaceOrderResponse, Error>({
+        mutationFn: async (): Promise<PlaceOrderResponse> => {
             if (!address?.id) throw new Error("No address selected");
             if (!paymentMethod) throw new Error("No payment method selected");
 
@@ -106,8 +108,9 @@ export function ReviewStep({ cart, address, shippingMethodId, paymentMethod, not
                 router.push(`/success?orderId=${orderId}&orderNumber=${orderNumber}&paymentStatus=${paymentStatus}`);
             }, 600);
         },
-        onError: (err: any) => {
-            setError(err?.response?.data?.message ?? err?.message ?? "Something went wrong. Please try again.");
+        onError: (err: unknown) => {
+            const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+            setError(message);
         },
     });
 

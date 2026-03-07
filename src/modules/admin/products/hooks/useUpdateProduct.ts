@@ -13,8 +13,8 @@ export const useUpdateProduct = () => {
             toast.success('Product updated successfully');
             queryClient.invalidateQueries({ queryKey: ['admin-products'] });
         },
-        onError: (error: any) => {
-            const msg = error.response?.data?.message || 'Failed to update product';
+        onError: (error: unknown) => {
+            const msg = (error as any)?.response?.data?.message || 'Failed to update product';
             toast.error(msg);
         },
     });
@@ -30,8 +30,8 @@ export const useUpdateStock = () => {
             toast.success('Stock updated successfully');
             queryClient.invalidateQueries({ queryKey: ['admin-products'] });
         },
-        onError: (error: any) => {
-            const msg = error.response?.data?.message || 'Failed to update stock';
+        onError: (error: unknown) => {
+            const msg = (error as any)?.response?.data?.message || 'Failed to update stock';
             toast.error(msg);
         },
     });

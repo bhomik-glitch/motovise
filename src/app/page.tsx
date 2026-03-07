@@ -84,8 +84,8 @@ function FeaturedProductCard({
                 onSuccess: () => {
                     toast.success(`${product.name} added to cart!`);
                 },
-                onError: (error: any) => {
-                    toast.error(error.response?.data?.message || 'Failed to add to cart');
+                onError: (error: unknown) => {
+                    toast.error((error as any)?.response?.data?.message || 'Failed to add to cart');
                 }
             }
         );
@@ -274,7 +274,7 @@ export default function Home() {
                                 <div key={i} className="h-96 rounded-xl bg-slate-200 animate-pulse" />
                             ))
                         ) : (
-                            featuredProducts?.map((product: any, i: number) => (
+                            featuredProducts?.map((product: Product, i: number) => (
                                 <FeaturedProductCard
                                     key={product.id}
                                     product={product}

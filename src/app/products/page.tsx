@@ -25,8 +25,8 @@ function ProductsContent() {
                 onSuccess: () => {
                     toast.success(`${product.name} added to cart!`);
                 },
-                onError: (error: any) => {
-                    toast.error(error.response?.data?.message || 'Failed to add to cart');
+                onError: (error: unknown) => {
+                    toast.error((error as any)?.response?.data?.message || 'Failed to add to cart');
                 }
             }
         );

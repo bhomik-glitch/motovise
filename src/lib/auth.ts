@@ -51,8 +51,9 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     return null;
-                } catch (error: any) {
-                    console.error("NextAuth: Login failed:", error.message);
+                } catch (error: unknown) {
+                    const message = error instanceof Error ? error.message : "Authentication failed";
+                    console.error("NextAuth: Login failed:", message);
                     return null;
                 }
             },

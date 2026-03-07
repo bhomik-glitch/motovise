@@ -24,8 +24,8 @@ export const useUpdateSystemConfig = () => {
             queryClient.invalidateQueries({ queryKey: ['alerts'] });
             toast.success('System configuration updated successfully');
         },
-        onError: (error: any) => {
-            const message = error.response?.data?.message || 'Failed to update system configuration';
+        onError: (error: unknown) => {
+            const message = (error as any)?.response?.data?.message || 'Failed to update system configuration';
             toast.error(
                 Array.isArray(message) ? message[0] : message
             );

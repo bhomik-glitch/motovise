@@ -25,3 +25,9 @@ export interface Order {
     createdAt: string;
     updatedAt: string;
 }
+
+export interface PlaceOrderResponse {
+    orderId: string;
+    orderNumber: string;
+    paymentStatus: string;
+}

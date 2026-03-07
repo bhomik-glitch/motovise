@@ -41,7 +41,7 @@ export function RolePermissionsModal({ role, onClose }: RolePermissionsModalProp
                 // A complete implementation might fetch all available permissions from the backend.
                 setPermissions(currentPermissions);
 
-            } catch (error: any) {
+            } catch (error: unknown) {
                 toast.error('Failed to load role permissions');
             } finally {
                 setIsLoading(false);
@@ -92,8 +92,8 @@ export function RolePermissionsModal({ role, onClose }: RolePermissionsModalProp
                     setShowConfirm(false);
                     onClose();
                 },
-                onError: (error: any) => {
-                    toast.error(error.response?.data?.message || 'Failed to update permissions');
+                onError: (error: unknown) => {
+                    toast.error((error as any)?.response?.data?.message || 'Failed to update permissions');
                     setShowConfirm(false);
                 }
             }

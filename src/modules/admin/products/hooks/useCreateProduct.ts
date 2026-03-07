@@ -12,8 +12,8 @@ export const useCreateProduct = () => {
             toast.success('Product created successfully');
             queryClient.invalidateQueries({ queryKey: ['admin-products'] });
         },
-        onError: (error: any) => {
-            const msg = error.response?.data?.message || error.message || 'Failed to create product';
+        onError: (error: unknown) => {
+            const msg = (error as any)?.response?.data?.message || (error as Error)?.message || 'Failed to create product';
             // If backend rejects duplicate slug
             if (msg.toLowerCase().includes('slug')) {
                 toast.error(`Slug error: ${msg}`);

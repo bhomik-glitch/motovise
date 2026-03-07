@@ -12,8 +12,8 @@ export const useToggleProductStatus = () => {
             toast.success('Product status updated successfully');
             queryClient.invalidateQueries({ queryKey: ['admin-products'] });
         },
-        onError: (error: any) => {
-            const msg = error.response?.data?.message || 'Failed to update product status';
+        onError: (error: unknown) => {
+            const msg = (error as any)?.response?.data?.message || 'Failed to update product status';
             toast.error(msg);
         },
     });
