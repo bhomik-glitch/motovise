@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { Loader2 } from "lucide-react";
 import { CheckoutStepper } from "./CheckoutStepper";
 import { OrderSummary } from "./OrderSummary";
 import { AddressStep } from "./steps/AddressStep";
@@ -57,20 +58,12 @@ export function CheckoutContainer() {
 
     const { status } = useSession();
 
-    // Redirect if cart is empty after loading
-    if (!cartLoading && (!cart || (cart.items && cart.items.length === 0))) {
-        router.push("/cart");
-        return null;
-    }
-
+    // Move useQuery above any return
     const { data: addresses } = useQuery({
         queryKey: queryKeys.addresses,
         queryFn: addressService.getAddresses,
         enabled: status === 'authenticated',
     });
-
-    const selectedAddress = addresses?.find((a) => a.id === selectedAddressId);
-    const selectedShippingMethod = SHIPPING_METHODS.find((m) => m.id === selectedShippingMethodId) ?? null;
 
     const navigate = useCallback((nextStep: CheckoutStep) => {
         const currentIndex = STEP_ORDER.indexOf(currentStep);
@@ -94,6 +87,25 @@ export function CheckoutContainer() {
         setDirection(targetIndex > currentIndex ? 1 : -1);
         setCurrentStep(step);
     }, [currentStep]);
+
+    // Redirect if cart is empty after loading - use useEffect to avoid hook violation
+    useEffect(() => {
+        if (!cartLoading && (!cart || (cart.items && cart.items.length === 0))) {
+            router.push("/cart");
+        }
+    }, [cart, cartLoading, router]);
+
+    // Handle early return at the END of hook declarations
+    if (cartLoading || !cart || (cart.items && cart.items.length === 0)) {
+        return (
+            <div className="min-h-[60vh] flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    const selectedAddress = addresses?.find((a) => a.id === selectedAddressId);
+    const selectedShippingMethod = SHIPPING_METHODS.find((m) => m.id === selectedShippingMethodId) ?? null;
 
     return (
         <div className="min-h-screen py-8 sm:py-12">
