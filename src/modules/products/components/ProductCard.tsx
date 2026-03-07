@@ -69,7 +69,7 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
             animate={{ opacity: 1, y: 0 }}
             onClick={handleCardClick}
             className={cn(
-                'group relative flex flex-col overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm ring-1 ring-border transition-all hover:shadow-md cursor-pointer',
+                'group relative flex flex-col w-full min-w-0 overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm ring-1 ring-border transition-all hover:shadow-md cursor-pointer',
                 className
             )}
         >
@@ -110,7 +110,7 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
                         src={(!imageError && (product.thumbnail || (product.images && product.images.length > 0))) ? (product.thumbnail || product.images![0]) : '/placeholder-product.png'}
                         alt={product.name}
                         fill
-                        className="object-cover object-center"
+                        className="object-cover object-center aspect-square"
                         sizes="(max-width:768px) 50vw, (max-width:1200px) 33vw, 25vw"
                         onError={() => setImageError(true)}
                     />

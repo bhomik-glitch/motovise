@@ -62,7 +62,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
     const isCurrentErrored = erroredImages.has(currentIndex);
 
     return (
-        <div className="flex flex-col gap-4 w-full max-w-full overflow-hidden items-center">
+        <div className="flex flex-col gap-4 w-full max-w-full items-center">
             {/* Main Display */}
             <div className="relative aspect-square w-full max-w-md mx-auto overflow-hidden rounded-xl bg-muted ring-1 ring-border group flex items-center justify-center">
                 <AnimatePresence mode="wait">
@@ -166,7 +166,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
 export function ImageGallerySkeleton() {
     return (
-        <div className="flex flex-col gap-4 w-full max-w-full overflow-hidden items-center">
+        <div className="flex flex-col gap-4 w-full max-w-full items-center">
             <div className="aspect-square w-full max-w-md mx-auto animate-pulse rounded-xl bg-muted ring-1 ring-border" />
             <div className="w-full max-w-md mx-auto flex gap-3 overflow-x-auto pb-2 no-scrollbar">
                 {[1, 2, 3, 4, 5].map(i => (

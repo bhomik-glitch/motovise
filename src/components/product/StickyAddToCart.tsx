@@ -28,7 +28,7 @@ export function StickyAddToCart({ product, onAdd, isAdding, isVisible }: StickyA
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: 100, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
+                    className="fixed bottom-0 left-0 right-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)]"
                 >
                     <div className="container mx-auto px-4 md:px-6 h-20 flex items-center justify-between gap-4">
                         <div className="hidden sm:flex items-center gap-4 flex-1 min-w-0">

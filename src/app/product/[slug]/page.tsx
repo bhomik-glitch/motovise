@@ -82,7 +82,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     }).format(product.price);
 
     return (
-        <div className="container mx-auto px-4 py-8 md:px-6 lg:py-12 overflow-x-hidden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
             {/* Breadcrumb Navigation */}
             <nav className="mb-8 flex items-center text-sm text-muted-foreground" aria-label="Breadcrumb">
                 <Link href="/products" className="inline-flex items-center transition-colors hover:text-foreground">
@@ -95,16 +95,16 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                 <span className="truncate text-foreground" aria-current="page">{product.name}</span>
             </nav>
 
-            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24">
+            <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24">
                 {/* Left Column: Image Gallery */}
-                <div>
+                <div className="min-w-0">
                     <div className="sticky top-24">
                         <ImageGallery images={product.images} productName={product.name} />
                     </div>
                 </div>
 
                 {/* Right Column: Product Info */}
-                <div className="flex flex-col">
+                <div className="flex flex-col min-w-0 w-full max-w-full">
                     <div className="mb-6">
                         <div className="mb-2 flex items-center justify-between">
                             <span className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
@@ -149,10 +149,10 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                                     onChange={setQuantity}
                                 />
                             </div>
-                            <div ref={addToCartRef} className="w-full flex-1">
+                            <div ref={addToCartRef} className="w-full sm:flex-1">
                                 <Button
                                     size="lg"
-                                    className="w-full rounded-xl py-6 font-semibold shadow-lg transition-all"
+                                    className="w-full sm:w-auto rounded-xl px-12 py-6 font-semibold shadow-lg transition-all"
                                     disabled={product.stock <= 0 || isAdding}
                                     onClick={handleAddToCart}
                                 >
