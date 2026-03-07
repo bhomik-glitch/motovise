@@ -3,6 +3,11 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+if (process.env.NODE_ENV === "production") {
+  console.log("Seed disabled in production");
+  process.exit(0);
+}
+
 async function main() {
   console.log("🌱 Starting database seed...");
 

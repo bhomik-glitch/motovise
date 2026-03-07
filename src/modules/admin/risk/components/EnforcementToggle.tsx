@@ -3,7 +3,7 @@ import { FraudConfig } from '../risk.types';
 import { useFraudConfigMutation } from '../hooks/useFraudConfig';
 import { cn } from '@/lib/utils';
 import { Shield } from 'lucide-react';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/ToggleGroup';
+import { Button } from '@/components/ui/Button';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryKeys';
 
@@ -41,36 +41,23 @@ export function EnforcementToggle({ config }: EnforcementToggleProps) {
                 </p>
             </div>
 
-            <div className="w-full md:w-auto relative group">
-                <ToggleGroup
-                    type="single"
-                    value={activeMode}
-                    onValueChange={handleModeChange}
+            <div className="w-full md:w-auto grid grid-cols-2 gap-2 relative group">
+                <Button
+                    variant={activeMode === 'DISABLE' ? 'default' : 'outline'}
                     disabled={!canUpdate || updateConfig.isPending}
-                    className={cn(
-                        "bg-gray-100 p-1 rounded-lg w-full flex gap-1",
-                        !canUpdate && "opacity-60 cursor-not-allowed"
-                    )}
+                    onClick={() => handleModeChange('DISABLE')}
+                    className="w-full"
                 >
-                    <ToggleGroupItem
-                        value="DISABLE"
-                        className={cn(
-                            "flex-1 px-4 py-2 text-xs font-bold rounded-md transition-all",
-                            activeMode === 'DISABLE' ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"
-                        )}
-                    >
-                        DISABLE
-                    </ToggleGroupItem>
-                    <ToggleGroupItem
-                        value="FLAG"
-                        className={cn(
-                            "flex-1 px-4 py-2 text-xs font-bold rounded-md transition-all",
-                            activeMode === 'FLAG' ? "bg-white text-gray-900 shadow-sm" : "text-gray-500"
-                        )}
-                    >
-                        FLAG
-                    </ToggleGroupItem>
-                </ToggleGroup>
+                    Disable
+                </Button>
+                <Button
+                    variant={activeMode === 'FLAG' ? 'default' : 'outline'}
+                    disabled={!canUpdate || updateConfig.isPending}
+                    onClick={() => handleModeChange('FLAG')}
+                    className="w-full"
+                >
+                    Flag
+                </Button>
 
                 {!canUpdate && (
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs py-1 px-2 rounded pointer-events-none">

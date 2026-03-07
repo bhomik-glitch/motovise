@@ -9,18 +9,8 @@ import { SectionSkeleton } from "@/components/ui/PageSkeleton"
 import { Button } from "@/components/ui/Button"
 import { ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react"
 
-// Mock orders for testing pagination
-const mockOrders: OrderItem[] = Array.from({ length: 24 }).map((_, i) => ({
-    id: `ORD-${10000 + i}-X${i}`,
-    date: new Date(Date.now() - i * 86400000 * 3).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
-    total: `$${(124.50 - i * 2.5).toFixed(2)}`,
-    status: i === 0 ? "Processing" : i < 3 ? "Shipped" : i % 8 === 0 ? "Cancelled" : "Delivered",
-    items: Math.floor(Math.random() * 3) + 1,
-    image: `https://images.unsplash.com/photo-${1523275335684 + i}?w=100&h=100&fit=crop`,
-    paymentMethod: i % 3 === 0 ? "Cash on Delivery" : "Credit Card",
-    paymentStatus: i % 8 === 0 ? "Refunded" : "Paid",
-    refundStatus: i % 8 === 0 ? "Processed" : undefined
-}));
+import { useQuery } from "@tanstack/react-query"
+import api from "@/lib/api-client"
 
 export function OrdersList() {
     const router = useRouter();
@@ -31,26 +21,26 @@ export function OrdersList() {
     const pageParam = searchParams.get("page");
     const limitParam = searchParams.get("limit");
 
-    const [isLoading, setIsLoading] = React.useState(true);
-    const [currentPage, setCurrentPage] = React.useState(pageParam ? parseInt(pageParam) : 1);
+    const currentPage = pageParam ? parseInt(pageParam) : 1;
     const limit = limitParam ? parseInt(limitParam) : 5;
 
-    const totalPages = Math.ceil(mockOrders.length / limit);
-    const currentOrders = mockOrders.slice((currentPage - 1) * limit, currentPage * limit);
+    const { data, isLoading } = useQuery({
+        queryKey: ["orders", currentPage, limit],
+        queryFn: async () => {
+            const res = await api.get("/orders", {
+                params: { page: currentPage, limit }
+            });
+            return res.data;
+        }
+    });
 
-    // Simulate network delay for skeletons
-    React.useEffect(() => {
-        setIsLoading(true);
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 600);
-        return () => clearTimeout(timer);
-    }, [currentPage, limit]);
+    const orders = data?.items || [];
+    const totalCount = data?.total || 0;
+    const totalPages = Math.ceil(totalCount / limit);
 
     // Handle pagination click
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= totalPages) {
-            setCurrentPage(newPage);
             const params = new URLSearchParams(searchParams.toString());
             params.set("page", newPage.toString());
             router.push(`${pathname}?${params.toString()}`, { scroll: true });
@@ -58,12 +48,10 @@ export function OrdersList() {
     };
 
     const handleReorder = (orderId: string) => {
-        // Mock reorder functionality
-        console.log("Reordering:", orderId)
         router.push("/cart")
     }
 
-    if (!isLoading && currentOrders.length === 0) {
+    if (!isLoading && orders.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
                 <div className="h-16 w-16 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center mb-6 text-slate-400">
@@ -82,7 +70,7 @@ export function OrdersList() {
                 <h1 className="text-3xl font-bold tracking-tight">Order History</h1>
                 {!isLoading && (
                     <Badge variant="secondary" className="px-2 py-0.5 shadow-sm">
-                        {mockOrders.length} total orders
+                        {totalCount} total orders
                     </Badge>
                 )}
             </div>
@@ -92,10 +80,15 @@ export function OrdersList() {
                     <SectionSkeleton />
                 ) : (
                     <AnimatePresence mode="wait">
-                        {currentOrders.map((order, index) => (
+                        {orders.map((order: any, index: number) => (
                             <OrderCard
                                 key={order.id}
-                                order={order}
+                                order={{
+                                    ...order,
+                                    date: new Date(order.createdAt).toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
+                                    total: `₹${parseFloat(order.total).toLocaleString('en-IN')}`,
+                                    items: order.items?.length || 0
+                                }}
                                 index={index}
                                 onReorder={handleReorder}
                             />
@@ -108,7 +101,7 @@ export function OrdersList() {
             {!isLoading && totalPages > 1 && (
                 <div className="flex items-center justify-between border-t pt-6 mt-6">
                     <p className="text-sm text-muted-foreground hidden sm:block">
-                        Showing <span className="font-medium text-foreground">{(currentPage - 1) * limit + 1}</span> to <span className="font-medium text-foreground">{Math.min(currentPage * limit, mockOrders.length)}</span> of <span className="font-medium text-foreground">{mockOrders.length}</span> orders
+                        Showing <span className="font-medium text-foreground">{(currentPage - 1) * limit + 1}</span> to <span className="font-medium text-foreground">{Math.min(currentPage * limit, totalCount)}</span> of <span className="font-medium text-foreground">{totalCount}</span> orders
                     </p>
                     <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
                         <Button

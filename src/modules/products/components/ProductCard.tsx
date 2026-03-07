@@ -107,7 +107,7 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
                     transition={{ duration: 0.4, ease: 'easeOut' }}
                 >
                     <Image
-                        src={(!imageError && (product.thumbnail || (product.images && product.images.length > 0))) ? (product.thumbnail || product.images![0]) : '/images/product-placeholder.png'}
+                        src={(!imageError && (product.thumbnail || (product.images && product.images.length > 0))) ? (product.thumbnail || product.images![0]) : '/placeholder-product.png'}
                         alt={product.name}
                         fill
                         className="object-cover object-center"
