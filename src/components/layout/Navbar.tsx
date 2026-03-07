@@ -49,7 +49,7 @@ export function Navbar() {
         )}>
             <div className={cn(
                 "max-w-7xl mx-auto flex items-center h-16 relative transition-all duration-300 px-4 md:px-0",
-                "bg-black/95 backdrop-blur-xl border-b border-white/10 md:bg-transparent md:border-none"
+                "bg-black border-b border-neutral-800 md:bg-transparent md:border-none"
             )}>
 
                 {/* LOGO: Left locked */}
@@ -80,7 +80,7 @@ export function Navbar() {
                             "!left-auto !translate-x-0 md:!left-full md:!translate-x-[-100%]" // CSS override to keep icons visible on mobile bar
                         )}
                     >
-                        <div className="flex items-center bg-black/85 backdrop-blur-xl border border-white/10 rounded-full p-1.5 gap-1 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+                        <div className="flex items-center bg-black border border-neutral-800 rounded-full p-1.5 gap-1 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
                             {navLinks.map((link) => {
                                 const isActive = pathname === link.href;
                                 return (
@@ -127,7 +127,7 @@ export function Navbar() {
                 {/* Mobile Trigger */}
                 <button
                     onClick={() => setMobileOpen((v) => !v)}
-                    className="md:hidden z-30 p-2 text-white rounded-full bg-black/50 backdrop-blur-sm ml-4"
+                    className="md:hidden z-30 p-2 text-white rounded-full bg-black ml-4"
                 >
                     {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </button>
@@ -140,7 +140,7 @@ export function Navbar() {
                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        className="md:hidden mt-4 bg-black/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 shadow-2xl overflow-hidden"
+                        className="md:hidden mt-4 bg-black border border-neutral-800 rounded-3xl p-5 shadow-2xl overflow-hidden"
                     >
                         <div className="flex flex-col gap-3">
                             {[...navLinks, ...actions].map((link) => {
