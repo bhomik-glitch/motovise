@@ -82,7 +82,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     }).format(product.price);
 
     return (
-        <div className="container mx-auto px-4 py-8 md:px-6 lg:py-12">
+        <div className="container mx-auto px-4 py-8 md:px-6 lg:py-12 overflow-x-hidden">
             {/* Breadcrumb Navigation */}
             <nav className="mb-8 flex items-center text-sm text-muted-foreground" aria-label="Breadcrumb">
                 <Link href="/products" className="inline-flex items-center transition-colors hover:text-foreground">

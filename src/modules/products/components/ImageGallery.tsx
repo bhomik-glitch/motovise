@@ -62,9 +62,9 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
     const isCurrentErrored = erroredImages.has(currentIndex);
 
     return (
-        <div className="flex flex-col gap-4 w-full max-w-full">
+        <div className="flex flex-col gap-4 w-full max-w-full overflow-hidden items-center">
             {/* Main Display */}
-            <div className="relative aspect-square w-full max-w-full overflow-hidden rounded-xl bg-muted ring-1 ring-border group max-h-[70vh]">
+            <div className="relative aspect-square w-full max-w-md mx-auto overflow-hidden rounded-xl bg-muted ring-1 ring-border group flex items-center justify-center">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={currentIndex}
@@ -133,7 +133,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
             {/* Thumbnails Slider */}
             {images.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar scroll-smooth snap-x snap-mandatory">
+                <div className="w-full max-w-md mx-auto flex gap-3 overflow-x-auto pb-2 no-scrollbar scroll-smooth snap-x snap-mandatory">
                     {images.map((img, idx) => {
                         const isErrored = erroredImages.has(idx);
                         return (
@@ -144,7 +144,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                                     setIsZoomed(false);
                                 }}
                                 className={cn(
-                                    "relative aspect-square w-16 sm:w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted ring-2 ring-offset-2 ring-offset-background transition-all hover:opacity-100 snap-center",
+                                    "relative aspect-square w-16 flex-shrink-0 overflow-hidden rounded-xl bg-muted ring-2 ring-offset-2 ring-offset-background transition-all hover:opacity-100 snap-center",
                                     currentIndex === idx ? "ring-primary opacity-100" : "ring-transparent opacity-60"
                                 )}
                             >
@@ -166,11 +166,11 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
 export function ImageGallerySkeleton() {
     return (
-        <div className="flex flex-col gap-4 w-full max-w-full">
-            <div className="aspect-square w-full max-w-full animate-pulse rounded-xl bg-muted ring-1 ring-border max-h-[70vh]" />
-            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+        <div className="flex flex-col gap-4 w-full max-w-full overflow-hidden items-center">
+            <div className="aspect-square w-full max-w-md mx-auto animate-pulse rounded-xl bg-muted ring-1 ring-border" />
+            <div className="w-full max-w-md mx-auto flex gap-3 overflow-x-auto pb-2 no-scrollbar">
                 {[1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className="aspect-square w-16 sm:w-20 flex-shrink-0 animate-pulse rounded-xl bg-muted" />
+                    <div key={i} className="aspect-square w-16 flex-shrink-0 animate-pulse rounded-xl bg-muted" />
                 ))}
             </div>
         </div>
