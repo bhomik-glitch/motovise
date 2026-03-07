@@ -62,9 +62,9 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
     const isCurrentErrored = erroredImages.has(currentIndex);
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 w-full max-w-full">
             {/* Main Display */}
-            <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-muted ring-1 ring-border group">
+            <div className="relative aspect-square w-full max-w-full overflow-hidden rounded-xl bg-muted ring-1 ring-border group max-h-[70vh]">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={currentIndex}
@@ -82,7 +82,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                             alt={`${productName} - Image ${currentIndex + 1}`}
                             fill
                             className={cn(
-                                "object-cover object-center transition-transform duration-200",
+                                "object-contain object-center transition-transform duration-200",
                                 isZoomed ? "scale-[2]" : "scale-100"
                             )}
                             style={isZoomed ? { transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` } : undefined}
@@ -133,7 +133,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
             {/* Thumbnails Slider */}
             {images.length > 1 && (
-                <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar scroll-smooth snap-x snap-mandatory">
+                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar scroll-smooth snap-x snap-mandatory">
                     {images.map((img, idx) => {
                         const isErrored = erroredImages.has(idx);
                         return (
@@ -144,7 +144,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                                     setIsZoomed(false);
                                 }}
                                 className={cn(
-                                    "relative aspect-square w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted ring-2 ring-offset-2 ring-offset-background transition-all hover:opacity-100 snap-center",
+                                    "relative aspect-square w-16 sm:w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted ring-2 ring-offset-2 ring-offset-background transition-all hover:opacity-100 snap-center",
                                     currentIndex === idx ? "ring-primary opacity-100" : "ring-transparent opacity-60"
                                 )}
                             >
@@ -166,11 +166,11 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
 export function ImageGallerySkeleton() {
     return (
-        <div className="flex flex-col gap-4">
-            <div className="aspect-square w-full animate-pulse rounded-3xl bg-muted ring-1 ring-border" />
-            <div className="flex gap-4 overflow-x-auto pb-2">
+        <div className="flex flex-col gap-4 w-full max-w-full">
+            <div className="aspect-square w-full max-w-full animate-pulse rounded-xl bg-muted ring-1 ring-border max-h-[70vh]" />
+            <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
                 {[1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className="aspect-square w-20 flex-shrink-0 animate-pulse rounded-xl bg-muted" />
+                    <div key={i} className="aspect-square w-16 sm:w-20 flex-shrink-0 animate-pulse rounded-xl bg-muted" />
                 ))}
             </div>
         </div>
