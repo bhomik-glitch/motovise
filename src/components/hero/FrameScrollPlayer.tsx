@@ -6,6 +6,7 @@ import { Montserrat } from 'next/font/google';
 
 const FRAME_COUNT = 251;
 const FIRST_PRELOAD = 10; // eagerly load first N frames
+const CACHE_VERSION = 'v2'; // Added version suffix to bust cache
 
 const montserrat = Montserrat({
     subsets: ['latin'],
@@ -14,7 +15,7 @@ const montserrat = Montserrat({
 
 const getFrameSrc = (index: number) => {
     const padded = String(index).padStart(3, '0');
-    return `/api/hero-frame/ezgif-frame-${padded}.jpg`;
+    return `/api/hero-frame/ezgif-frame-${padded}.jpg?v=${CACHE_VERSION}`;
 };
 
 export default function FrameScrollPlayer() {

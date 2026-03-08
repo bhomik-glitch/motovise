@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 
 export default function HeroScrollCanvas() {
     const frameCount = 251; // Set frame count closely to prompt expectations
+    const cacheVersion = 'v2';
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const sectionRef = useRef<HTMLElement>(null);
 
@@ -16,7 +17,7 @@ export default function HeroScrollCanvas() {
     // Pad numbers like 001, 002
     const getFramePath = (index: number) => {
         const paddedIndex = String(index).padStart(3, '0');
-        return `/api/hero-frame/ezgif-frame-${paddedIndex}.jpg`;
+        return `/api/hero-frame/ezgif-frame-${paddedIndex}.jpg?v=${cacheVersion}`;
     };
 
     const drawFrame = (frameIndex: number) => {
