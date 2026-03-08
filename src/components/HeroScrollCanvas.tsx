@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 export default function HeroScrollCanvas() {
-    const frameCount = 72; // Set frame count closely to prompt expectations
+    const frameCount = 251; // Set frame count closely to prompt expectations
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const sectionRef = useRef<HTMLElement>(null);
 
@@ -98,7 +98,7 @@ export default function HeroScrollCanvas() {
     useEffect(() => {
         let firstLoaded = false;
 
-        // Preload all 120 frames
+        // Preload all 251 frames
         const images: HTMLImageElement[] = [];
         for (let i = 1; i <= frameCount; i++) {
             const img = new Image();
@@ -139,7 +139,8 @@ export default function HeroScrollCanvas() {
     }, []);
 
     return (
-        <section ref={sectionRef} className="relative h-[400vh]">
+        <section ref={sectionRef} className="relative h-[500vh]">
+
             <div className="sticky top-0 h-screen w-full flex items-center justify-center bg-white overflow-hidden">
                 <canvas
                     ref={canvasRef}

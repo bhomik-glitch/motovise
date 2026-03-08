@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Montserrat } from 'next/font/google';
 
-const FRAME_COUNT = 120;
+const FRAME_COUNT = 251;
 const FIRST_PRELOAD = 10; // eagerly load first N frames
 
 const montserrat = Montserrat({
@@ -61,7 +61,7 @@ export default function FrameScrollPlayer() {
 
         setTimeout(() => {
             loadRange(FIRST_PRELOAD + 1, FRAME_COUNT);
-        }, 400);
+        }, 4000); // Increased timeout for preloading more frames
 
         imagesRef.current = imgs;
 
@@ -133,7 +133,8 @@ export default function FrameScrollPlayer() {
         <section
             ref={sectionRef}
             className="relative"
-            style={{ height: '200vh' }}
+            style={{ height: '500vh' }}
+
             aria-label="Motovise cinematic hero"
         >
             <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#F8FAFC]">
