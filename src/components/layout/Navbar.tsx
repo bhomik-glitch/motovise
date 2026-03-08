@@ -33,9 +33,10 @@ export function Navbar() {
         let distanceToCenter = 0;
 
         const updateDistanceToCenter = () => {
-            const startX = 24;
+            const rightOffset = 24;
             const centerX = window.innerWidth / 2 - navEl.offsetWidth / 2;
-            distanceToCenter = Math.max(centerX - startX, 0);
+            const startX = window.innerWidth - rightOffset - navEl.offsetWidth;
+            distanceToCenter = Math.max(startX - centerX, 0);
         };
 
         const updateTargetFromScroll = () => {
@@ -46,7 +47,7 @@ export function Navbar() {
             }
 
             const progress = Math.min(window.scrollY / (scrollHeight * 0.2), 1);
-            targetX = progress * distanceToCenter;
+            targetX = -progress * distanceToCenter;
         };
 
         const animate = () => {
@@ -129,7 +130,7 @@ export function Navbar() {
 
                 <div
                     ref={navPillRef}
-                    className="hidden md:flex items-center z-30 fixed top-6 left-6"
+                    className="hidden md:flex items-center z-30 fixed top-6 right-6"
                 >
                     <div className="flex items-center bg-black border border-neutral-800 rounded-full p-1.5 gap-1 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
                         {navLinks.map((link) => {
@@ -235,3 +236,4 @@ export function Navbar() {
         </nav>
     );
 }
+
