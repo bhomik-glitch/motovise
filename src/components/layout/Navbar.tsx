@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ShoppingBag, User, Command, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence, useScroll, useSpring, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import LogoImg from '@/assets/logo-removebg-preview.png';
 
 import { useCart } from '@/modules/cart/hooks/useCart';
@@ -14,49 +14,81 @@ import { useCart } from '@/modules/cart/hooks/useCart';
 export function Navbar() {
     const { cart } = useCart();
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [distanceToCenter, setDistanceToCenter] = useState(0);
     const navPillRef = useRef<HTMLDivElement | null>(null);
     const pathname = usePathname();
 
-    const { scrollY } = useScroll();
-    const progressToCenter = useTransform(scrollY, (currentScrollY) => {
-        const documentHeight = document.documentElement.scrollHeight;
-        if (documentHeight <= 0) {
-            return 0;
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
         }
 
-        const scrollProgress = currentScrollY / (documentHeight * 0.2);
-        return Math.min(scrollProgress, 1);
-    });
-    const smoothProgress = useSpring(progressToCenter, {
-        stiffness: 120,
-        damping: 20,
-    });
-    const desktopX = useTransform(smoothProgress, (progress) => progress * distanceToCenter);
+        const navEl = navPillRef.current;
+        if (!navEl) {
+            return;
+        }
 
-    useEffect(() => {
+        let rafId = 0;
+        let targetX = 0;
+        let currentX = 0;
+        let distanceToCenter = 0;
+
         const updateDistanceToCenter = () => {
-            const navWidth = navPillRef.current?.offsetWidth ?? 0;
             const startX = 24;
-            const centerX = window.innerWidth / 2 - navWidth / 2;
-            setDistanceToCenter(Math.max(centerX - startX, 0));
+            const centerX = window.innerWidth / 2 - navEl.offsetWidth / 2;
+            distanceToCenter = Math.max(centerX - startX, 0);
         };
 
+        const updateTargetFromScroll = () => {
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            if (scrollHeight <= 0) {
+                targetX = 0;
+                return;
+            }
+
+            const progress = Math.min(window.scrollY / (scrollHeight * 0.2), 1);
+            targetX = progress * distanceToCenter;
+        };
+
+        const animate = () => {
+            // Spring-like smoothing without React re-renders.
+            currentX += (targetX - currentX) * 0.14;
+
+            if (Math.abs(targetX - currentX) < 0.1) {
+                currentX = targetX;
+            }
+
+            navEl.style.transform = `translate3d(${currentX}px, 0, 0)`;
+            rafId = window.requestAnimationFrame(animate);
+        };
+
+        const onScroll = () => {
+            updateTargetFromScroll();
+        };
+
+        const onResize = () => {
+            updateDistanceToCenter();
+            updateTargetFromScroll();
+        };
+
+        navEl.style.willChange = 'transform';
         updateDistanceToCenter();
+        updateTargetFromScroll();
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onResize, { passive: true });
 
         const resizeObserver = new ResizeObserver(() => {
-            updateDistanceToCenter();
+            onResize();
         });
+        resizeObserver.observe(navEl);
 
-        if (navPillRef.current) {
-            resizeObserver.observe(navPillRef.current);
-        }
-
-        window.addEventListener('resize', updateDistanceToCenter, { passive: true });
+        rafId = window.requestAnimationFrame(animate);
 
         return () => {
+            window.cancelAnimationFrame(rafId);
+            window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', onResize);
             resizeObserver.disconnect();
-            window.removeEventListener('resize', updateDistanceToCenter);
         };
     }, []);
 
@@ -87,25 +119,16 @@ export function Navbar() {
                 'max-w-7xl mx-auto flex items-center h-16 relative transition-all duration-300 px-4 md:px-0',
                 'bg-black border-b border-neutral-800 md:bg-transparent md:border-none'
             )}>
-
-                {/* LOGO: Left locked */}
                 <div className="relative md:absolute md:left-0 z-20 flex items-center">
                     <Link href="/" className="group flex items-center">
                         <div className="relative w-16 h-16 md:w-24 md:h-24 overflow-hidden">
-                            <Image
-                                src={LogoImg}
-                                alt="Motovise Logo"
-                                fill
-                                className="object-contain"
-                            />
+                            <Image src={LogoImg} alt="Motovise Logo" fill className="object-contain" />
                         </div>
                     </Link>
                 </div>
 
-                {/* Desktop floating pill: left -> center based on scroll */}
-                <motion.div
+                <div
                     ref={navPillRef}
-                    style={{ x: desktopX, willChange: 'transform' }}
                     className="hidden md:flex items-center z-30 fixed top-6 left-6"
                 >
                     <div className="flex items-center bg-black border border-neutral-800 rounded-full p-1.5 gap-1 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
@@ -149,9 +172,8 @@ export function Navbar() {
                             <Command className="h-3.5 w-3.5" />
                         </div>
                     </div>
-                </motion.div>
+                </div>
 
-                {/* Mobile actions pill */}
                 <div className="flex-1 flex h-full items-center justify-end md:hidden relative">
                     <div className="flex items-center bg-black border border-neutral-800 rounded-full p-1.5 gap-1 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
                         {actions.map((action) => (
@@ -172,7 +194,6 @@ export function Navbar() {
                     </div>
                 </div>
 
-                {/* Mobile Trigger */}
                 <button
                     onClick={() => setMobileOpen((v) => !v)}
                     className="md:hidden z-30 p-2 text-white rounded-full bg-black ml-4"
@@ -181,7 +202,6 @@ export function Navbar() {
                 </button>
             </div>
 
-            {/* Mobile Menu */}
             <AnimatePresence>
                 {mobileOpen && (
                     <motion.div
