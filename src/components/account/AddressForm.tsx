@@ -22,9 +22,8 @@ const addressSchema = z.object({
     state: z.string().min(2, "State is required"),
 })
 
-type AddressFormValues = z.infer<typeof addressSchema>
+export type AddressFormValues = z.infer<typeof addressSchema>
 
-// Mock PIN code directory
 const PINCODE_MAP: Record<string, { city: string, state: string }> = {
     "400001": { city: "Mumbai", state: "Maharashtra" },
     "110001": { city: "New Delhi", state: "Delhi" },
@@ -33,8 +32,28 @@ const PINCODE_MAP: Record<string, { city: string, state: string }> = {
     "700001": { city: "Kolkata", state: "West Bengal" },
 }
 
-export function AddressForm({ onSuccess, onCancel }: { onSuccess?: () => void, onCancel?: () => void }) {
+interface AddressFormProps {
+    onSubmit: (values: AddressFormValues) => Promise<void>
+    onCancel?: () => void
+    onSuccess?: () => void
+}
+
+function getErrorMessage(error: unknown): string {
+    if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error &&
+        typeof (error as { message?: unknown }).message === "string"
+    ) {
+        return (error as { message: string }).message
+    }
+
+    return "Unable to save address. Please try again."
+}
+
+export function AddressForm({ onSubmit, onSuccess, onCancel }: AddressFormProps) {
     const [isDetecting, setIsDetecting] = React.useState(false)
+    const [submitError, setSubmitError] = React.useState<string | null>(null)
 
     const {
         register,
@@ -54,7 +73,6 @@ export function AddressForm({ onSuccess, onCancel }: { onSuccess?: () => void, o
     React.useEffect(() => {
         if (pincodeValue && pincodeValue.length === 6) {
             setIsDetecting(true)
-            // Simulate API call for pincode detection
             const timer = setTimeout(() => {
                 const data = PINCODE_MAP[pincodeValue]
                 if (data) {
@@ -67,11 +85,15 @@ export function AddressForm({ onSuccess, onCancel }: { onSuccess?: () => void, o
         }
     }, [pincodeValue, setValue])
 
-    const onSubmit = async (data: AddressFormValues) => {
-        // Simulate save
-        await new Promise(resolve => setTimeout(resolve, 800))
-        console.log("Saved address", data)
-        onSuccess?.()
+    const handleAddressSubmit = async (values: AddressFormValues) => {
+        setSubmitError(null)
+
+        try {
+            await onSubmit(values)
+            onSuccess?.()
+        } catch (error) {
+            setSubmitError(getErrorMessage(error))
+        }
     }
 
     return (
@@ -82,7 +104,7 @@ export function AddressForm({ onSuccess, onCancel }: { onSuccess?: () => void, o
                 <CardDescription>Enter your delivery information below.</CardDescription>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(handleAddressSubmit)} className="space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="type">Address Type</Label>
@@ -91,7 +113,7 @@ export function AddressForm({ onSuccess, onCancel }: { onSuccess?: () => void, o
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="name">Full Name</Label>
-                            <Input id="name" placeholder="Recepient Name" {...register("name")} />
+                            <Input id="name" placeholder="Recipient Name" {...register("name")} />
                             {errors.name && <p className="text-[10px] text-destructive">{errors.name.message}</p>}
                         </div>
                         <div className="space-y-2 sm:col-span-2">
@@ -124,6 +146,7 @@ export function AddressForm({ onSuccess, onCancel }: { onSuccess?: () => void, o
                             {errors.state && <p className="text-[10px] text-destructive">{errors.state.message}</p>}
                         </div>
                     </div>
+                    {submitError && <p className="text-xs text-destructive">{submitError}</p>}
                     <div className="flex justify-end gap-2 pt-4">
                         {onCancel && (
                             <Button type="button" variant="outline" onClick={onCancel} className="focus-visible:ring-2 focus-visible:ring-primary">

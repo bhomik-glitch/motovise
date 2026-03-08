@@ -5,68 +5,153 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/Button"
 import { Plus, MapPin } from "lucide-react"
 import { AddressCard, AddressItem } from "@/components/account/AddressCard"
-import { AddressForm } from "@/components/account/AddressForm"
+import { AddressForm, AddressFormValues } from "@/components/account/AddressForm"
 import { SectionSkeleton } from "@/components/ui/PageSkeleton"
+import { ErrorState } from "@/components/ui/ErrorState"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import api from "@/lib/api-client"
 
-const initialAddresses: AddressItem[] = [
-    {
-        id: "1",
-        type: "Home",
-        name: "John Doe",
-        street: "123 Main St, Apartment 4B",
-        city: "Mumbai",
-        state: "MH",
-        zip: "400001",
-        phone: "9876543210",
-        isDefault: true,
-    },
-    {
-        id: "2",
-        type: "Work",
-        name: "John Doe",
-        street: "500 Business Ave, Suite 200",
-        city: "Bengaluru",
-        state: "KA",
-        zip: "560001",
-        phone: "9123456780",
+type ApiAddress = {
+    id: string
+    name?: string
+    fullName?: string
+    phone?: string
+    line1?: string
+    addressLine1?: string
+    street?: string
+    city?: string
+    state?: string
+    pincode?: string
+    postalCode?: string
+    zip?: string
+    isDefault?: boolean
+}
+
+function extractAddresses(payload: unknown): ApiAddress[] {
+    if (Array.isArray(payload)) return payload as ApiAddress[]
+    if (!payload || typeof payload !== "object") return []
+
+    const data = payload as Record<string, unknown>
+    const sources = [data.data, data.items, data.addresses]
+
+    for (const source of sources) {
+        if (Array.isArray(source)) return source as ApiAddress[]
+
+        if (source && typeof source === "object") {
+            const nested = source as Record<string, unknown>
+            if (Array.isArray(nested.data)) return nested.data as ApiAddress[]
+            if (Array.isArray(nested.items)) return nested.items as ApiAddress[]
+            if (Array.isArray(nested.addresses)) return nested.addresses as ApiAddress[]
+        }
+    }
+
+    return []
+}
+
+async function fetchAddresses(): Promise<ApiAddress[]> {
+    const response = await api.get("/addresses")
+    return extractAddresses(response.data)
+}
+
+async function createAddress(values: AddressFormValues): Promise<void> {
+    await api.post("/addresses", {
+        fullName: values.name,
+        phone: values.phone,
+        addressLine1: values.street,
+        city: values.city,
+        state: values.state,
+        postalCode: values.pincode,
+        country: "India",
         isDefault: false,
-    },
-]
+    })
+}
+
+function mapAddress(address: ApiAddress): AddressItem {
+    return {
+        id: address.id,
+        type: "Address",
+        name: address.fullName || address.name || "-",
+        street: address.line1 || address.addressLine1 || address.street || "-",
+        city: address.city || "-",
+        state: address.state || "-",
+        zip: address.pincode || address.postalCode || address.zip || "-",
+        phone: address.phone,
+        isDefault: Boolean(address.isDefault),
+    }
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+    if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error &&
+        typeof (error as { message?: unknown }).message === "string"
+    ) {
+        return (error as { message: string }).message
+    }
+
+    return fallback
+}
 
 export function AddressManager() {
-    const [isLoading, setIsLoading] = React.useState(true);
-    const [isAdding, setIsAdding] = React.useState(false);
-    const [addresses, setAddresses] = React.useState<AddressItem[]>([]);
+    const [isAdding, setIsAdding] = React.useState(false)
+    const router = useRouter()
+    const queryClient = useQueryClient()
+    const { status } = useSession()
 
     React.useEffect(() => {
-        const timer = setTimeout(() => {
-            setAddresses(initialAddresses);
-            setIsLoading(false);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, []);
+        if (status === "unauthenticated") {
+            router.replace("/login")
+        }
+    }, [status, router])
 
-    const handleRemove = (id: string) => {
-        setAddresses(prev => prev.filter(a => a.id !== id));
-    };
+    const {
+        data: rawAddresses = [],
+        isLoading,
+        isError,
+        error,
+        refetch,
+    } = useQuery({
+        queryKey: ["addresses"],
+        queryFn: fetchAddresses,
+        enabled: status === "authenticated",
+    })
 
-    const handleSetDefault = (id: string) => {
-        setAddresses(prev => prev.map(a => ({
-            ...a,
-            isDefault: a.id === id
-        })));
-    };
+    const createAddressMutation = useMutation({
+        mutationFn: createAddress,
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ["addresses"] })
+            setIsAdding(false)
+        },
+    })
 
-    const handleSuccess = () => {
-        setIsAdding(false);
-        // Would normally re-fetch or optimistically update UI here.
+    const addresses = React.useMemo(() => rawAddresses.map(mapAddress), [rawAddresses])
+
+    const handleCreateAddress = React.useCallback(async (values: AddressFormValues) => {
+        await createAddressMutation.mutateAsync(values)
+    }, [createAddressMutation])
+
+    if (status === "loading" || status === "unauthenticated" || (status === "authenticated" && isLoading)) {
+        return <SectionSkeleton className="grid grid-cols-1 sm:grid-cols-2 gap-6" />
+    }
+
+    if (isError) {
+        return (
+            <ErrorState
+                title="Failed to load addresses"
+                message={getErrorMessage(error, "Unable to load your saved addresses right now. Please try again.")}
+                onRetry={() => refetch()}
+            />
+        )
     }
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold tracking-tight">Saved Addresses</h1>
-                {!isLoading && addresses.length > 0 && !isAdding && (
+                {addresses.length > 0 && !isAdding && (
                     <Button size="sm" className="h-8 gap-1.5 px-3" onClick={() => setIsAdding(true)}>
                         <Plus size={16} />
                         Add Address
@@ -76,16 +161,14 @@ export function AddressManager() {
 
             {isAdding ? (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                    <AddressForm onSuccess={handleSuccess} onCancel={() => setIsAdding(false)} />
+                    <AddressForm onSubmit={handleCreateAddress} onCancel={() => setIsAdding(false)} onSuccess={() => setIsAdding(false)} />
                 </motion.div>
-            ) : isLoading ? (
-                <SectionSkeleton className="grid grid-cols-1 sm:grid-cols-2 gap-6" />
             ) : addresses.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800">
                     <div className="h-16 w-16 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center mb-6 text-slate-400">
                         <MapPin size={32} />
                     </div>
-                    <h3 className="text-xl font-bold mb-2">No Addresses Found</h3>
+                    <h3 className="text-xl font-bold mb-2">No Saved Addresses</h3>
                     <p className="text-slate-500 mb-6 max-w-sm">You haven&apos;t added any shipping or billing addresses yet.</p>
                     <Button className="gap-2" onClick={() => setIsAdding(true)}><Plus size={16} /> Add Address</Button>
                 </div>
@@ -97,8 +180,6 @@ export function AddressManager() {
                                 <AddressCard
                                     address={address}
                                     index={index}
-                                    onRemove={handleRemove}
-                                    onSetDefault={handleSetDefault}
                                     onEdit={() => setIsAdding(true)}
                                 />
                             </div>
