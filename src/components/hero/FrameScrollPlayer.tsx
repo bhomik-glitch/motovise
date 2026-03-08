@@ -2,9 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Montserrat } from 'next/font/google';
 
 const FRAME_COUNT = 120;
 const FIRST_PRELOAD = 10; // eagerly load first N frames
+
+const montserrat = Montserrat({
+    subsets: ['latin'],
+    weight: ['400', '500', '600', '700', '800'],
+});
 
 const getFrameSrc = (index: number) => {
     const padded = String(index).padStart(3, '0');
@@ -22,7 +28,10 @@ export default function FrameScrollPlayer() {
     const scheduledFrameRef = useRef<number>(0);
     const [isReady, setIsReady] = useState(false);
     const [scale, setScale] = useState(1);
-    const [hasTextEntered, setHasTextEntered] = useState(false);
+
+    const [isMotoviseVisible, setIsMotoviseVisible] = useState(false);
+    const [isLeftTextVisible, setIsLeftTextVisible] = useState(false);
+    const [isWingsVisible, setIsWingsVisible] = useState(false);
 
     // Preload frames, high priority first
     useEffect(() => {
@@ -43,16 +52,13 @@ export default function FrameScrollPlayer() {
             }
         };
 
-        // Immediately preload first batch
         loadRange(1, FIRST_PRELOAD, () => {
-            // Show the player once first frame is ready
             if (imgRef.current) {
                 imgRef.current.src = getFrameSrc(1);
             }
             setIsReady(true);
         });
 
-        // Lazily load remaining frames
         setTimeout(() => {
             loadRange(FIRST_PRELOAD + 1, FRAME_COUNT);
         }, 400);
@@ -64,7 +70,6 @@ export default function FrameScrollPlayer() {
         };
     }, []);
 
-    // Scroll handler
     useEffect(() => {
         const handleScroll = () => {
             const section = sectionRef.current;
@@ -75,7 +80,6 @@ export default function FrameScrollPlayer() {
             const maxScroll = rect.height - window.innerHeight;
             const progress = Math.min(Math.max(scrollTop / maxScroll, 0), 1);
 
-            // Frame animation
             const frameIndex = Math.floor(progress * (FRAME_COUNT - 1));
 
             if (frameIndex !== scheduledFrameRef.current) {
@@ -89,7 +93,6 @@ export default function FrameScrollPlayer() {
                             imgRef.current.src = img.src;
                             currentFrameRef.current = f;
                         } else if (img) {
-                            // Frame not loaded yet - use src directly (browser will handle)
                             imgRef.current.src = getFrameSrc(f + 1);
                             currentFrameRef.current = f;
                         }
@@ -97,23 +100,26 @@ export default function FrameScrollPlayer() {
                 });
             }
 
-            // Scale: 1 -> 1.08 over scroll
             const newScale = 1 + progress * 0.08;
             setScale(newScale);
 
-            // Overlay opacity: subtle at start, stronger near end
             if (overlayRef.current) {
                 overlayRef.current.style.opacity = String(0.3 + progress * 0.4);
             }
 
-            // Replayable text trigger based on viewport threshold (10vh)
-            const threshold = window.innerHeight * 0.1;
-            const shouldShowText = window.scrollY >= threshold;
-            setHasTextEntered((prev) => (prev === shouldShowText ? prev : shouldShowText));
+            const vh = window.innerHeight;
+            const motoviseThreshold = vh * 0.1;
+            const leftThreshold = vh * 0.12;
+            const wingsThreshold = vh * 0.15;
+
+            const y = window.scrollY;
+            setIsMotoviseVisible((prev) => (prev === (y >= motoviseThreshold) ? prev : y >= motoviseThreshold));
+            setIsLeftTextVisible((prev) => (prev === (y >= leftThreshold) ? prev : y >= leftThreshold));
+            setIsWingsVisible((prev) => (prev === (y >= wingsThreshold) ? prev : y >= wingsThreshold));
         };
 
         window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll(); // Initial call
+        handleScroll();
 
         return () => {
             window.removeEventListener('scroll', handleScroll);
@@ -121,17 +127,16 @@ export default function FrameScrollPlayer() {
         };
     }, []);
 
+    const textShadow = '0 4px 16px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.25)';
+
     return (
-        /* Hero Wrapper: tall enough for scroll-driving */
         <section
             ref={sectionRef}
             className="relative"
             style={{ height: '200vh' }}
             aria-label="Motovise cinematic hero"
         >
-            {/* Sticky viewport that stays while user scrolls */}
             <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#F8FAFC]">
-                {/* Frame image */}
                 <div
                     className="absolute inset-0 flex items-center justify-center"
                     style={{
@@ -153,7 +158,6 @@ export default function FrameScrollPlayer() {
                     />
                 </div>
 
-                {/* Gradient overlay - bottom fade into pastel */}
                 <div
                     ref={overlayRef}
                     className="absolute inset-0 pointer-events-none"
@@ -163,18 +167,17 @@ export default function FrameScrollPlayer() {
                     }}
                 />
 
-                {/* Desktop/Tablet side texts */}
                 <motion.p
-                    className="hidden md:block absolute left-[6%] top-1/2 -translate-y-1/2 z-20 text-white"
+                    className={`hidden md:block absolute left-[6%] top-1/2 -translate-y-1/2 z-20 text-white ${montserrat.className}`}
                     initial={{ x: -200, opacity: 0 }}
-                    animate={hasTextEntered ? { x: 0, opacity: 1 } : { x: -200, opacity: 0 }}
-                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    animate={isLeftTextVisible ? { x: 0, opacity: 1 } : { x: -200, opacity: 0 }}
+                    transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
                     style={{
-                        fontSize: 'clamp(18px, 1.4vw, 24px)',
                         fontWeight: 500,
+                        fontSize: 'clamp(18px,1.4vw,24px)',
                         lineHeight: 1.4,
                         maxWidth: 320,
-                        textShadow: '0 4px 16px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.25)',
+                        textShadow,
                     }}
                 >
                     Because your car
@@ -184,43 +187,45 @@ export default function FrameScrollPlayer() {
                     stock
                 </motion.p>
 
-                <motion.h1
-                    className="hidden md:block absolute right-[6%] top-1/2 -translate-y-1/2 z-20 text-right max-w-[600px] leading-tight"
-                    initial={{ x: 200, opacity: 0 }}
-                    animate={hasTextEntered ? { x: 0, opacity: 1 } : { x: 200, opacity: 0 }}
-                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                    style={{ textShadow: '0 4px 16px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.25)' }}
-                >
-                    <span
-                        className="block tracking-[-0.02em]"
+                <div className={`hidden md:block absolute right-[6%] top-1/2 -translate-y-1/2 z-20 text-right max-w-[620px] ${montserrat.className}`}>
+                    <motion.div
+                        initial={{ x: 200, opacity: 0 }}
+                        animate={isMotoviseVisible ? { x: 0, opacity: 1 } : { x: 200, opacity: 0 }}
+                        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+                        className="tracking-[-0.02em]"
                         style={{
                             fontWeight: 800,
-                            fontSize: 'clamp(40px, 4vw, 64px)',
+                            fontSize: 'clamp(44px,4vw,72px)',
                             color: '#8CC63F',
+                            textShadow,
                         }}
                     >
                         Motovise
-                    </span>
-                    <span
-                        className="block text-white mt-2"
+                    </motion.div>
+                    <motion.div
+                        initial={{ x: 200, opacity: 0 }}
+                        animate={isWingsVisible ? { x: 0, opacity: 1 } : { x: 200, opacity: 0 }}
+                        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+                        className="text-white mt-[6px]"
                         style={{
                             fontWeight: 500,
-                            fontSize: 'clamp(24px, 2vw, 36px)',
+                            fontSize: 'clamp(24px,2vw,36px)',
+                            textShadow,
                         }}
                     >
                         Give Your Car Wings
-                    </span>
-                </motion.h1>
+                    </motion.div>
+                </div>
 
-                {/* Mobile stacked text (no side-slide animation) */}
-                <div className="md:hidden absolute top-14 left-1/2 -translate-x-1/2 z-20 w-[92%] text-center">
+                <div className={`md:hidden absolute top-14 left-1/2 -translate-x-1/2 z-20 w-[92%] text-center ${montserrat.className}`}>
                     <p
-                        className="mx-auto leading-relaxed text-white"
+                        className="mx-auto text-white"
                         style={{
-                            maxWidth: 320,
-                            fontSize: 'clamp(16px, 4vw, 22px)',
                             fontWeight: 500,
-                            textShadow: '0 4px 16px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.25)',
+                            lineHeight: 1.4,
+                            maxWidth: 320,
+                            fontSize: 'clamp(18px,4.3vw,24px)',
+                            textShadow,
                         }}
                     >
                         Because your car
@@ -229,25 +234,24 @@ export default function FrameScrollPlayer() {
                         <br />
                         stock
                     </p>
-                    <h1
-                        className="mt-4 leading-tight"
-                        style={{ textShadow: '0 4px 16px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.25)' }}
-                    >
+                    <h1 className="mt-4 leading-tight">
                         <span
                             className="block tracking-[-0.02em]"
                             style={{
                                 fontWeight: 800,
-                                fontSize: 'clamp(32px, 8vw, 44px)',
+                                fontSize: 'clamp(40px,10vw,60px)',
                                 color: '#8CC63F',
+                                textShadow,
                             }}
                         >
                             Motovise
                         </span>
                         <span
-                            className="block text-white mt-2"
+                            className="block text-white mt-[6px]"
                             style={{
                                 fontWeight: 500,
-                                fontSize: 'clamp(20px, 5vw, 28px)',
+                                fontSize: 'clamp(22px,5.5vw,34px)',
+                                textShadow,
                             }}
                         >
                             Give Your Car Wings
