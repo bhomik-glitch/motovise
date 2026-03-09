@@ -76,7 +76,7 @@ function ProductsContent() {
     return (
         <div className="container mx-auto px-4 py-8 md:px-6 lg:py-12">
             {/* Hero / Banner Area */}
-            <section className="mb-8 overflow-hidden rounded-3xl bg-secondary/50 px-6 py-12 md:px-12 lg:mb-12">
+            <section className="max-w-7xl mx-auto px-6 py-12 mb-8 overflow-hidden rounded-3xl bg-secondary/50 md:px-12 lg:mb-12">
                 <div className="max-w-2xl">
                     <h1 className="mb-4 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl">
                         Explore Our Collection
@@ -189,4 +189,5 @@ export default function ProductsPage() {
         </React.Suspense>
     );
 }
+
 

@@ -112,15 +112,9 @@ export function Navbar() {
     ];
 
     return (
-        <nav className={cn(
-            'fixed left-0 right-0 top-0 z-50 border-b border-neutral-800 bg-black/90 backdrop-blur-md transition-all duration-300',
-            'px-0 md:top-6 md:px-6 md:border-none md:bg-transparent md:backdrop-blur-0'
-        )}>
-            <div className={cn(
-                'max-w-7xl mx-auto flex items-center h-16 relative transition-all duration-300 px-4 md:px-0',
-                'bg-black border-b border-neutral-800 md:bg-transparent md:border-none'
-            )}>
-                <div className="relative md:absolute md:left-0 z-20 flex items-center">
+        <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-8 py-4 bg-white/90 backdrop-blur-md border-b border-gray-200">
+            <div className="w-full max-w-7xl mx-auto flex items-center h-16 relative transition-all duration-300">
+                <div className="flex items-center gap-3 z-20">
                     <Link href="/" className="group flex items-center">
                         <div className="relative w-16 h-16 md:w-24 md:h-24 overflow-hidden">
                             <Image src={LogoImg} alt="Motovise Logo" fill className="object-contain" />
@@ -233,7 +227,10 @@ export function Navbar() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </nav>
+        </header>
     );
 }
+
+
+
 

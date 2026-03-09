@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${dmSans.variable} font-sans antialiased bg-[#F8FAFC]`}>
+            <body className={`${dmSans.variable} font-sans antialiased min-h-screen bg-background`}>
                 <QueryProvider>
                     <AuthProvider>
                         <ThemeProvider
@@ -36,7 +36,7 @@ export default function RootLayout({
                         >
                             <div className="flex flex-col min-h-screen">
                                 <Navbar />
-                                <main className="flex-grow pt-24">
+                                <main className="flex-grow pt-[100px]">
                                     {children}
                                 </main>
                                 <Footer />
@@ -48,4 +48,5 @@ export default function RootLayout({
         </html>
     );
 }
+
 
