@@ -14,19 +14,8 @@ import { useCart } from '@/modules/cart/hooks/useCart';
 export function Navbar() {
     const { cart } = useCart();
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
     const navPillRef = useRef<HTMLDivElement | null>(null);
     const pathname = usePathname();
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 40);
-        };
-
-        handleScroll();
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
 
     useEffect(() => {
         if (typeof window === 'undefined') {
@@ -127,7 +116,7 @@ export function Navbar() {
         <header
             className={cn(
                 'fixed top-0 left-0 w-full z-50 flex items-center justify-between px-8 py-4 transition-all duration-300',
-                isHome && !scrolled
+                isHome
                     ? 'bg-transparent border-transparent'
                     : 'bg-white/90 backdrop-blur-md border-b border-gray-200'
             )}
@@ -249,3 +238,4 @@ export function Navbar() {
         </header>
     );
 }
+
