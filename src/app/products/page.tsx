@@ -76,7 +76,7 @@ function ProductsContent() {
     return (
         <div className="container mx-auto px-4 py-8 md:px-6 lg:py-12">
             {/* Hero / Banner Area */}
-            <div className="mb-8 overflow-hidden rounded-3xl bg-secondary/50 px-6 py-12 md:px-12 lg:mb-12">
+            <section className="mb-8 overflow-hidden rounded-3xl bg-secondary/50 px-6 py-12 md:px-12 lg:mb-12">
                 <div className="max-w-2xl">
                     <h1 className="mb-4 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl">
                         Explore Our Collection
@@ -85,7 +85,7 @@ function ProductsContent() {
                         Discover premium quality goods crafted for modern living. Browse through our carefully curated categories.
                     </p>
                 </div>
-            </div>
+            </section>
 
             {/* Mobile Controls */}
             <div className="mb-6 flex items-center justify-between lg:hidden">
@@ -189,3 +189,4 @@ export default function ProductsPage() {
         </React.Suspense>
     );
 }
+
