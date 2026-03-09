@@ -14,8 +14,19 @@ import { useCart } from '@/modules/cart/hooks/useCart';
 export function Navbar() {
     const { cart } = useCart();
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
     const navPillRef = useRef<HTMLDivElement | null>(null);
     const pathname = usePathname();
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 40);
+        };
+
+        handleScroll();
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     useEffect(() => {
         if (typeof window === 'undefined') {
@@ -94,6 +105,7 @@ export function Navbar() {
     }, []);
 
     const isAdminRoute = pathname?.startsWith('/admin');
+    const isHome = pathname === '/';
 
     if (isAdminRoute) {
         return null;
@@ -112,7 +124,14 @@ export function Navbar() {
     ];
 
     return (
-        <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-8 py-4 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <header
+            className={cn(
+                'fixed top-0 left-0 w-full z-50 flex items-center justify-between px-8 py-4 transition-all duration-300',
+                isHome && !scrolled
+                    ? 'bg-transparent border-transparent'
+                    : 'bg-white/90 backdrop-blur-md border-b border-gray-200'
+            )}
+        >
             <div className="w-full max-w-7xl mx-auto flex items-center h-16 relative transition-all duration-300">
                 <div className="flex items-center gap-3 z-20">
                     <Link href="/" className="group flex items-center">
@@ -230,7 +249,3 @@ export function Navbar() {
         </header>
     );
 }
-
-
-
-
