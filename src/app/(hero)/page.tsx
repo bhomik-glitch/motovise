@@ -188,6 +188,14 @@ export default function Home() {
             {/* ── Hero Frame Animation ── */}
             <FrameScrollPlayer />
 
+            <section className="w-full py-32">
+                <div className="mx-auto max-w-7xl px-6 lg:px-12">
+                    <div className="h-[300px] flex items-center justify-center text-gray-400">
+                        Future Section Placeholder
+                    </div>
+                </div>
+            </section>
+
             {/* ── Feature Banner ── */}
             <section
                 ref={featuresRef}
@@ -335,3 +343,4 @@ export default function Home() {
         </div>
     );
 }
+
