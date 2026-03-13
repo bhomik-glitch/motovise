@@ -11,6 +11,8 @@ import { useCart } from '@/modules/cart/hooks/useCart';
 import { toast } from 'react-hot-toast';
 import { useFeaturedProducts } from '@/modules/products/hooks/useProducts';
 import { Product } from '@/types/product';
+import { BestSellers } from '@/components/home/BestSellers';
+import { InstallationDemo } from '@/components/home/InstallationDemo';
 
 // Lazy load the heavy frame player
 const FrameScrollPlayer = dynamic(
@@ -190,9 +192,12 @@ export default function Home() {
 
             <section className="w-full py-32">
                 <div className="mx-auto max-w-7xl px-6 lg:px-12">
-                    <div className="h-[300px] flex items-center justify-center text-gray-400">
-                        Future Section Placeholder
-                    </div>
+                    <BestSellers />
+                </div>
+            </section>
+            <section className="w-full pb-20">
+                <div className="mx-auto max-w-7xl px-6 lg:px-12">
+                    <InstallationDemo />
                 </div>
             </section>
 
@@ -343,4 +348,5 @@ export default function Home() {
         </div>
     );
 }
+
 
