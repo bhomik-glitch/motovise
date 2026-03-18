@@ -35,6 +35,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
+RUN ls -R dist
+
+
 # Expose default port
 EXPOSE 4000
 
