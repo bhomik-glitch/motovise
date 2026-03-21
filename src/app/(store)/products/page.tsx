@@ -79,10 +79,10 @@ function ProductsContent() {
             <section className="max-w-7xl mx-auto px-6 py-12 mb-8 overflow-hidden rounded-3xl bg-secondary/50 md:px-12 lg:mb-12">
                 <div className="max-w-2xl">
                     <h1 className="mb-4 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-                        Explore Our Collection
+                        Upgrade Your Drive
                     </h1>
                     <p className="text-lg text-muted-foreground">
-                        Discover premium quality goods crafted for modern living. Browse through our carefully curated categories.
+                        Explore Motovise&apos;s range of smart Android Boxes and Wireless Adapters — engineered to turn any factory head unit into a modern connected cockpit.
                     </p>
                 </div>
             </section>

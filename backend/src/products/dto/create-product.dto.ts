@@ -6,6 +6,7 @@ import {
     IsNumber,
     IsBoolean,
     IsArray,
+    IsObject,
     Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -20,6 +21,11 @@ export class CreateProductDto {
     @IsString()
     @IsOptional()
     description?: string;
+
+    @ApiProperty({ example: 'Crystal-clear audio, all day comfort', required: false })
+    @IsString()
+    @IsOptional()
+    shortDescription?: string;
 
     @ApiProperty({ example: 2999.99 })
     @IsNumber()
@@ -57,7 +63,7 @@ export class CreateProductDto {
     @IsOptional()
     categoryId?: string;
 
-    @ApiProperty({ example: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'], required: false })
+    @ApiProperty({ example: ['https://example.com/image1.jpg'], required: false })
     @IsArray()
     @IsString({ each: true })
     @IsOptional()
@@ -83,8 +89,48 @@ export class CreateProductDto {
     @IsOptional()
     metaTitle?: string;
 
-    @ApiProperty({ example: 'Shop the best wireless headphones with noise cancellation', required: false })
+    @ApiProperty({ example: 'Shop the best wireless headphones', required: false })
     @IsString()
     @IsOptional()
     metaDescription?: string;
+
+    // ── Rich product detail fields ────────────────────────────────────────────────
+
+    @ApiProperty({
+        example: [{ icon: 'Wifi', title: 'Wireless', description: 'No cables needed' }],
+        required: false,
+        description: 'Array of feature objects: [{icon, title, description}]',
+    })
+    @IsOptional()
+    features?: Array<{ icon?: string; title: string; description: string }>;
+
+    @ApiProperty({
+        example: { makes: ['Toyota', 'Honda'], years: { from: 2018, to: 2024 } },
+        required: false,
+        description: 'Compatibility info: {makes: string[], years: {from: number, to: number}}',
+    })
+    @IsOptional()
+    compatibility?: {
+        makes?: string[];
+        years?: { from: number; to: number };
+        note?: string;
+    };
+
+    @ApiProperty({
+        example: [{ label: 'Connectivity', value: 'Bluetooth 5.0' }],
+        required: false,
+        description: 'Key/value specification pairs: [{label, value}]',
+    })
+    @IsOptional()
+    specifications?: Array<{ label: string; value: string }>;
+
+    @ApiProperty({
+        example: ['1x Device', '1x USB-A Cable', '1x Quick Start Guide'],
+        required: false,
+        description: "What's in the box",
+    })
+    @IsArray()
+    @IsString({ each: true })
+    @IsOptional()
+    boxContents?: string[];
 }

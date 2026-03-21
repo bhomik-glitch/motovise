@@ -4,11 +4,10 @@ import * as React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Star, ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Cpu, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/types/product';
-
 import { useRouter } from 'next/navigation';
 
 export interface ProductCardProps {
@@ -18,36 +17,68 @@ export interface ProductCardProps {
     isLoading?: boolean;
 }
 
-const pastelColors = [
-    '#dbeafe', // blue-100
-    '#dcfce7', // green-100
-    '#fee2e2', // red-100
-    '#fef9c3', // yellow-100
-    '#f3e8ff', // purple-100
-    '#fce7f3', // pink-100
-    '#e0e7ff', // indigo-100
-    '#ffedd5'  // orange-100
-];
+/** Determine if the product belongs to the Android Box category */
+function isAndroidBox(product: Product): boolean {
+    const catSlug = product.category?.slug ?? '';
+    const catName = (product.category?.name ?? '').toLowerCase();
+    return catSlug === 'android-box' || catName.includes('android box');
+}
+
+function isWirelessAdapter(product: Product): boolean {
+    const catSlug = product.category?.slug ?? '';
+    const catName = (product.category?.name ?? '').toLowerCase();
+    return catSlug === 'wireless-adapter' || catName.includes('wireless adapter');
+}
+
+function CategoryBadge({ product }: { product: Product }) {
+    if (isAndroidBox(product)) {
+        return (
+            <span className="inline-flex items-center gap-1 rounded-full bg-violet-600/90 px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-sm">
+                <Cpu className="h-3 w-3" />
+                Android Box
+            </span>
+        );
+    }
+    if (isWirelessAdapter(product)) {
+        return (
+            <span className="inline-flex items-center gap-1 rounded-full bg-sky-600/90 px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-sm">
+                <Wifi className="h-3 w-3" />
+                Wireless Adapter
+            </span>
+        );
+    }
+    if (product.category?.name) {
+        return (
+            <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                {product.category.name}
+            </span>
+        );
+    }
+    return null;
+}
 
 export function ProductCard({ product, className, onAddToCart, isLoading }: ProductCardProps) {
     const router = useRouter();
+    const [imageError, setImageError] = React.useState(false);
 
-    // Generate a mock rating and color based on ID
-    const { rating, pastelColor } = React.useMemo(() => {
-        const hash = product.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-        return {
-            rating: 3.5 + (hash % 15) / 10,
-            pastelColor: pastelColors[hash % pastelColors.length]
-        };
-    }, [product.id]);
-
-    const isMockNew = product.createdAt ? new Date(product.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) : false;
-
-    // Formatting currency
-    const formattedPrice = new Intl.NumberFormat('en-US', {
+    const formattedPrice = new Intl.NumberFormat('en-IN', {
         style: 'currency',
-        currency: product.currency || 'USD',
+        currency: 'INR',
+        maximumFractionDigits: 0,
     }).format(product.price);
+
+    const formattedCompareAtPrice = product.compareAtPrice
+        ? new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              maximumFractionDigits: 0,
+          }).format(product.compareAtPrice)
+        : null;
+
+    const discountPercent =
+        product.compareAtPrice && product.compareAtPrice > product.price
+            ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+            : null;
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -61,7 +92,10 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
         router.push(`/product/${product.slug}`);
     };
 
-    const [imageError, setImageError] = React.useState(false);
+    const imgSrc =
+        !imageError && (product.thumbnail || (product.images && product.images.length > 0))
+            ? product.thumbnail || product.images[0]
+            : '/placeholder-product.png';
 
     return (
         <motion.div
@@ -69,66 +103,60 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
             animate={{ opacity: 1, y: 0 }}
             onClick={handleCardClick}
             className={cn(
-                'group relative flex flex-col w-full min-w-0 overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm ring-1 ring-border transition-all hover:shadow-md cursor-pointer',
+                'group relative flex flex-col w-full min-w-0 overflow-hidden rounded-2xl bg-card text-card-foreground shadow-sm ring-1 ring-border transition-all hover:shadow-lg hover:-translate-y-0.5 cursor-pointer',
                 className
             )}
         >
             {/* Image Container */}
-            <div className="relative aspect-square w-full overflow-hidden">
-                {/* Pastel Box Placeholder (Visual interest) */}
-                <div
-                    className="absolute inset-0 z-0"
-                    style={{ backgroundColor: pastelColor }}
-                />
-
-                {/* Badges */}
-                <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-2">
+            <div className="relative aspect-square w-full overflow-hidden bg-muted/30">
+                {/* Badges — top-left */}
+                <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5">
                     {product.stock <= 0 && (
-                        <div className="rounded-md bg-destructive px-2 py-1 text-xs font-semibold text-destructive-foreground shadow-sm">
+                        <div className="rounded-md bg-destructive px-2 py-0.5 text-xs font-semibold text-destructive-foreground shadow-sm">
                             Out of Stock
                         </div>
                     )}
                     {product.stock > 0 && product.stock <= 5 && (
-                        <div className="rounded-md bg-amber-500 px-2 py-1 text-xs font-semibold text-white shadow-sm">
-                            Low Stock
+                        <div className="rounded-md bg-amber-500 px-2 py-0.5 text-xs font-semibold text-white shadow-sm">
+                            Only {product.stock} left
                         </div>
                     )}
-                    {isMockNew && (
-                        <div className="rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
-                            New
+                    {discountPercent && (
+                        <div className="rounded-md bg-emerald-500 px-2 py-0.5 text-xs font-semibold text-white shadow-sm">
+                            -{discountPercent}%
                         </div>
                     )}
                 </div>
 
-                {/* Main Image with Zoom on Hover */}
+                {/* Main Image */}
                 <motion.div
-                    className="relative h-full w-full z-10"
+                    className="relative h-full w-full"
                     whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
                 >
                     <Image
-                        src={(!imageError && (product.thumbnail || (product.images && product.images.length > 0))) ? (product.thumbnail || product.images![0]) : '/placeholder-product.png'}
+                        src={imgSrc}
                         alt={product.name}
                         fill
-                        className="object-cover object-center aspect-square"
+                        className="object-cover object-center"
                         sizes="(max-width:768px) 50vw, (max-width:1200px) 33vw, 25vw"
                         onError={() => setImageError(true)}
                     />
                 </motion.div>
 
                 {/* Quick Add to Cart Button */}
-                <div className="absolute inset-x-0 bottom-0 z-20 translate-y-full px-4 pb-4 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
+                <div className="absolute inset-x-0 bottom-0 z-20 translate-y-full px-3 pb-3 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
                     <Button
                         onClick={handleAddToCart}
                         disabled={product.stock <= 0 || isLoading}
-                        className="w-full rounded-xl py-6 font-semibold shadow-lg"
+                        className="w-full rounded-xl py-5 font-semibold shadow-lg"
                         size="lg"
                     >
                         {isLoading ? (
                             <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                         ) : product.stock > 0 ? (
                             <>
-                                <ShoppingCart className="mr-2 h-5 w-5" />
+                                <ShoppingCart className="mr-2 h-4 w-4" />
                                 Add to Cart
                             </>
                         ) : (
@@ -139,33 +167,32 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
             </div>
 
             {/* Content Container */}
-            <div className="flex flex-1 flex-col p-4">
-                <div className="mb-1 text-sm text-muted-foreground outline-none hover:text-foreground">
-                    {typeof product.category === 'string' ? product.category : product.category?.name ?? ''}
-                </div>
-                <h3 className="line-clamp-2 text-base font-medium leading-tight text-foreground transition-colors group-hover:text-primary">
+            <div className="flex flex-1 flex-col p-4 gap-2">
+                {/* Category badge */}
+                <CategoryBadge product={product} />
+
+                {/* Product Name */}
+                <h3 className="line-clamp-2 text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
                     {product.name}
                 </h3>
 
-                <div className="mt-2 flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                            key={star}
-                            className={cn(
-                                "h-3.5 w-3.5",
-                                star <= Math.round(rating)
-                                    ? "fill-primary text-primary"
-                                    : "fill-muted text-muted"
-                            )}
-                        />
-                    ))}
-                    <span className="ml-1 text-xs text-muted-foreground">({(rating).toFixed(1)})</span>
-                </div>
+                {/* Short description */}
+                {product.shortDescription && (
+                    <p className="line-clamp-2 text-xs text-muted-foreground leading-relaxed">
+                        {product.shortDescription}
+                    </p>
+                )}
 
-                <div className="mt-auto pt-3">
-                    <span className="text-lg font-semibold tracking-tight text-foreground">
+                {/* Price row */}
+                <div className="mt-auto pt-2 flex items-baseline gap-2">
+                    <span className="text-lg font-bold tracking-tight text-foreground">
                         {formattedPrice}
                     </span>
+                    {formattedCompareAtPrice && (
+                        <span className="text-sm text-muted-foreground line-through">
+                            {formattedCompareAtPrice}
+                        </span>
+                    )}
                 </div>
             </div>
         </motion.div>
@@ -175,12 +202,12 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
 export function ProductCardSkeleton() {
     return (
         <div className="flex flex-col overflow-hidden rounded-2xl bg-card shadow-sm ring-1 ring-border">
-            <div className="aspect-[4/5] w-full animate-pulse bg-muted" />
-            <div className="flex flex-1 flex-col p-4">
-                <div className="mb-2 h-4 w-1/3 animate-pulse rounded bg-muted"></div>
-                <div className="mb-1 h-5 w-full animate-pulse rounded bg-muted"></div>
-                <div className="mb-3 h-5 w-2/3 animate-pulse rounded bg-muted"></div>
-                <div className="mt-auto h-6 w-1/4 animate-pulse rounded bg-muted"></div>
+            <div className="aspect-square w-full animate-pulse bg-muted" />
+            <div className="flex flex-1 flex-col p-4 gap-2">
+                <div className="h-5 w-24 animate-pulse rounded-full bg-muted" />
+                <div className="h-5 w-full animate-pulse rounded bg-muted" />
+                <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+                <div className="mt-auto h-6 w-1/3 animate-pulse rounded bg-muted" />
             </div>
         </div>
     );

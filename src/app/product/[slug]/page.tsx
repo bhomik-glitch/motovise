@@ -76,10 +76,24 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
         );
     }
 
-    const formattedPrice = new Intl.NumberFormat('en-US', {
+    const formattedPrice = new Intl.NumberFormat('en-IN', {
         style: 'currency',
-        currency: product.currency || 'USD',
+        currency: 'INR',
+        maximumFractionDigits: 0,
     }).format(product.price);
+
+    const formattedCompareAtPrice = product.compareAtPrice
+        ? new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              maximumFractionDigits: 0,
+          }).format(product.compareAtPrice)
+        : null;
+
+    const discountPercent =
+        product.compareAtPrice && product.compareAtPrice > product.price
+            ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+            : null;
 
     return (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 lg:py-12">
@@ -128,16 +142,29 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                             {/* Mocking a 4.8 star rating for demo since real product data lacks it */}
                             <RatingDisplay rating={4.8} count={124} />
                         </div>
-                        <div className="mt-4 flex items-center gap-4">
+                        <div className="mt-4 flex items-baseline gap-3 flex-wrap">
                             <span className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                                 {formattedPrice}
                             </span>
+                            {formattedCompareAtPrice && (
+                                <span className="text-base text-muted-foreground line-through">
+                                    {formattedCompareAtPrice}
+                                </span>
+                            )}
+                            {discountPercent && (
+                                <span className="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-sm font-semibold">
+                                    -{discountPercent}% OFF
+                                </span>
+                            )}
                         </div>
                     </div>
 
-                    <div className="mb-8 text-base text-muted-foreground sm:text-lg">
-                        <p>{product.description}</p>
-                    </div>
+                    {/* Short summary – full content goes in the Tabs below */}
+                    {(product.shortDescription || product.description) && (
+                        <div className="mb-8 text-base text-muted-foreground sm:text-lg">
+                            <p>{product.shortDescription || product.description}</p>
+                        </div>
+                    )}
 
                     <div className="mb-8 border-y border-border py-6">
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:gap-4">
@@ -182,7 +209,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                             <Truck className="h-6 w-6 text-primary" />
                             <div className="flex flex-col">
                                 <span className="text-sm font-semibold text-foreground">Free Shipping</span>
-                                <span className="text-xs text-muted-foreground">On orders over $50</span>
+                                <span className="text-xs text-muted-foreground">On orders above ₹499</span>
                             </div>
                         </div>
                     </div>

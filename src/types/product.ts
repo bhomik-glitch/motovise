@@ -4,11 +4,32 @@ export interface ProductCategory {
     slug: string;
 }
 
+// Feature item as returned from the backend JSON field
+export interface ProductFeature {
+    icon?: string;
+    title: string;
+    description: string;
+}
+
+// Compatibility info
+export interface ProductCompatibility {
+    makes?: string[];
+    years?: { from: number; to: number };
+    note?: string;
+}
+
+// Specification row
+export interface ProductSpecification {
+    label: string;
+    value: string;
+}
+
 export interface Product {
     id: string;
     name: string;
     slug: string;
     description: string | null;
+    shortDescription: string | null;
     price: number;
     compareAtPrice: number | null;
     sku: string | null;
@@ -21,6 +42,11 @@ export interface Product {
     category: ProductCategory | null;
     metaTitle: string | null;
     metaDescription: string | null;
+    // Rich product fields
+    features: ProductFeature[] | null;
+    compatibility: ProductCompatibility | null;
+    specifications: ProductSpecification[] | null;
+    boxContents: string[];
     createdAt: string;
     updatedAt: string;
     // Legacy / convenience
