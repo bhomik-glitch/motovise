@@ -1,0 +1,59 @@
+.panel {
+  padding: clamp(var(--space-8), 4vw, var(--space-12));
+  border: 1px solid var(--color-border);
+  border-radius: 36px;
+  background:
+    radial-gradient(circle at top right, rgba(0, 139, 250, 0.08), transparent 22%),
+    rgba(247, 244, 237, 0.86);
+  box-shadow: var(--shadow-soft);
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.form label {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.form span {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.form input {
+  min-height: 56px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.64);
+  color: var(--color-primary);
+}
+
+.emailField {
+  grid-column: span 2;
+}
+
+.form button {
+  width: fit-content;
+}
+
+@media (max-width: 767px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+
+  .emailField {
+    grid-column: span 1;
+  }
+
+  .form button {
+    width: 100%;
+  }
+}

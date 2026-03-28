@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
+import type { Category } from '@/modules/products/hooks/useProducts';
 
 export interface FilterState {
     categories: string[];
@@ -10,18 +11,28 @@ export interface FilterState {
 }
 
 interface FilterSidebarProps {
-    availableCategories: string[];
+    availableCategories: Category[];
     filters: FilterState;
     onChange: (filters: FilterState) => void;
     className?: string;
 }
 
+const ALLOWED_SLUGS = ["android-box", "wireless-adapter"];
+
 export function FilterSidebar({ availableCategories, filters, onChange, className }: FilterSidebarProps) {
 
-    const handleCategoryChange = (category: string) => {
-        const newCategories = filters.categories.includes(category)
-            ? filters.categories.filter((c) => c !== category)
-            : [...filters.categories, category];
+    const filteredCategories = availableCategories.filter(cat =>
+        ALLOWED_SLUGS.includes(cat.slug)
+    );
+
+    const categoriesToRender = filteredCategories.length > 0
+        ? filteredCategories
+        : availableCategories;
+
+    const handleCategoryChange = (categoryId: string) => {
+        const newCategories = filters.categories.includes(categoryId)
+            ? filters.categories.filter((c) => c !== categoryId)
+            : [...filters.categories, categoryId];
 
         onChange({ ...filters, categories: newCategories });
     };
@@ -37,31 +48,35 @@ export function FilterSidebar({ availableCategories, filters, onChange, classNam
             <div>
                 <h3 className="mb-4 text-sm font-semibold tracking-tight text-foreground uppercase">Categories</h3>
                 <div className="flex flex-col gap-3">
-                    {availableCategories.map((category) => (
-                        <label
-                            key={category}
-                            className="flex cursor-pointer items-center space-x-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            <div className="relative flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border border-primary ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-                                <input
-                                    type="checkbox"
-                                    className="peer sr-only"
-                                    checked={filters.categories.includes(category)}
-                                    onChange={() => handleCategoryChange(category)}
-                                    aria-label={`Filter by ${category}`}
-                                />
-                                {filters.categories.includes(category) && (
-                                    <svg
-                                        className="h-3 w-3 fill-primary"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
-                                    </svg>
-                                )}
-                            </div>
-                            <span>{category}</span>
-                        </label>
-                    ))}
+                    {categoriesToRender.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No categories available.</p>
+                    ) : (
+                        categoriesToRender.map((category) => (
+                            <label
+                                key={category.id}
+                                className="flex cursor-pointer items-center space-x-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                                <div className="relative flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border border-primary ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                                    <input
+                                        type="checkbox"
+                                        className="peer sr-only"
+                                        checked={filters.categories.includes(category.id)}
+                                        onChange={() => handleCategoryChange(category.id)}
+                                        aria-label={`Filter by ${category.name}`}
+                                    />
+                                    {filters.categories.includes(category.id) && (
+                                        <svg
+                                            className="h-3 w-3 fill-primary"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <span>{category.name}</span>
+                            </label>
+                        ))
+                    )}
                 </div>
             </div>
 

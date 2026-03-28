@@ -35,7 +35,7 @@ const fetchProducts = async (options: UseProductsOptions): Promise<ProductListRe
 
     if (options.search) params.search = options.search;
     if (options.filters.categories && options.filters.categories.length > 0) {
-        params.categoryId = options.filters.categories[0]; // backend accepts single categoryId
+        params.categoryId = options.filters.categories[0];
     }
     if (options.filters.minPrice !== undefined) params.minPrice = options.filters.minPrice;
     if (options.filters.maxPrice !== undefined) params.maxPrice = options.filters.maxPrice;
@@ -61,14 +61,18 @@ export function useProducts(options: UseProductsOptions) {
     });
 }
 
+export interface Category {
+    id: string;
+    name: string;
+    slug: string;
+}
+
 export function useCategories() {
-    return useQuery({
+    return useQuery<Category[]>({
         queryKey: ['categories'],
         queryFn: async () => {
-            const { data } = await api.get<{ success: boolean; data: any[] }>('/categories');
-            // Backend might return objects {id, name, slug}, we only need name array for the sidebar right now
-            // or adapt FilterSidebar to handle objects.
-            return data.data.map(c => c.name);
+            const { data } = await api.get<{ success: boolean; data: Category[] }>('/categories');
+            return data.data.map(c => ({ id: c.id, name: c.name, slug: c.slug }));
         },
         staleTime: 60000 * 5,
     });

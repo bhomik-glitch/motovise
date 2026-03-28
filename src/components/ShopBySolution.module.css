@@ -1,0 +1,110 @@
+.section {
+  padding: 120px 20px;
+  max-width: 1600px; /* Much wider for screen coverage */
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* No padding for edge-to-edge images */
+  background: white; 
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 42px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+.cardLink {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  color: inherit;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+}
+
+.visual {
+  height: 480px; /* Taller for more immersive feel */
+  border-radius: 34px;
+  background: #f8f9fa;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* No padding to fit the screen area */
+  overflow: hidden;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Fill the card completely */
+  transition: transform 0.8s ease;
+}
+
+.card:hover .cardImage {
+  transform: scale(1.05); /* Smooth zoom on hover */
+}
+
+.cool, .warm, .berry, .citrus {
+  background: #f8f9fa;
+}
+
+.content {
+  padding: 24px 24px 32px 24px; /* More padding for text now that card padding is 0 */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.textGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.textGroup h3 {
+  margin: 0;
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.textGroup p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .visual {
+    height: 380px;
+  }
+}

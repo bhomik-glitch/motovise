@@ -1,9 +1,17 @@
+import "@/app/globals.css";
 import { LoginForm } from "@/modules/account/components/LoginForm";
 
 export default function LoginPage() {
     return (
-        <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950/50">
+        <main className="min-h-screen flex items-center justify-center px-4 pt-24 relative overflow-hidden">
+
+            <div className="absolute inset-0 -z-10">
+                <div className="w-full h-full bg-[url('/images/form-bg-content.png')] bg-cover bg-center" />
+                <div className="absolute inset-0 bg-black/30" />
+            </div>
+
             <LoginForm />
-        </div>
+
+        </main>
     );
 }

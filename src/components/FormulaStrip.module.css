@@ -1,0 +1,113 @@
+.section {
+  padding: 64px 0 var(--space-12);
+}
+
+.strip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px 32px;
+  background: #ffffff; /* Clean white background */
+  border: 1px solid rgba(0, 0, 0, 0.05); /* Softer border for light mode */
+  border-radius: 16px;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+}
+
+/* Removed top reflection line as it's not needed for white background */
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.title {
+  color: var(--color-text, #000000); /* Ensure dark text on white */
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: clamp(1.25rem, 2.8vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--color-text-muted, #666666);
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.subtitle::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background: currentColor;
+  opacity: 0.3;
+  transition: width 0.3s ease;
+}
+
+.subtitle:hover {
+  color: var(--color-accent, #0070f3);
+}
+
+.subtitle:hover::after {
+  width: 100%;
+}
+
+.marquee {
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.track {
+  display: flex;
+  gap: 64px;
+  width: max-content;
+  will-change: transform;
+  color: var(--color-text-muted, #666666);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.7; /* Slightly more opaque for readability on white */
+}
+
+.track span {
+  white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  .section {
+    padding-top: 56px;
+  }
+}
+
+@media (max-width: 767px) {
+  .section {
+    padding-top: 48px;
+  }
+  
+  .head {
+    align-items: center;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .strip {
+    padding: 20px 24px;
+    gap: 16px;
+  }
+}

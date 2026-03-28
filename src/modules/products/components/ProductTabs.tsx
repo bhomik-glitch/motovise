@@ -14,7 +14,7 @@ interface ProductTabsProps {
     product: Product;
 }
 
-type TabKey = 'overview' | 'specs' | 'compatibility' | 'inbox' | 'shipping';
+type TabKey = 'overview' | 'specs' | 'compatibility' | 'inbox' | 'shipping' | 'safety';
 
 // Map icon name strings (stored in DB) to Lucide components
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -44,6 +44,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
         ...(hasCompatibility ? [{ id: 'compatibility' as TabKey, label: 'Compatibility' }] : []),
         ...(hasBoxContents ? [{ id: 'inbox' as TabKey, label: "In the Box" }] : []),
         { id: 'shipping', label: 'Shipping & Returns' },
+        { id: 'safety', label: 'Safety & Usage' },
     ];
 
     return (
@@ -222,6 +223,37 @@ export function ProductTabs({ product }: ProductTabsProps) {
                             <p className="mt-3">
                                 For warranty claims, our products include a <strong>1-year warranty</strong> covering manufacturing defects.
                                 Contact our support team to initiate a claim.
+                            </p>
+                        </div>
+                    )}
+
+                    {/* ── SAFETY & USAGE ─────────────────────────────────────────── */}
+                    {activeTab === 'safety' && (
+                        <div className="space-y-6">
+                            <div>
+                                <h3 className="mb-3 text-base font-semibold text-foreground">Safe Usage Guidelines</h3>
+                                <p className="text-muted-foreground mb-4">
+                                    This product is designed to enhance your in-car experience, but must be used responsibly.
+                                </p>
+                                <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
+                                    <li>Use only when the vehicle is parked.</li>
+                                    <li>Do NOT operate or interact with the system while driving.</li>
+                                    <li>Avoid watching videos or engaging with distracting apps on the road.</li>
+                                    <li>Always prioritize road safety over device interaction.</li>
+                                    <li>Follow all local traffic laws and regulations.</li>
+                                </ul>
+                            </div>
+
+                            {/* Warning Box */}
+                            <div className="rounded-xl border border-red-500/30 bg-red-500/5 px-5 py-4">
+                                <p className="text-sm text-red-600 dark:text-red-400 font-medium leading-relaxed">
+                                    Using this device while driving may cause distraction and increase the risk of accidents. The user is solely responsible for safe operation.
+                                </p>
+                            </div>
+
+                            {/* Legal Disclaimer */}
+                            <p className="text-xs text-muted-foreground mt-8 opacity-70">
+                                This product is intended for safe and responsible use only. The manufacturer and seller are not liable for misuse or unsafe operation while driving.
                             </p>
                         </div>
                     )}

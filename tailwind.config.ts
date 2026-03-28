@@ -57,8 +57,8 @@ const config: Config = {
                 },
             },
             fontFamily: {
-                "display": ["'Syne'", "sans-serif"],
-                "sans": ["'DM Sans'", "system-ui", "sans-serif"],
+                "display": ["var(--font-montserrat)", "sans-serif"],
+                "sans": ["var(--font-montserrat)", "system-ui", "sans-serif"],
             },
             borderRadius: {
                 lg: "var(--radius)",

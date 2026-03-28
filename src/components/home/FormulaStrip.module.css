@@ -1,0 +1,42 @@
+.section {
+  padding: 0 0 var(--space-12);
+}
+
+.strip {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-6) clamp(var(--space-6), 4vw, var(--space-10));
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: clamp(1.25rem, 2.8vw, 2rem);
+}
+
+.marquee {
+  overflow: hidden;
+}
+
+.track {
+  display: flex;
+  gap: var(--space-3);
+  width: max-content;
+  will-change: transform;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 767px) {
+  .head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

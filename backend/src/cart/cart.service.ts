@@ -85,57 +85,63 @@ export class CartService {
                 },
             });
 
-            return this.getCart(userId);
+            // Read back within the same transaction so we see the upserted item
+            const updatedCart = await tx.cart.findUnique({
+                where: { userId },
+                include: this.cartInclude,
+            });
+
+            const items = updatedCart?.items ?? [];
+            const subtotal = items.reduce(
+                (sum, i) => sum + Number(i.product.price) * i.quantity,
+                0,
+            );
+
+            return {
+                id: updatedCart!.id,
+                items: items.map((i) => ({
+                    id: i.id,
+                    productId: i.productId,
+                    product: i.product,
+                    quantity: i.quantity,
+                    itemTotal: Number(i.product.price) * i.quantity,
+                })),
+                subtotal,
+                itemCount: items.reduce((sum, i) => sum + i.quantity, 0),
+            };
         });
     }
+
+    private readonly cartInclude = {
+        items: {
+            include: {
+                product: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                        price: true,
+                        compareAtPrice: true,
+                        thumbnail: true,
+                        images: true,
+                        stock: true,
+                        isActive: true,
+                    },
+                },
+            },
+        },
+    } as const;
 
     async getCart(userId: string) {
         let cart = await this.prisma.cart.findUnique({
             where: { userId },
-            include: {
-                items: {
-                    include: {
-                        product: {
-                            select: {
-                                id: true,
-                                name: true,
-                                slug: true,
-                                price: true,
-                                compareAtPrice: true,
-                                thumbnail: true,
-                                stock: true,
-                                isActive: true,
-                            },
-                        },
-                    },
-                },
-            },
+            include: this.cartInclude,
         });
 
         if (!cart) {
-            // Auto-create empty cart
             cart = await this.prisma.cart.create({
-                data: {
-                    userId,
-                },
-                include: {
-                    items: {
-                        include: {
-                            product: {
-                                select: {
-                                    id: true,
-                                    name: true,
-                                    slug: true,
-                                    price: true,
-                                    compareAtPrice: true,
-                                    thumbnail: true,
-                                    stock: true,
-                                    isActive: true,
-                                },
-                            },
-                        },
-                    },
-                },
+                data: { userId },
+                include: this.cartInclude,
             });
         }
 
@@ -148,6 +154,7 @@ export class CartService {
             id: cart.id,
             items: cart.items.map((item) => ({
                 id: item.id,
+                productId: item.productId,
                 product: item.product,
                 quantity: item.quantity,
                 itemTotal: Number(item.product.price) * item.quantity,

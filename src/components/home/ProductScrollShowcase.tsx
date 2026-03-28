@@ -1,0 +1,428 @@
+'use client';
+
+import { useRef, useEffect, useState, useCallback } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+
+interface ShowcaseFeature {
+  label: string;
+  d: string;
+}
+
+interface ShowcaseProduct {
+  slug: string;
+  badge: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  image: string;
+  price: string;
+  emi: string;
+  features: ShowcaseFeature[];
+}
+
+const PRODUCTS: ShowcaseProduct[] = [
+  {
+    slug: 'duo-connectx',
+    badge: 'Top Spec',
+    title: 'Duo ConnectX\nWireless Adapter',
+    subtitle: 'Zero-wire. Zero-lag. Full CarPlay.',
+    description:
+      'Plug in once — connect forever. The Duo ConnectX auto-pairs every time you start your car, delivering HD wireless CarPlay and Android Auto without a single cable.',
+    image: '/bg-remove-product-thumbnail/remove-bg-product-1.png',
+    price: '₹4,999',
+    emi: '₹417/mo with no-cost EMI',
+    features: [
+      { label: 'Fast Connect', d: 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z' },
+      { label: 'Stable Signal', d: 'M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z' },
+      { label: 'Plug & Play', d: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 018.25 20.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z' },
+      { label: 'Wireless', d: 'M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0' },
+      { label: 'HD Output', d: 'M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z' },
+      { label: 'Auto Pair', d: 'M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244' },
+    ],
+  },
+  {
+    slug: 'playbox-max',
+    badge: 'Premium',
+    title: 'Playbox Max\nVideo Box',
+    subtitle: 'Your car screen, reimagined.',
+    description:
+      'The ultimate car upgrade — 10.26" UHD display with 4K loop recording, wireless CarPlay, Android Auto, and real-time GPS navigation built into one sleek unit.',
+    image: '/bg-remove-product-thumbnail/remove-bg-product-2.png',
+    price: '₹19,999',
+    emi: '₹1,667/mo with no-cost EMI',
+    features: [
+      { label: '4K Record', d: 'M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z' },
+      { label: 'CarPlay', d: 'M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0' },
+      { label: 'Android Auto', d: 'M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 8.25h3' },
+      { label: 'Night Vision', d: 'M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z' },
+      { label: 'GPS Nav', d: 'M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z' },
+      { label: 'Loop Rec', d: 'M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99' },
+    ],
+  },
+  {
+    slug: 'dashcam-pro',
+    badge: 'Best Seller',
+    title: 'Dashcam Pro\nSafety Kit',
+    subtitle: 'See everything. Miss nothing.',
+    description:
+      'Complete front & rear coverage with 4K resolution, advanced night vision, and G-sensor accident detection. Your undeniable shield on every road.',
+    image: '/bg-remove-product-thumbnail/remove-bg-product-3.png',
+    price: '₹13,999',
+    emi: '₹1,167/mo with no-cost EMI',
+    features: [
+      { label: '4K Clarity', d: 'M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z' },
+      { label: 'Night Vision', d: 'M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z' },
+      { label: 'G-Sensor', d: 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z' },
+      { label: 'Loop Rec', d: 'M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99' },
+      { label: 'WiFi', d: 'M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z' },
+      { label: 'Wide Angle', d: 'M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z' },
+    ],
+  },
+  {
+    slug: 'y2-adapter',
+    badge: 'Compact',
+    title: 'Y2 CarPlay\nAdapter',
+    subtitle: 'Small adapter. Big upgrade.',
+    description:
+      'Ultra-mini and hidden — the Y2 is the perfect entry-level wireless CarPlay solution. Instant auto-pairing and a rock-solid 5GHz signal every time you start.',
+    image: '/bg-remove-product-thumbnail/remove-bg-product-4.png',
+    price: '₹3,499',
+    emi: '₹292/mo with no-cost EMI',
+    features: [
+      { label: 'Plug & Play', d: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 018.25 20.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z' },
+      { label: 'Auto Pair', d: 'M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244' },
+      { label: '5GHz', d: 'M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0' },
+      { label: 'Low Lag', d: 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z' },
+      { label: 'Universal', d: 'M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418' },
+      { label: 'Compact', d: 'M9 9V4.5m0 0L6.75 6.75M9 4.5l2.25 2.25m-5.25 6.75V18m0 0l-2.25-2.25M6.75 18l2.25-2.25m6-10.5V18m0 0l-2.25-2.25M15 18l2.25-2.25m0-10.5L15 9.75M17.25 7.5l-2.25-2.25' },
+    ],
+  },
+];
+
+// ─── Shared card inner content ────────────────────────────────────────────────
+
+function FeatureIcon({ feature }: { feature: ShowcaseFeature }) {
+  return (
+    <div className="flex flex-col items-center gap-1.5 opacity-80">
+      <div
+        className="w-8 h-8 rounded-full flex items-center justify-center"
+        style={{ background: 'rgba(0,139,250,0.12)', border: '1px solid rgba(0,139,250,0.2)' }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.8}
+          stroke="#60c0ff"
+          className="w-4 h-4"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d={feature.d} />
+        </svg>
+      </div>
+      <span
+        className="text-[10px] font-medium text-center leading-tight"
+        style={{ color: 'rgba(237,235,228,0.65)' }}
+      >
+        {feature.label}
+      </span>
+    </div>
+  );
+}
+
+// ─── Mobile stacked card ──────────────────────────────────────────────────────
+
+function MobileCard({ product }: { product: ShowcaseProduct }) {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden border border-white/10"
+      style={{
+        backgroundImage: "url('/hero-section-product-bg-img.jpeg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <div
+        className="absolute inset-0"
+        style={{ background: 'linear-gradient(160deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.35) 100%)' }}
+      />
+      <div className="relative z-10 flex flex-col items-center gap-4 px-6 py-10 text-center">
+        <img
+          src={product.image}
+          alt={product.title.replace('\n', ' ')}
+          className="max-w-[260px] w-full object-contain"
+          style={{ filter: 'drop-shadow(0 16px 24px rgba(0,139,250,0.14))' }}
+        />
+        <span
+          className="inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest"
+          style={{ background: 'rgba(0,139,250,0.18)', color: '#60c0ff', border: '1px solid rgba(0,139,250,0.3)' }}
+        >
+          {product.badge}
+        </span>
+        <h2
+          className="text-2xl font-semibold leading-tight max-w-[320px]"
+          style={{ color: 'var(--color-text-inverse)', letterSpacing: '-0.02em', whiteSpace: 'pre-line' }}
+        >
+          {product.title}
+        </h2>
+        <p className="text-sm font-semibold" style={{ color: '#60c0ff' }}>{product.subtitle}</p>
+        <p className="text-sm leading-relaxed max-w-sm" style={{ color: 'rgba(237,235,228,0.72)' }}>
+          {product.description}
+        </p>
+        <div className="grid grid-cols-3 gap-4 max-w-[300px] w-full">
+          {product.features.slice(0, 6).map((f) => <FeatureIcon key={f.label} feature={f} />)}
+        </div>
+        <div className="flex flex-col gap-1 items-center">
+          <span className="text-2xl font-bold" style={{ color: 'var(--color-text-inverse)' }}>{product.price}</span>
+          <p className="text-xs" style={{ color: 'rgba(237,235,228,0.5)' }}>{product.emi}</p>
+        </div>
+        <div className="flex gap-2">
+          <a
+            href="/products"
+            className="inline-flex items-center justify-center h-10 rounded-xl px-6 text-sm font-semibold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+            style={{ background: 'var(--color-accent)', color: '#fff', boxShadow: '0 4px 16px rgba(0,139,250,0.3)' }}
+          >
+            Buy Now
+          </a>
+          <a
+            href={`/product/${product.slug}`}
+            className="inline-flex items-center justify-center h-10 rounded-xl px-6 text-sm font-semibold transition-all duration-200 hover:bg-white/10 active:scale-[0.98]"
+            style={{ color: 'var(--color-text-inverse)', border: '1px solid rgba(237,235,228,0.25)' }}
+          >
+            View Details
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Desktop scroll-locked showcase ──────────────────────────────────────────
+
+export function ProductScrollShowcase() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const { top, height } = section.getBoundingClientRect();
+    const scrolled = -top;
+    const total = height - window.innerHeight;
+    if (total <= 0) return;
+    const progress = Math.max(0, Math.min(1, scrolled / total));
+    const next = Math.min(PRODUCTS.length - 1, Math.floor(progress * PRODUCTS.length));
+    setActiveIndex(next);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || isMobile) return;
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [mounted, isMobile, handleScroll]);
+
+  const scrollToIndex = useCallback((i: number) => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+    const total = section.offsetHeight - window.innerHeight;
+    const target = sectionTop + (i / PRODUCTS.length) * total;
+    window.scrollTo({ top: target, behavior: 'smooth' });
+  }, []);
+
+  // SSR / before mount: render nothing interactive
+  if (!mounted) return null;
+
+  // ── Mobile: stacked cards ──
+  if (isMobile) {
+    return (
+      <section className="px-4 py-10 flex flex-col gap-6">
+        {PRODUCTS.map((p) => <MobileCard key={p.slug} product={p} />)}
+      </section>
+    );
+  }
+
+  // ── Desktop: scroll-locked ──
+  const product = PRODUCTS[activeIndex];
+
+  return (
+    <div
+      ref={sectionRef}
+      className="relative"
+      style={{ height: `${PRODUCTS.length * 100}vh` }}
+    >
+      {/* Sticky viewport-height container — full width, no px padding */}
+      <div className="sticky top-0 h-screen flex items-center justify-center">
+        <div
+          className="relative w-[95%] overflow-hidden border border-white/10"
+          style={{
+            maxWidth: '1400px',
+            margin: '0 auto',
+            borderRadius: '20px',
+            backgroundImage: "url('/hero-section-product-bg-img.jpeg')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
+          {/* Soft dark overlay */}
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(160deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.35) 100%)', borderRadius: 'inherit' }}
+          />
+
+          {/* Main grid */}
+          <div className="relative z-10 grid grid-cols-2 items-center gap-16 px-16 lg:px-20 py-16 lg:py-20">
+
+            {/* LEFT — animated product image */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={product.slug + '-img'}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-center justify-center"
+              >
+                <img
+                  src={product.image}
+                  alt={product.title.replace('\n', ' ')}
+                  className="w-full object-contain"
+                  style={{
+                    maxWidth: '540px',
+                    filter: 'drop-shadow(0 32px 48px rgba(0,139,250,0.18))',
+                  }}
+                />
+              </motion.div>
+            </AnimatePresence>
+
+            {/* RIGHT — animated content */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={product.slug + '-content'}
+                initial={{ opacity: 0, y: 22 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col gap-6"
+              >
+                {/* Badge */}
+                <span
+                  className="inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest"
+                  style={{ background: 'rgba(0,139,250,0.18)', color: '#60c0ff', border: '1px solid rgba(0,139,250,0.3)' }}
+                >
+                  {product.badge}
+                </span>
+
+                {/* Title */}
+                <h2
+                  className="text-4xl lg:text-5xl xl:text-6xl font-semibold leading-tight"
+                  style={{ color: 'var(--color-text-inverse)', letterSpacing: '-0.02em', whiteSpace: 'pre-line', maxWidth: '560px' }}
+                >
+                  {product.title}
+                </h2>
+
+                {/* Subtitle */}
+                <p className="text-base font-semibold" style={{ color: '#60c0ff' }}>
+                  {product.subtitle}
+                </p>
+
+                {/* Description */}
+                <p className="text-sm leading-relaxed" style={{ color: 'rgba(237,235,228,0.72)', maxWidth: '420px' }}>
+                  {product.description}
+                </p>
+
+                {/* Features */}
+                <div className="grid grid-cols-3 gap-5 mt-1" style={{ maxWidth: '380px' }}>
+                  {product.features.map((f) => <FeatureIcon key={f.label} feature={f} />)}
+                </div>
+
+                {/* Price + CTA */}
+                <div className="flex flex-col gap-4 mt-2">
+                  <div>
+                    <span className="text-3xl font-bold" style={{ color: 'var(--color-text-inverse)' }}>
+                      {product.price}
+                    </span>
+                    <p className="text-xs mt-1" style={{ color: 'rgba(237,235,228,0.5)' }}>
+                      {product.emi}
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <a
+                      href="/products"
+                      className="inline-flex items-center justify-center h-11 rounded-xl px-8 text-sm font-semibold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+                      style={{ background: 'var(--color-accent)', color: '#fff', boxShadow: '0 4px 20px rgba(0,139,250,0.35)' }}
+                    >
+                      Buy Now
+                    </a>
+                    <a
+                      href={`/product/${product.slug}`}
+                      className="inline-flex items-center justify-center h-11 rounded-xl px-8 text-sm font-semibold transition-all duration-200 hover:bg-white/10 active:scale-[0.98]"
+                      style={{ color: 'var(--color-text-inverse)', border: '1px solid rgba(237,235,228,0.25)' }}
+                    >
+                      View Details
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* ── Progress dots (right side) ── */}
+          <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20">
+            {PRODUCTS.map((p, i) => (
+              <button
+                key={p.slug}
+                type="button"
+                aria-label={`Go to ${p.badge}`}
+                onClick={() => scrollToIndex(i)}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: '6px',
+                  height: i === activeIndex ? '24px' : '6px',
+                  background: i === activeIndex ? '#60c0ff' : 'rgba(255,255,255,0.28)',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* ── Scroll hint (first product only) ── */}
+          <AnimatePresence>
+            {activeIndex === 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.4, delay: 0.6 }}
+                className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none z-20"
+              >
+                <span
+                  className="text-[10px] uppercase tracking-[0.18em]"
+                  style={{ color: 'rgba(237,235,228,0.45)' }}
+                >
+                  Scroll to explore
+                </span>
+                <motion.div
+                  animate={{ y: [0, 5, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+                  className="w-px h-7 rounded-full"
+                  style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.35), transparent)' }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -61,11 +61,13 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
     const router = useRouter();
     const [imageError, setImageError] = React.useState(false);
 
-    const formattedPrice = new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        maximumFractionDigits: 0,
-    }).format(product.price);
+    const formattedPrice = product.isComingSoon 
+        ? "Coming Soon"
+        : new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0,
+        }).format(product.price);
 
     const formattedCompareAtPrice = product.compareAtPrice
         ? new Intl.NumberFormat('en-IN', {
@@ -89,6 +91,7 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
     };
 
     const handleCardClick = () => {
+        console.log("Product slug:", product.slug);
         router.push(`/product/${product.slug}`);
     };
 
@@ -111,7 +114,12 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
             <div className="relative aspect-square w-full overflow-hidden bg-muted/30">
                 {/* Badges — top-left */}
                 <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5">
-                    {product.stock <= 0 && (
+                    {product.isComingSoon && (
+                        <div className="rounded-md bg-zinc-900 px-2 py-0.5 text-[10px] tracking-widest font-bold text-white shadow-sm ring-1 ring-white/20">
+                            COMING SOON
+                        </div>
+                    )}
+                    {product.stock <= 0 && !product.isComingSoon && (
                         <div className="rounded-md bg-destructive px-2 py-0.5 text-xs font-semibold text-destructive-foreground shadow-sm">
                             Out of Stock
                         </div>
@@ -154,6 +162,8 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
                     >
                         {isLoading ? (
                             <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        ) : product.isComingSoon ? (
+                            'Unavailable'
                         ) : product.stock > 0 ? (
                             <>
                                 <ShoppingCart className="mr-2 h-4 w-4" />
@@ -185,7 +195,7 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
 
                 {/* Price row */}
                 <div className="mt-auto pt-2 flex items-baseline gap-2">
-                    <span className="text-lg font-bold tracking-tight text-foreground">
+                    <span className="text-lg font-bold tracking-tight" style={{ color: 'var(--color-accent)' }}>
                         {formattedPrice}
                     </span>
                     {formattedCompareAtPrice && (

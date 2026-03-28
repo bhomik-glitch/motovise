@@ -5,14 +5,19 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { ShoppingBag, User, Command, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LogoImg from '@/assets/logo-removebg-preview.png';
 
 import { useCart } from '@/modules/cart/hooks/useCart';
+import { useCartStore } from '@/store/useCartStore';
 
 export function Navbar() {
     const { cart } = useCart();
+    const router = useRouter();
+    const { status } = useSession();
+    const openCart = useCartStore((state) => state.openCart);
     const [mobileOpen, setMobileOpen] = useState(false);
     const navPillRef = useRef<HTMLDivElement | null>(null);
     const pathname = usePathname();
@@ -102,8 +107,21 @@ export function Navbar() {
 
     const navLinks = [
         { href: '/', label: 'Home' },
-        { href: '/products', label: 'Products' },
+        { href: '/shop', label: 'Shop' },
+        { href: '#combo', label: 'Combo', isScroll: true },
+        { href: '#blog', label: 'Blog', isScroll: true },
+        { href: '#faq', label: 'FAQ', isScroll: true },
     ];
+
+    const handleCartClick = () => {
+        console.log("Cart button clicked");
+        console.log("isAuthenticated:", status === 'authenticated');
+        if (status !== 'authenticated') {
+            router.push('/login');
+            return;
+        }
+        openCart();
+    };
 
     const cartCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
@@ -136,11 +154,33 @@ export function Navbar() {
                 >
                     <div className="flex items-center bg-black border border-neutral-800 rounded-full p-1.5 gap-1 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
                         {navLinks.map((link) => {
-                            const isActive = pathname === link.href;
+                            const { href, label, isScroll } = link as any;
+                            if (isScroll) {
+                                return (
+                                    <a
+                                        key={href}
+                                        href={href}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            const el = document.querySelector(href);
+                                            if (el) {
+                                                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                            }
+                                        }}
+                                        className={cn(
+                                            'px-6 py-2 text-[13px] font-bold rounded-full transition-all duration-300',
+                                            'text-white hover:text-white/80'
+                                        )}
+                                    >
+                                        {label}
+                                    </a>
+                                );
+                            }
+                            const isActive = pathname === href;
                             return (
                                 <Link
-                                    key={link.href}
-                                    href={link.href}
+                                    key={href}
+                                    href={href}
                                     className={cn(
                                         'px-6 py-2 text-[13px] font-bold rounded-full transition-all duration-300',
                                         isActive
@@ -148,28 +188,45 @@ export function Navbar() {
                                             : 'text-white hover:text-white/80'
                                     )}
                                 >
-                                    {link.label}
+                                    {label}
                                 </Link>
                             );
                         })}
 
                         <div className="w-px h-4 bg-white/20 mx-2" />
 
-                        {actions.map((action) => (
-                            <Link
-                                key={action.href}
-                                href={action.href}
-                                className="p-2 text-white hover:bg-white/10 rounded-full transition-all relative"
-                                title={action.label}
-                            >
-                                <action.icon className="h-4.5 w-4.5" />
-                                {action.badge && (
-                                    <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black/10">
-                                        {action.badge}
-                                    </span>
-                                )}
-                            </Link>
-                        ))}
+                        {actions.map((action) =>
+                            action.href === '/cart' ? (
+                                <button
+                                    key={action.href}
+                                    type="button"
+                                    onClick={handleCartClick}
+                                    className="p-2 text-white hover:bg-white/10 rounded-full transition-all relative"
+                                    title={action.label}
+                                >
+                                    <action.icon className="h-4.5 w-4.5" />
+                                    {action.badge && (
+                                        <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black/10">
+                                            {action.badge}
+                                        </span>
+                                    )}
+                                </button>
+                            ) : (
+                                <Link
+                                    key={action.href}
+                                    href={action.href}
+                                    className="p-2 text-white hover:bg-white/10 rounded-full transition-all relative"
+                                    title={action.label}
+                                >
+                                    <action.icon className="h-4.5 w-4.5" />
+                                    {action.badge && (
+                                        <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black/10">
+                                            {action.badge}
+                                        </span>
+                                    )}
+                                </Link>
+                            )
+                        )}
 
                         <div className="flex items-center justify-center h-8 w-8 rounded-full border border-white/10 bg-white/5 text-white/50 ml-1">
                             <Command className="h-3.5 w-3.5" />
@@ -179,21 +236,38 @@ export function Navbar() {
 
                 <div className="flex-1 flex h-full items-center justify-end md:hidden relative">
                     <div className="flex items-center bg-black border border-neutral-800 rounded-full p-1.5 gap-1 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-                        {actions.map((action) => (
-                            <Link
-                                key={action.href}
-                                href={action.href}
-                                className="p-2 text-white hover:bg-white/10 rounded-full transition-all relative"
-                                title={action.label}
-                            >
-                                <action.icon className="h-4.5 w-4.5" />
-                                {action.badge && (
-                                    <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black/10">
-                                        {action.badge}
-                                    </span>
-                                )}
-                            </Link>
-                        ))}
+                        {actions.map((action) =>
+                            action.href === '/cart' ? (
+                                <button
+                                    key={action.href}
+                                    type="button"
+                                    onClick={handleCartClick}
+                                    className="p-2 text-white hover:bg-white/10 rounded-full transition-all relative"
+                                    title={action.label}
+                                >
+                                    <action.icon className="h-4.5 w-4.5" />
+                                    {action.badge && (
+                                        <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black/10">
+                                            {action.badge}
+                                        </span>
+                                    )}
+                                </button>
+                            ) : (
+                                <Link
+                                    key={action.href}
+                                    href={action.href}
+                                    className="p-2 text-white hover:bg-white/10 rounded-full transition-all relative"
+                                    title={action.label}
+                                >
+                                    <action.icon className="h-4.5 w-4.5" />
+                                    {action.badge && (
+                                        <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black/10">
+                                            {action.badge}
+                                        </span>
+                                    )}
+                                </Link>
+                            )
+                        )}
                     </div>
                 </div>
 
@@ -214,19 +288,58 @@ export function Navbar() {
                         className="md:hidden mt-4 bg-black border border-neutral-800 rounded-3xl p-5 shadow-2xl overflow-hidden"
                     >
                         <div className="flex flex-col gap-3">
-                            {[...navLinks, ...actions].map((link) => {
-                                const Icon = 'icon' in link ? (link.icon as any) : null;
+                            {[...navLinks, ...actions].map((item) => {
+                                const { href, label, isScroll } = item as any;
+                                if (isScroll) {
+                                    return (
+                                        <a
+                                            key={href}
+                                            href={href}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setMobileOpen(false);
+                                                const el = document.querySelector(href);
+                                                if (el) {
+                                                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                }
+                                            }}
+                                            className={cn(
+                                                'px-5 py-3.5 text-base font-bold rounded-2xl transition-all flex items-center justify-between',
+                                                'text-white/80 hover:bg-white/10'
+                                            )}
+                                        >
+                                            <span>{label}</span>
+                                        </a>
+                                    );
+                                }
+                                const Icon = 'icon' in item ? (item.icon as any) : null;
+                                if (href === '/cart') {
+                                    return (
+                                        <button
+                                            key={href}
+                                            type="button"
+                                            onClick={() => { setMobileOpen(false); handleCartClick(); }}
+                                            className={cn(
+                                                'w-full px-5 py-3.5 text-base font-bold rounded-2xl transition-all flex items-center justify-between',
+                                                'text-white/80 hover:bg-white/10'
+                                            )}
+                                        >
+                                            <span>{label}</span>
+                                            {Icon && <Icon className="h-5 w-5 opacity-60" />}
+                                        </button>
+                                    );
+                                }
                                 return (
                                     <Link
-                                        key={link.href}
-                                        href={link.href}
+                                        key={href}
+                                        href={href}
                                         onClick={() => setMobileOpen(false)}
                                         className={cn(
                                             'px-5 py-3.5 text-base font-bold rounded-2xl transition-all flex items-center justify-between',
-                                            pathname === link.href ? 'bg-white text-black' : 'text-white/80 hover:bg-white/10'
+                                            pathname === href ? 'bg-white text-black' : 'text-white/80 hover:bg-white/10'
                                         )}
                                     >
-                                        <span>{link.label}</span>
+                                        <span>{label}</span>
                                         {Icon && <Icon className="h-5 w-5 opacity-60" />}
                                     </Link>
                                 );

@@ -47,6 +47,7 @@ export interface Product {
     compatibility: ProductCompatibility | null;
     specifications: ProductSpecification[] | null;
     boxContents: string[];
+    isComingSoon?: boolean;
     createdAt: string;
     updatedAt: string;
     // Legacy / convenience

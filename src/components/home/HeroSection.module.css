@@ -1,0 +1,165 @@
+.section {
+  padding: 0;
+  margin-top: -32px; /* cancel out announcement bar height */
+}
+
+.hero {
+  position: relative;
+  width: 100vw;
+  height: calc(100vh + 32px); /* compensate for announcement bar */
+  min-height: 800px;
+  overflow: hidden;
+  margin-left: calc(50% - 50vw);
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+}
+
+.heroMedia {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.05);
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(2, 6, 9, 0.35) 0%,
+    rgba(2, 6, 9, 0.45) 70%,
+    rgba(2, 6, 9, 0.45) 100%
+  );
+}
+
+.heroInner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--space-8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.heroContent {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  animation: heroReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes heroReveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.heroTitle {
+  margin: 0;
+  color: var(--color-text-inverse);
+  font-family: var(--font-heading);
+  font-size: clamp(3.5rem, 8vw, 6rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.heroSub {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  line-height: 1.5;
+  max-width: 60ch;
+  font-weight: 400;
+}
+
+.ctaGroup {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.heroCTA {
+  padding: 18px 36px;
+  border: none;
+  border-radius: var(--radius-button);
+  background: var(--color-accent);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.heroCTA:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 139, 250, 0.5);
+}
+
+.heroSecondary {
+  padding: 18px 36px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-button);
+  background: transparent;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.heroSecondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+}
+
+.sideLabel {
+  position: absolute;
+  left: -120px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  color: rgba(255, 255, 255, 0.03);
+  font-family: var(--font-heading);
+  font-size: 10rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.microCopy {
+  position: absolute;
+  bottom: var(--space-12);
+  right: var(--space-8);
+  display: flex;
+  gap: var(--space-8);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}

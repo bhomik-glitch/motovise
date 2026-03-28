@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"d:/client/E commerce store/pouch/components/AnnouncementBars.module.css\" \"d:/client/E commerce store/src/components/AnnouncementBars.module.css\")",
+      "Bash(cp \"d:/client/E commerce store/pouch/components/AnnouncementBars.tsx\" \"d:/client/E commerce store/src/components/AnnouncementBars.tsx\")",
+      "Bash(cp \"d:/client/E commerce store/pouch/components/BlogSection.module.css\" \"d:/client/E commerce store/src/components/BlogSection.module.css\")",
+      "Bash(cp \"d:/client/E commerce store/pouch/components/BlogSection.tsx\" \"d:/client/E commerce store/src/components/BlogSection.tsx\")",
+      "Bash(cp \"d:/client/E commerce store/pouch/components/CartSheet.module.css\" \"d:/client/E commerce store/src/components/CartSheet.module.css\")",
+      "Bash(find 'd:/client/E commerce store/pouch' -type f -name *)",
+      "Bash(node -e \"const m = require\\(''framer-motion''\\); console.log\\(''exports:'', Object.keys\\(m\\).slice\\(0,20\\)\\); console.log\\(''motion type:'', typeof m.motion\\); console.log\\(''motion keys:'', m.motion ? Object.keys\\(m.motion\\).slice\\(0,10\\) : ''undefined''\\)\")",
+      "Bash(node -e \"const fm = require\\(''framer-motion/package.json''\\); console.log\\(''deps:'', JSON.stringify\\(fm.dependencies || {}, null, 2\\)\\); console.log\\(''peer:'', JSON.stringify\\(fm.peerDependencies || {}, null, 2\\)\\)\")",
+      "Bash(node -e \":*)",
+      "Bash(grep -n \"createMotionComponent\" node_modules/framer-motion/dist/cjs/feature-bundle-*.js)",
+      "Bash(ls \"d:/client/E commerce store/src/app/\\(store\\)/\")",
+      "Bash(ls \"d:/client/E commerce store/src/app/\\(store\\)/products/\")"
+    ]
+  }
+}

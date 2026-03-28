@@ -1,0 +1,111 @@
+.row {
+  display: flex;
+  gap: var(--space-8);
+  overflow-x: auto;
+  padding: var(--space-10) 0;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  scroll-snap-align: center;
+  flex: 0 0 380px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  position: relative;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-card);
+}
+
+.visual {
+  height: 380px;
+  background: var(--color-surface-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.card:hover .cardImage {
+  transform: scale(1.1);
+}
+
+.cardBody {
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cardBody h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-text-inverse);
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.cardBody p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.footer {
+  margin-top: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.price {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.addToCart {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-button);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  text-transform: uppercase;
+}
+
+.addToCart:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-accent);
+}
+
+

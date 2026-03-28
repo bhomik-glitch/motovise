@@ -14,53 +14,49 @@ export function Footer() {
     }
 
     return (
-        <footer className="bg-[#EEF2FF] border-t border-[#E2E8F0] py-14">
+        <footer className="bg-black border-t border-[var(--color-border)] py-20">
             <Container>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
                     {/* Brand */}
                     <div className="col-span-1 md:col-span-2">
                         <h3
-                            className="text-xl font-bold text-[#0F172A] mb-3 tracking-tight"
-                            style={{ fontFamily: "'Syne', sans-serif" }}
+                            className="text-3xl font-extrabold text-[var(--color-text-inverse)] mb-6 tracking-tight uppercase"
+                            style={{ fontFamily: "var(--font-heading)" }}
                         >
                             Motovise
                         </h3>
-                        <p className="text-sm text-[#64748B] max-w-xs leading-relaxed">
-                            Precision-engineered automotive parts for drivers who demand more.
-                            Built for performance, built to last.
+                        <p className="text-lg text-[var(--color-text-muted)] max-w-sm leading-relaxed mb-8">
+                            Precision-engineered automotive components for drivers who demand absolute performance. 
+                            Built for the track, refined for the street.
                         </p>
-                        <div className="mt-4 flex gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-[#7C9CF5]/20 flex items-center justify-center text-[#7C9CF5] text-xs font-bold cursor-pointer hover:bg-[#7C9CF5] hover:text-white transition-colors">
-                                f
-                            </div>
-                            <div className="w-8 h-8 rounded-lg bg-[#7C9CF5]/20 flex items-center justify-center text-[#7C9CF5] text-xs font-bold cursor-pointer hover:bg-[#7C9CF5] hover:text-white transition-colors">
-                                t
-                            </div>
-                            <div className="w-8 h-8 rounded-lg bg-[#7C9CF5]/20 flex items-center justify-center text-[#7C9CF5] text-xs font-bold cursor-pointer hover:bg-[#7C9CF5] hover:text-white transition-colors">
-                                ig
-                            </div>
+                        <div className="flex gap-4">
+                            {['f', 't', 'ig'].map(icon => (
+                                <div key={icon} className="w-10 h-10 rounded-full bg-[var(--color-surface-strong)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-inverse)] text-sm font-bold cursor-pointer hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all">
+                                    {icon}
+                                </div>
+                            ))}
                         </div>
                     </div>
 
                     {/* Shop */}
                     <div>
-                        <h4 className="text-xs font-semibold uppercase tracking-widest text-[#0F172A] mb-4">
+                        <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-accent)] mb-6">
                             Shop
                         </h4>
-                        <ul className="space-y-2.5 text-sm text-[#64748B]">
+                        <ul className="space-y-4 text-[var(--color-text-muted)]">
                             <li>
-                                <Link href="/products" className="hover:text-[#7C9CF5] transition-colors">
-                                    All Products
+                                <Link href="/products" className="hover:text-[var(--color-text-inverse)] transition-colors">
+                                    All Components
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/products?sort=newest" className="hover:text-[#7C9CF5] transition-colors">
+                                <Link href="/products?sort=newest" className="hover:text-[var(--color-text-inverse)] transition-colors">
                                     New Arrivals
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/products?sort=rating-desc" className="hover:text-[#7C9CF5] transition-colors">
-                                    Best Sellers
+                                <Link href="/products?sort=rating-desc" className="hover:text-[var(--color-text-inverse)] transition-colors">
+                                    Performance Series
                                 </Link>
                             </li>
                         </ul>
@@ -68,41 +64,42 @@ export function Footer() {
 
                     {/* Support */}
                     <div>
-                        <h4 className="text-xs font-semibold uppercase tracking-widest text-[#0F172A] mb-4">
+                        <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-accent)] mb-6">
                             Support
                         </h4>
-                        <ul className="space-y-2.5 text-sm text-[#64748B]">
+                        <ul className="space-y-4 text-[var(--color-text-muted)]">
                             <li>
-                                <Link href="/account" className="hover:text-[#7C9CF5] transition-colors">
+                                <Link href="/account" className="hover:text-[var(--color-text-inverse)] transition-colors">
                                     My Account
                                 </Link>
                             </li>
                             <li>
-                                <span className="hover:text-[#7C9CF5] transition-colors cursor-pointer">
-                                    Shipping Policy
+                                <span className="hover:text-[var(--color-text-inverse)] transition-colors cursor-pointer">
+                                    Shipping & Logistics
                                 </span>
                             </li>
                             <li>
-                                <span className="hover:text-[#7C9CF5] transition-colors cursor-pointer">
-                                    Returns &amp; Refunds
+                                <span className="hover:text-[var(--color-text-inverse)] transition-colors cursor-pointer">
+                                    Warranty & Returns
                                 </span>
                             </li>
                             <li>
-                                <span className="hover:text-[#7C9CF5] transition-colors cursor-pointer">
-                                    Privacy Policy
+                                <span className="hover:text-[var(--color-text-inverse)] transition-colors cursor-pointer">
+                                    Privacy Protocol
                                 </span>
                             </li>
                         </ul>
                     </div>
                 </div>
 
-                <div className="mt-12 pt-6 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <p className="text-xs text-[#64748B]">
-                        © {new Date().getFullYear()} Motovise. All rights reserved.
+                <div className="mt-20 pt-8 border-t border-[var(--color-border)] flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <p className="text-sm text-[var(--color-text-muted)]">
+                        © {new Date().getFullYear()} Motovise. Engineered for excellence.
                     </p>
-                    <p className="text-xs text-[#64748B]">
-                        Precision Engineered · Built for Drivers
-                    </p>
+                    <div className="flex gap-8 text-xs font-mono uppercase tracking-widest text-[var(--color-text-muted)]">
+                        <span>ISO 9001 Certified</span>
+                        <span>Global Shipping</span>
+                    </div>
                 </div>
             </Container>
         </footer>

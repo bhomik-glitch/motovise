@@ -12,13 +12,19 @@ import { Pagination } from '@/modules/products/components/Pagination';
 import { Button } from '@/components/ui/Button';
 import { useCart } from '@/modules/cart/hooks/useCart';
 import { toast } from 'react-hot-toast';
+import { useSession } from 'next-auth/react';
 
 function ProductsContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { addItem } = useCart();
+    const { status } = useSession();
 
     const handleAddToCart = (product: any) => {
+        if (status !== 'authenticated') {
+            router.push('/login');
+            return;
+        }
         addItem(
             { productId: product.id, quantity: 1 },
             {
@@ -26,7 +32,7 @@ function ProductsContent() {
                     toast.success(`${product.name} added to cart!`);
                 },
                 onError: (error: unknown) => {
-                    toast.error((error as any)?.response?.data?.message || 'Failed to add to cart');
+                    toast.error((error as any)?.message || 'Failed to add to cart');
                 }
             }
         );
@@ -139,7 +145,7 @@ function ProductsContent() {
                     ) : productsData && (productsData.products?.length ?? 0) > 0 ? (
                         <>
                             <ProductGrid>
-                                {productsData?.products?.map((product) => (
+                                {productsData?.products?.map((product: any) => (
                                     <ProductCard
                                         key={product.id}
                                         product={product}

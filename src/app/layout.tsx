@@ -1,16 +1,19 @@
 import type { Metadata } from 'next';
-import { DM_Sans } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { FloatingNavbar } from '@/components/FloatingNavbar';
+import { Footer } from '@/components/Footer';
+import { AnnouncementBars } from '@/components/AnnouncementBars';
+import { CartSheet } from '@/components/CartSheet';
+import { landingContent } from '@/data/landingContent';
 
-const dmSans = DM_Sans({
+const montserrat = Montserrat({
     subsets: ['latin'],
-    variable: '--font-dm-sans',
-    weight: ['300', '400', '500', '600', '700'],
+    variable: '--font-montserrat',
+    weight: ['300', '400', '500', '600', '700', '800'],
 });
 
 export const metadata: Metadata = {
@@ -24,8 +27,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
-            <body className={`${dmSans.variable} font-sans antialiased min-h-screen bg-background`}>
+        <html lang="en" className={montserrat.variable} suppressHydrationWarning>
+            <body className={`${montserrat.className} font-sans antialiased min-h-screen bg-background`}>
                 <QueryProvider>
                     <AuthProvider>
                         <ThemeProvider
@@ -34,10 +37,14 @@ export default function RootLayout({
                             enableSystem={false}
                             disableTransitionOnChange
                         >
-                            <div className="flex flex-col min-h-screen">
-                                <Navbar />
-                                {children}
-                                <Footer />
+                            <div className="min-h-screen flex flex-col">
+                                <AnnouncementBars announcements={landingContent.announcements} />
+                                <FloatingNavbar />
+                                <CartSheet />
+                                <main className="flex-1 w-full">
+                                    {children}
+                                </main>
+                                <Footer {...landingContent.footer} />
                             </div>
                         </ThemeProvider>
                     </AuthProvider>

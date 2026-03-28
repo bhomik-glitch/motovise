@@ -1,0 +1,232 @@
+.sectionWrapper {
+  width: 100%;
+  position: relative;
+  background-color: #050505;
+  padding: 80px 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.sectionContainer {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.blockBg {
+  position: absolute;
+  inset: 0;
+  background-image: url('/images/FAQ-bg-img.jpg');
+  background-size: cover;
+  background-position: center;
+  z-index: -2;
+  opacity: 0.6;
+  filter: brightness(0.9) saturate(0.7);
+}
+
+.blockOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+/* Block style updated to just be a relative container if needed, 
+   but sectionContainer handles the main layout now */
+.block {
+  position: relative;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  margin-bottom: 48px; /* CTA -> Table gap: 48px */
+  max-width: 700px;
+  text-align: left; /* Left align tag, headline, subtext, cta */
+}
+
+.eyebrow {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: #3b82f6;
+  margin-bottom: 12px;
+}
+
+.headline {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.subtext {
+  margin-top: 14px;
+  color: rgba(255, 255, 255, 0.4); /* Subtle subtext */
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 550px;
+}
+
+.ctaWrapper {
+  margin-top: 24px; /* Heading -> CTA gap: 24px */
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.08); /* Transparent premium look */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ctaButton:hover {
+  background: #ffffff;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+.glassCard {
+  width: 100%;
+  margin: 0 auto;
+  background: rgba(20, 25, 40, 0.55);
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table th, .table td {
+  padding: 24px 32px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.table thead th {
+  padding-bottom: 24px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+}
+
+.motoviseCol {
+  color: #ffffff !important;
+}
+
+.motoviseCell {
+  background: transparent !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  box-shadow: none !important;
+}
+
+/* Removed motovise inner glow */
+
+.cellContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+}
+
+.checkIcon {
+  color: #3b82f6; /* Branding blue */
+}
+
+.xIcon {
+  color: rgba(255, 255, 255, 0.08);
+}
+
+.rowLabel {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  width: 30%;
+}
+
+.othersCell {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.table tbody tr:hover td,
+.table tbody tr:hover th {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.table tbody tr:last-child td,
+.table tbody tr:last-child th {
+  border-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .outerWrapper {
+    padding: 60px 0;
+  }
+  
+  .block {
+    padding: 0 20px;
+  }
+
+  .glassCard {
+    overflow-x: auto;
+    margin-top: 24px;
+    width: 100%;
+  }
+
+  .table {
+    min-width: 600px;
+  }
+
+  .table th, .table td {
+    padding: 18px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .outerWrapper {
+    padding: 60px 20px;
+  }
+
+  .glassCard {
+    overflow-x: auto;
+    margin: 32px -20px 0;
+    padding: 0 20px;
+    width: calc(100% + 40px);
+  }
+
+  .table {
+    min-width: 600px;
+  }
+
+  .table th, .table td {
+    padding: 16px 20px;
+  }
+}

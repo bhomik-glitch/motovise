@@ -282,9 +282,14 @@ export class ProductsService {
         };
     }
 
-    async findOne(id: string) {
-        const product = await this.prisma.product.findUnique({
-            where: { id },
+    async findOne(idOrSlug: string) {
+        const product = await this.prisma.product.findFirst({
+            where: {
+                OR: [
+                    { id: idOrSlug },
+                    { slug: idOrSlug },
+                ],
+            },
             include: {
                 category: {
                     select: {
