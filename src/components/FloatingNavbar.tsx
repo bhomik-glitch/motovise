@@ -2,6 +2,7 @@
 
 // Force HMR update
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { User, ShoppingBag, Menu, X, Search } from "lucide-react";
@@ -94,7 +95,15 @@ export function FloatingNavbar({
     <header className={`${styles.navbar} ${shouldShowSolid ? styles.navbarScrolled : ""} ${!isHeroPage ? styles.navbarStatic : ""}`}>
       <div className={styles.navLeft}>
         <Link className={styles.brand} href="/">
-          {brand}
+          <Image
+            src="/motovise-logo.png"
+            alt="Motovise"
+            height={56}
+            width={200}
+            className="h-6 md:h-7 lg:h-8 w-auto object-contain mr-3"
+            style={{ display: 'block' }}
+            priority
+          />
         </Link>
       </div>
 

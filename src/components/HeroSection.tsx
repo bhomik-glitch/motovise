@@ -23,8 +23,8 @@ export function HeroSection({
   return (
     <section className={styles.section} id="top">
       <div className={`${styles.hero} fadeIn`.trim()}>
-        <video className={styles.heroMedia} autoPlay loop muted playsInline>
-          <source src="/videos/bmw-m3.mp4" type="video/mp4" />
+        <video className={styles.heroMedia} autoPlay loop muted playsInline preload="auto" controls>
+          <source src="/hero-section-video.mp4?v=2" type="video/mp4" />
         </video>
         <div className={styles.heroOverlay} aria-hidden="true" />
         <div className={styles.heroInner}>

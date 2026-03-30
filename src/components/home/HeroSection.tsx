@@ -24,8 +24,8 @@ export function HeroSection({
     <section className={`${styles.section} relative overflow-hidden`} id="top">
       
       <div className={`${styles.hero} relative z-0`.trim()}>
-        <video className={styles.heroMedia} autoPlay loop muted playsInline>
-          <source src="/videos/bmw-m3.mp4" type="video/mp4" />
+        <video className={styles.heroMedia} autoPlay loop muted playsInline preload="auto" controls>
+          <source src="/hero-section-video.mp4?v=2" type="video/mp4" />
         </video>
         <div className={styles.heroOverlay} aria-hidden="true" />
         
