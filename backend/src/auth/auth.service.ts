@@ -12,7 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
-import { Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class AuthService {
@@ -76,7 +76,7 @@ export class AuthService {
         } catch (error: any) {
             // Unique constraint violation
             if (
-                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error instanceof PrismaClientKnownRequestError &&
                 error.code === 'P2002'
             ) {
                 throw new ConflictException('Email already registered');
