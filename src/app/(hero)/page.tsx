@@ -125,7 +125,7 @@ export default function HomePage() {
                     className="text-sm mb-5 italic"
                     style={{ color: 'var(--color-text-inverse)', opacity: 0.55, lineHeight: '1.7' }}
                   >
-                    "{review.text}"
+                    {`"${review.text}"`}
                   </p>
 
                   <div className="flex flex-col gap-1">
