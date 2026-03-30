@@ -82,16 +82,16 @@ function ProductsContent() {
     return (
         <div className="container mx-auto px-4 py-8 md:px-6 lg:py-12">
             {/* Hero / Banner Area */}
-            <section className="max-w-7xl mx-auto px-6 py-12 mb-8 overflow-hidden rounded-3xl bg-secondary/50 md:px-12 lg:mb-12">
-                <div className="max-w-2xl">
-                    <h1 className="mb-4 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-                        Upgrade Your Drive
-                    </h1>
-                    <p className="text-lg text-muted-foreground">
-                        Explore Motovise&apos;s range of smart Android Boxes and Wireless Adapters — engineered to turn any factory head unit into a modern connected cockpit.
-                    </p>
-                </div>
-            </section>
+            <section
+                className="max-w-7xl mx-auto mb-8 overflow-hidden rounded-3xl lg:mb-12"
+                style={{
+                    backgroundImage: "url('/Motovise Imges/be9038ab-8b30-4321-873d-6eb2f72167c8.png')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    minHeight: '280px',
+                }}
+            />
 
             {/* Mobile Controls */}
             <div className="mb-6 flex items-center justify-between lg:hidden">
