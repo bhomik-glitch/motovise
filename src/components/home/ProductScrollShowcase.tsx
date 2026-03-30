@@ -111,7 +111,6 @@ const CARD_BASE_STYLE: React.CSSProperties = {
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
   borderRadius: '20px',
-  transition: 'transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s ease',
   boxShadow: '0 0 0 1px rgba(0,139,250,0.08)',
 };
 
@@ -119,14 +118,6 @@ const OVERLAY: React.CSSProperties = {
   background: 'linear-gradient(160deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.38) 100%)',
 };
 
-function hoverOn(el: HTMLDivElement) {
-  el.style.transform = 'scale(1.02)';
-  el.style.boxShadow = '0 0 48px rgba(0,139,250,0.2), 0 0 0 1px rgba(0,139,250,0.22)';
-}
-function hoverOff(el: HTMLDivElement) {
-  el.style.transform = 'scale(1)';
-  el.style.boxShadow = '0 0 0 1px rgba(0,139,250,0.08)';
-}
 
 // ─── Primary card (large, left column) ───────────────────────────────────────
 
@@ -135,8 +126,6 @@ function PrimaryCard({ product }: { product: ShowcaseProduct }) {
     <div
       className="relative overflow-hidden border border-white/10"
       style={{ ...CARD_BASE_STYLE, height: '100%', minHeight: '560px' }}
-      onMouseEnter={(e) => hoverOn(e.currentTarget)}
-      onMouseLeave={(e) => hoverOff(e.currentTarget)}
     >
       <div className="absolute inset-0" style={OVERLAY} />
 
@@ -216,8 +205,6 @@ function SecondaryCard({ product }: { product: ShowcaseProduct }) {
     <div
       className="relative overflow-hidden border border-white/10 flex-1"
       style={{ ...CARD_BASE_STYLE, minHeight: 0 }}
-      onMouseEnter={(e) => hoverOn(e.currentTarget)}
-      onMouseLeave={(e) => hoverOff(e.currentTarget)}
     >
       <div className="absolute inset-0" style={OVERLAY} />
 
@@ -290,81 +277,6 @@ function SecondaryCard({ product }: { product: ShowcaseProduct }) {
   );
 }
 
-// ─── Banner card (full-width bottom) ─────────────────────────────────────────
-
-function BannerCard() {
-  const features = ['Plug & Play', 'Stable Connection', 'Compact Design', 'Seamless Performance'];
-  return (
-    <div
-      className="relative overflow-hidden w-full"
-      style={{
-        ...CARD_BASE_STYLE,
-        minHeight: '280px',
-      }}
-      onMouseEnter={(e) => hoverOn(e.currentTarget)}
-      onMouseLeave={(e) => hoverOff(e.currentTarget)}
-    >
-      {/* Background image */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: "url('/Motovise Imges/sleek metallic wireless adapter device (1).png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'right center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
-
-      {/* Left-to-right dark gradient so text is readable */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(to right, rgba(4,8,20,0.92) 0%, rgba(4,8,20,0.75) 45%, rgba(4,8,20,0.15) 75%, transparent 100%)',
-        }}
-      />
-
-      {/* Content */}
-      <div className="relative z-10 flex flex-col justify-center gap-6 px-10 py-12 lg:px-14" style={{ maxWidth: '560px' }}>
-        {/* Badge */}
-        <span
-          className="inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest"
-          style={{ background: 'rgba(0,139,250,0.18)', color: '#60c0ff', border: '1px solid rgba(0,139,250,0.3)' }}
-        >
-          Featured
-        </span>
-
-        {/* Title */}
-        <h2
-          className="text-3xl lg:text-4xl font-semibold leading-tight"
-          style={{ color: 'var(--color-text-inverse)', letterSpacing: '-0.02em' }}
-        >
-          Wireless Connectivity<br />Made Simple
-        </h2>
-
-        {/* Feature bullets */}
-        <div className="flex flex-wrap gap-x-6 gap-y-2">
-          {features.map((f) => (
-            <div key={f} className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#60c0ff' }} />
-              <span className="text-sm" style={{ color: 'rgba(237,235,228,0.75)' }}>{f}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div>
-          <a
-            href="/products"
-            className="inline-flex items-center justify-center h-10 rounded-xl px-7 text-sm font-semibold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
-            style={{ background: 'var(--color-accent)', color: '#fff', boxShadow: '0 4px 20px rgba(0,139,250,0.35)' }}
-          >
-            Shop Now
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─── Bento grid ───────────────────────────────────────────────────────────────
 
@@ -381,7 +293,6 @@ export function ProductScrollShowcase() {
         </div>
         <SecondaryCard product={secondary1} />
         <SecondaryCard product={secondary2} />
-        <BannerCard />
       </div>
 
       {/* Desktop: full-bleed bento grid */}
@@ -389,7 +300,7 @@ export function ProductScrollShowcase() {
         className="hidden lg:grid gap-3 items-stretch w-full"
         style={{
           gridTemplateColumns: '2fr 1fr',
-          gridTemplateRows: 'auto auto auto',
+          gridTemplateRows: 'auto auto',
         }}
       >
         {/* Primary card: spans both rows on the left */}
@@ -401,10 +312,6 @@ export function ProductScrollShowcase() {
         <SecondaryCard product={secondary1} />
         <SecondaryCard product={secondary2} />
 
-        {/* Banner: spans full width (both columns) */}
-        <div style={{ gridColumn: '1 / -1' }}>
-          <BannerCard />
-        </div>
       </div>
 
     </section>
