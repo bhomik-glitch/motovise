@@ -50,7 +50,7 @@ export function TrustSection() {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-lg text-[var(--color-text-inverse)] mb-8 leading-relaxed font-medium">"{review.text}"</p>
+                  <p className="text-lg text-[var(--color-text-inverse)] mb-8 leading-relaxed font-medium">{`"${review.text}"`}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-border)] to-[var(--color-surface-dim)] flex items-center justify-center text-[var(--color-text-muted)] font-bold text-xs uppercase" style={{ fontFamily: 'var(--font-heading)' }}>
