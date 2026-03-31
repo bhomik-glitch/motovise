@@ -24,6 +24,7 @@ export function FloatingNavbar({
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [logoProgress, setLogoProgress] = useState(0); // 0 = fully visible, 1 = fully hidden
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -66,7 +67,10 @@ export function FloatingNavbar({
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 50);
+      // progress: 0 at scroll=0, 1 at scroll=100
+      setLogoProgress(Math.min(1, scrollY / 100));
     };
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -94,7 +98,15 @@ export function FloatingNavbar({
   return (
     <header className={`${styles.navbar} ${shouldShowSolid ? styles.navbarScrolled : ""} ${!isHeroPage ? styles.navbarStatic : ""}`}>
       <div className={styles.navLeft}>
-        <Link className={styles.brand} href="/">
+        <Link
+          className={styles.brand}
+          href="/"
+          style={{
+            transform: `translateY(${-logoProgress * 120}%)`,
+            opacity: 1 - logoProgress,
+            pointerEvents: logoProgress >= 1 ? 'none' : 'auto',
+          }}
+        >
           <Image
             src="/motovise-logo.png"
             alt="Motovise"
