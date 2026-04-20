@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   padding: 56px 0; /* Reduced vertical padding */
-  background-image: linear-gradient(rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.72)), url('/Form-bg-content.png');
+  background-image: linear-gradient(rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.72)), url('/images/Form-bg-content.png');
   background-size: cover;
   background-position: center;
   overflow: hidden;
