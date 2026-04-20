@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:motovise-pied.vercel.app)",
-      "Bash(grep -iE \"robots|sitemap|indexnow|\\\\.txt$\")"
+      "Bash(grep -iE \"robots|sitemap|indexnow|\\\\.txt$\")",
+      "Bash(cp -r \"\\(hero\\)\" \"\\(storefront\\)/\")",
+      "Bash(cp -r \"\\(store\\)\" \"\\(storefront\\)/\")"
+    ],
+    "additionalDirectories": [
+      "d:\\client\\E commerce store\\src\\app\\api\\top-frame"
     ]
   }
 }

@@ -14,7 +14,7 @@ export async function GET(
         return new NextResponse('Not Found', { status: 404 });
     }
 
-    const filePath = path.join(process.cwd(), 'src', 'hero section', frame);
+    const filePath = path.join(process.cwd(), 'public', 'frames', frame);
 
     if (!fs.existsSync(filePath)) {
         return new NextResponse('Not Found', { status: 404 });
@@ -26,7 +26,7 @@ export async function GET(
         status: 200,
         headers: {
             'Content-Type': 'image/jpeg',
-            'Cache-Control': 'public, max-age=31536000, immutable',
+            'Cache-Control': 'public, max-age=31536000, immutable, stale-while-revalidate=60',
         },
     });
 }

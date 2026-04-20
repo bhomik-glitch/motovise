@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    font-family: var(--font-montserrat), "Montserrat", sans-serif !important;
+  }
+  * {
+    font-family: inherit;
+  }
+}
+
 :root {
   /* shadcn/ui HSL tokens — required by Tailwind theme (border, card, input, ring, etc.) */
   --background: 0 0% 100%;

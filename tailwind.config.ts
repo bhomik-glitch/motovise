@@ -57,8 +57,9 @@ const config: Config = {
                 },
             },
             fontFamily: {
-                "display": ["var(--font-montserrat)", "sans-serif"],
-                "sans": ["var(--font-montserrat)", "system-ui", "sans-serif"],
+                "display": ["var(--font-montserrat)", "Montserrat", "sans-serif"],
+                "sans": ["var(--font-montserrat)", "Montserrat", "sans-serif"],
+                "mono": ["SFMono-Regular", "Consolas", "Liberation Mono", "monospace"],
             },
             borderRadius: {
                 lg: "var(--radius)",

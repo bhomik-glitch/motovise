@@ -4,11 +4,6 @@ import './globals.css';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
-import { FloatingNavbar } from '@/components/FloatingNavbar';
-import { Footer } from '@/components/Footer';
-import { AnnouncementBars } from '@/components/AnnouncementBars';
-import { CartSheet } from '@/components/CartSheet';
-import { landingContent } from '@/data/landingContent';
 
 const montserrat = Montserrat({
     subsets: ['latin'],
@@ -55,7 +50,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className={montserrat.variable} suppressHydrationWarning>
-            <body className={`${montserrat.className} font-sans antialiased min-h-screen bg-background`}>
+            <body className="font-sans antialiased min-h-screen bg-background">
                 <QueryProvider>
                     <AuthProvider>
                         <ThemeProvider
@@ -64,15 +59,7 @@ export default function RootLayout({
                             enableSystem={false}
                             disableTransitionOnChange
                         >
-                            <div className="min-h-screen flex flex-col">
-                                <AnnouncementBars announcements={landingContent.announcements} />
-                                <FloatingNavbar />
-                                <CartSheet />
-                                <main className="flex-1 w-full">
-                                    {children}
-                                </main>
-                                <Footer {...landingContent.footer} />
-                            </div>
+                            {children}
                         </ThemeProvider>
                     </AuthProvider>
                 </QueryProvider>
