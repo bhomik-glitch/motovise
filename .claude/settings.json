@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:motovise-pied.vercel.app)",
+      "Bash(grep -iE \"robots|sitemap|indexnow|\\\\.txt$\")"
+    ]
+  }
+}

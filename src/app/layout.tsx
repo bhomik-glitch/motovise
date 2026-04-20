@@ -19,6 +19,33 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
     title: 'Motovise — Precision Automotive Parts',
     description: 'Premium automotive parts and accessories. Precision engineered for drivers who want more.',
+    openGraph: {
+        title: 'Motovise — Precision Automotive Parts',
+        description: 'Premium automotive parts and accessories. Precision engineered for drivers who want more.',
+        url: 'https://motovise-pied.vercel.app',
+        siteName: 'Motovise',
+        images: [
+            {
+                url: 'https://motovise-pied.vercel.app/motovise-logo.png',
+                width: 1200,
+                height: 630,
+                alt: 'Motovise — Precision Automotive Parts',
+            },
+        ],
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Motovise — Precision Automotive Parts',
+        description: 'Premium automotive parts and accessories. Precision engineered for drivers who want more.',
+        images: ['https://motovise-pied.vercel.app/motovise-logo.png'],
+    },
+    verification: {
+        google: 'YOUR_GOOGLE_CODE',
+        other: {
+            'msvalidate.01': 'YOUR_BING_CODE',
+        },
+    },
 };
 
 export default function RootLayout({
