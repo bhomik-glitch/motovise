@@ -75,7 +75,7 @@ export default function LoginForm() {
     }
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f4f4f5', fontFamily: 'system-ui, sans-serif' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f4f4f5', fontFamily: 'var(--font-montserrat), "Montserrat", sans-serif' }}>
             <div style={{ background: '#fff', padding: '2.5rem 2rem', borderRadius: '10px', border: '1px solid #e4e4e7', minWidth: '340px', width: '100%', maxWidth: '400px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem', textAlign: 'center', color: '#111827' }}>
                     Admin Sign In

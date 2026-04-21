@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/providers/ThemeProvider';
 const montserrat = Montserrat({
     subsets: ['latin'],
     variable: '--font-montserrat',
+    display: 'swap',
     weight: ['300', '400', '500', '600', '700', '800'],
 });
 
@@ -49,8 +50,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className={montserrat.variable} suppressHydrationWarning>
-            <body className="font-sans antialiased min-h-screen bg-background">
+        <html lang="en" className={`${montserrat.variable} ${montserrat.className}`} suppressHydrationWarning>
+            <body className={`${montserrat.className} antialiased min-h-screen bg-background`}>
                 <QueryProvider>
                     <AuthProvider>
                         <ThemeProvider
