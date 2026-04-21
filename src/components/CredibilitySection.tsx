@@ -1,4 +1,5 @@
 import styles from "./CredibilitySection.module.css";
+import { VideoPlayer } from "./VideoPlayer";
 
 export interface CredibilitySectionProps {
   eyebrow: string;
@@ -29,16 +30,8 @@ export function CredibilitySection({
           </div>
           <div className={styles.support}>
             <div className={`${styles.visual} fadeIn`.trim()} aria-hidden="true">
-            <video 
-              autoPlay 
-              loop 
-              muted 
-              playsInline 
-              className={styles.videoBg}
-            >
-              <source src="/car-scene.mp4" type="video/mp4" />
-            </video>
-          </div>
+              <VideoPlayer src="/car-scene.mp4" className={styles.videoBg} />
+            </div>
             <div className={`${styles.indicators} fadeIn`.trim()}>
               {indicators.map((indicator) => (
                 <div className={styles.indicator} key={indicator}>

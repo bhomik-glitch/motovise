@@ -16,7 +16,8 @@ const imageMap: Record<string, string> = {
   "duo-connect-b": "/bg-remove-product-thumbnail/remove-bg-product-1.png",
   "duo-connectx": "/bg-remove-product-thumbnail/remove-bg-product-2.png",
   "y2-android-box": "/bg-remove-product-thumbnail/remove-bg-product-3.png",
-  "playbox-max": "/bg-remove-product-thumbnail/remove-bg-product-4.png"
+  "playbox-max": "/bg-remove-product-thumbnail/remove-bg-product-4.png",
+  "y2-adapter": "/bg-remove-product-thumbnail/remove-bg-product-4.png"
 };
 
 export function PreviewRow(_props: Readonly<PreviewRowProps>) {

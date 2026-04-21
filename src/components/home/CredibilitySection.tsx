@@ -1,5 +1,6 @@
 import styles from './CredibilitySection.module.css';
 import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/ScrollReveal';
+import { VideoPlayer } from '@/components/VideoPlayer';
 
 export interface CredibilitySectionProps {
   eyebrow: string;
@@ -31,14 +32,7 @@ export function CredibilitySection({
           </StaggerItem>
           <div className={`${styles.support} flex flex-col justify-between gap-8 py-4`}>
             <StaggerItem className={`${styles.visual} h-64 rounded-2xl border border-[var(--color-border)] shadow-inner relative overflow-hidden`.trim()} aria-hidden="true">
-              <video
-                src="/car-scene.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover rounded-2xl"
-              />
+              <VideoPlayer src="/car-scene.mp4" className="w-full h-full object-cover rounded-2xl" />
             </StaggerItem>
             <StaggerContainer className={`${styles.indicators} grid grid-cols-2 gap-6`.trim()}>
               {indicators.map((indicator) => (
