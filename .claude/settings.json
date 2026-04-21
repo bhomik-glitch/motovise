@@ -4,7 +4,8 @@
       "WebFetch(domain:motovise-pied.vercel.app)",
       "Bash(grep -iE \"robots|sitemap|indexnow|\\\\.txt$\")",
       "Bash(cp -r \"\\(hero\\)\" \"\\(storefront\\)/\")",
-      "Bash(cp -r \"\\(store\\)\" \"\\(storefront\\)/\")"
+      "Bash(cp -r \"\\(store\\)\" \"\\(storefront\\)/\")",
+      "Bash(node -e ' *)"
     ],
     "additionalDirectories": [
       "d:\\client\\E commerce store\\src\\app\\api\\top-frame"

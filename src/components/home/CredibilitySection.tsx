@@ -31,8 +31,14 @@ export function CredibilitySection({
           </StaggerItem>
           <div className={`${styles.support} flex flex-col justify-between gap-8 py-4`}>
             <StaggerItem className={`${styles.visual} h-64 rounded-2xl border border-[var(--color-border)] shadow-inner relative overflow-hidden`.trim()} aria-hidden="true">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#1a1c23] to-[#121318]" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-[var(--color-accent)] opacity-20 blur-[50px] rounded-full" />
+              <video
+                src="/car-scene.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover rounded-2xl"
+              />
             </StaggerItem>
             <StaggerContainer className={`${styles.indicators} grid grid-cols-2 gap-6`.trim()}>
               {indicators.map((indicator) => (

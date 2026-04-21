@@ -118,7 +118,11 @@ export function CartSheet({}: Readonly<CartSheetProps>) {
               {items.map((item) => {
                 if (!item?.product) return null;
                 const productId = item.productId ?? item.product.id;
-                const image = item.product.thumbnail ?? item.product.images?.[0] ?? null;
+                const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace('/v1', '');
+                const rawPath = item.product.thumbnail ?? item.product.images?.[0] ?? null;
+                const image = rawPath
+                    ? rawPath.startsWith('http') ? rawPath : `${BASE_URL}${rawPath}`
+                    : null;
                 return (
                   <article
                     className={styles.item}

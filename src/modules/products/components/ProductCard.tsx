@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Cpu, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -57,9 +56,18 @@ function CategoryBadge({ product }: { product: Product }) {
     return null;
 }
 
+const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace('/v1', '');
+
+function resolveImageUrl(path: string | null | undefined): string {
+    if (!path) return '/placeholder-product.png';
+    if (path.startsWith('http')) return path;
+    return `${BASE_URL}${path}`;
+}
+
 export function ProductCard({ product, className, onAddToCart, isLoading }: ProductCardProps) {
     const router = useRouter();
     const [imageError, setImageError] = React.useState(false);
+    console.log(product);
 
     const formattedPrice = product.isComingSoon 
         ? "Coming Soon"
@@ -95,10 +103,10 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
         router.push(`/product/${product.slug}`);
     };
 
-    const imgSrc =
-        !imageError && (product.thumbnail || (product.images && product.images.length > 0))
-            ? product.thumbnail || product.images[0]
-            : '/placeholder-product.png';
+    const rawPath = !imageError
+        ? (product.thumbnail || product.images?.[0] || null)
+        : null;
+    const imgSrc = resolveImageUrl(rawPath);
 
     return (
         <motion.div
@@ -142,12 +150,10 @@ export function ProductCard({ product, className, onAddToCart, isLoading }: Prod
                     whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.35, ease: 'easeOut' }}
                 >
-                    <Image
+                    <img
                         src={imgSrc}
                         alt={product.name}
-                        fill
-                        className="object-cover object-center"
-                        sizes="(max-width:768px) 50vw, (max-width:1200px) 33vw, 25vw"
+                        className="absolute inset-0 w-full h-full object-cover object-center"
                         onError={() => setImageError(true)}
                     />
                 </motion.div>
