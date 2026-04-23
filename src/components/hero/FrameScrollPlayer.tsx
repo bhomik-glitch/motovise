@@ -1,201 +1,70 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import gsap from 'gsap/dist/gsap';
-import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-const FRAME_COUNT = 240;
-const CACHE_VERSION = 'v2';
-
-const getFrameSrc = (index: number) => {
-  const padded = String(index).padStart(3, '0');
-  return `/api/top-frame/ezgif-frame-${padded}.jpg?v=${CACHE_VERSION}`;
-};
-
-function initCanvas(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
-  const dpr = window.devicePixelRatio || 1;
-  const w = canvas.offsetWidth;
-  const h = canvas.offsetHeight;
-  canvas.width = w * dpr;
-  canvas.height = h * dpr;
-  const ctx = canvas.getContext('2d')!;
-  ctx.scale(dpr, dpr);
-  return ctx;
-}
+import Link from 'next/link';
 
 export default function FrameScrollPlayer() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-
-  const imagesRef = useRef<HTMLImageElement[]>([]);
-  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
-  const lastFrameRef = useRef(-1);
-
-  const [isReady, setIsReady] = useState(false);
-
-  // Preload all frames; draw frame 0 once it's available
-  useEffect(() => {
-    const images: HTMLImageElement[] = [];
-
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-      img.src = getFrameSrc(i + 1);
-      img.decoding = 'async';
-
-      if (i === 0) {
-        img.onload = () => {
-          const canvas = canvasRef.current;
-          if (!canvas) return;
-          const ctx = initCanvas(canvas);
-          ctxRef.current = ctx;
-          ctx.drawImage(img, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
-          lastFrameRef.current = 0;
-          setIsReady(true);
-        };
-      }
-
-      images[i] = img;
-    }
-
-    imagesRef.current = images;
-  }, []);
-
-  // GSAP ScrollTrigger — no manual scroll listeners
-  useEffect(() => {
-    if (!isReady) return;
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    const canvas = canvasRef.current;
-    const section = sectionRef.current;
-    if (!canvas || !section) return;
-
-    const ctx = ctxRef.current;
-    if (!ctx) return;
-
-    const renderFrame = (progress: number) => {
-      const frameIdx = Math.min(
-        Math.floor(progress * (FRAME_COUNT - 1)),
-        FRAME_COUNT - 1,
-      );
-      if (frameIdx === lastFrameRef.current) return;
-      lastFrameRef.current = frameIdx;
-
-      const img = imagesRef.current[frameIdx];
-      if (!img?.complete || !img.naturalWidth) return;
-
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(img, 0, 0, w, h);
-    };
-
-    const st = ScrollTrigger.create({
-      trigger: section,
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 0.5,
-      onUpdate: (self) => {
-        renderFrame(self.progress);
-
-        if (wrapperRef.current) {
-          const scale = 1 + self.progress * 0.05;
-          wrapperRef.current.style.transform = `scale(${scale})`;
-        }
-
-        if (textRef.current) {
-          const opacity = Math.max(0, 1 - self.progress * 2.8);
-          textRef.current.style.opacity = String(opacity);
-        }
-      },
-    });
-
-    const handleResize = () => {
-      const newCtx = initCanvas(canvas);
-      ctxRef.current = newCtx;
-      lastFrameRef.current = -1;
-      renderFrame(st.progress);
-      ScrollTrigger.refresh();
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      st.kill();
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [isReady]);
-
-  const textShadow = '0 4px 16px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.25)';
-
   return (
     <section
-      ref={sectionRef}
-      className="relative"
-      style={{ height: '200vh' }}
-      aria-label="Motovise cinematic hero"
+      className="relative w-full overflow-hidden"
+      style={{ height: '100vh', minHeight: 640 }}
+      aria-label="Motovise hero"
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
-        {/* Canvas wrapper — scale driven by GSAP */}
-        <div
-          ref={wrapperRef}
-          className="absolute inset-0"
-          style={{ transformOrigin: 'center center', willChange: 'transform' }}
-        >
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full block"
-            style={{ opacity: isReady ? 1 : 0, transition: 'opacity 0.4s ease' }}
-          />
-        </div>
+      {/* ── Video background ── */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+      >
+        <source src="/hero-section-video.mp4" type="video/mp4" />
+      </video>
 
-        {/* Vignette — dark edges for cinematic depth */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,0.58) 100%)',
-          }}
-        />
+      {/* Dark + blue-tinted overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(0,8,24,0.78) 0%, rgba(0,20,60,0.52) 50%, rgba(0,8,24,0.72) 100%)',
+        }}
+      />
 
-        {/* Top-left lighting highlight */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 48%)',
-          }}
-        />
+      {/* Electric-blue radial glow (right side, where brand name sits) */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse at 72% 48%, rgba(0,110,255,0.14) 0%, transparent 58%)',
+        }}
+      />
 
-        {/* Bottom gradient fade */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              'linear-gradient(to top, rgba(238,242,255,0.65) 0%, transparent 38%)',
-          }}
-        />
+      {/* Bottom vignette */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'linear-gradient(to top, rgba(0,6,20,0.85) 0%, transparent 42%)',
+        }}
+      />
 
-        {/* Text overlay — fades out on scroll via GSAP */}
-        <div
-          ref={textRef}
-          className="absolute inset-0 pointer-events-none"
-          style={{ willChange: 'opacity' }}
-        >
-          {/* Desktop left */}
+      {/* ── Content layer ── */}
+      <div className="relative h-full flex items-center z-10">
+        <div className="w-full max-w-7xl mx-auto px-6 md:px-14 flex items-center justify-between">
+
+          {/* ── Left: tagline (desktop) ── */}
           <motion.p
-            className={`hidden md:block absolute left-[6%] top-1/2 -translate-y-1/2 z-20 text-white font-sans`}
-            initial={{ x: -200, opacity: 0 }}
+            className="hidden md:block font-sans"
+            initial={{ x: -56, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.75, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.85, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
             style={{
-              fontWeight: 500,
-              fontSize: 'clamp(18px,1.4vw,24px)',
-              lineHeight: 1.4,
-              maxWidth: 320,
-              textShadow,
+              fontWeight: 400,
+              fontSize: 'clamp(17px, 1.35vw, 23px)',
+              lineHeight: 1.65,
+              maxWidth: 300,
+              color: 'rgba(170, 210, 255, 0.82)',
+              textShadow: '0 2px 10px rgba(0,0,0,0.65)',
             }}
           >
             Because your car
@@ -205,85 +74,238 @@ export default function FrameScrollPlayer() {
             stock
           </motion.p>
 
-          {/* Desktop right */}
-          <div
-            className={`hidden md:block absolute right-[6%] top-1/2 -translate-y-1/2 z-20 text-right max-w-[620px] font-sans`}
-          >
-            <motion.div
-              initial={{ x: 200, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.75, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-              className="tracking-[-0.02em]"
+          {/* ── Right: brand + CTA (desktop) ── */}
+          <div className="hidden md:flex flex-col items-end text-right">
+
+            {/* Eyebrow */}
+            <motion.span
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1, ease: 'easeOut' }}
               style={{
-                fontWeight: 800,
-                fontSize: 'clamp(44px,4vw,72px)',
-                color: '#8CC63F',
-                textShadow,
+                fontSize: 'clamp(10px, 0.9vw, 13px)',
+                color: 'rgba(100, 180, 255, 0.65)',
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                fontFamily: 'monospace',
+                marginBottom: 10,
+              }}
+            >
+              Premium Automotive Accessories
+            </motion.span>
+
+            {/* Brand name — electric blue with glow */}
+            <motion.div
+              initial={{ x: 64, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.85, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                fontWeight: 900,
+                fontSize: 'clamp(52px, 5.2vw, 84px)',
+                color: '#3B9EFF',
+                letterSpacing: '-0.025em',
+                lineHeight: 1,
+                textShadow:
+                  '0 0 48px rgba(59,158,255,0.55), 0 0 16px rgba(59,158,255,0.3), 0 4px 16px rgba(0,0,0,0.4)',
               }}
             >
               Motovise
             </motion.div>
+
+            {/* Sub-headline */}
             <motion.div
-              initial={{ x: 200, opacity: 0 }}
+              initial={{ x: 64, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.75, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="text-white mt-[6px]"
+              transition={{ duration: 0.85, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
+              className="mt-3"
               style={{
                 fontWeight: 500,
-                fontSize: 'clamp(24px,2vw,36px)',
-                textShadow,
+                fontSize: 'clamp(22px, 2.1vw, 38px)',
+                color: 'rgba(220, 235, 255, 0.92)',
+                textShadow: '0 2px 14px rgba(0,0,0,0.55)',
               }}
             >
               Give Your Car Wings
             </motion.div>
-          </div>
 
-          {/* Mobile */}
-          <div
-            className={`md:hidden absolute top-14 left-1/2 -translate-x-1/2 z-20 w-[92%] text-center font-sans`}
-          >
-            <p
-              className="mx-auto text-white"
+            {/* Description line */}
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.55, ease: 'easeOut' }}
+              className="mt-4"
               style={{
-                fontWeight: 500,
-                lineHeight: 1.4,
-                maxWidth: 320,
-                fontSize: 'clamp(18px,4.3vw,24px)',
-                textShadow,
+                fontSize: 'clamp(13px, 1vw, 16px)',
+                color: 'rgba(130, 185, 255, 0.6)',
+                maxWidth: 420,
+                lineHeight: 1.6,
               }}
             >
-              Because your car
-              <br />
-              deserves more than
-              <br />
-              stock
-            </p>
-            <h1 className="mt-4 leading-tight">
-              <span
-                className="block tracking-[-0.02em]"
-                style={{
-                  fontWeight: 800,
-                  fontSize: 'clamp(40px,10vw,60px)',
-                  color: '#8CC63F',
-                  textShadow,
-                }}
-              >
-                Motovise
-              </span>
-              <span
-                className="block text-white mt-[6px]"
-                style={{
-                  fontWeight: 500,
-                  fontSize: 'clamp(22px,5.5vw,34px)',
-                  textShadow,
-                }}
-              >
-                Give Your Car Wings
-              </span>
-            </h1>
+              Precision-engineered add-ons that transform how your vehicle looks, feels, and performs on every road.
+            </motion.p>
+
+            {/* CTA buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.7, ease: 'easeOut' }}
+              className="flex gap-4 mt-8"
+            >
+              <Link href="/products">
+                <motion.button
+                  type="button"
+                  className="px-9 py-4 font-bold uppercase tracking-widest rounded-full text-white text-sm"
+                  style={{
+                    background: 'linear-gradient(135deg, #0057E0 0%, #0EA5E9 100%)',
+                    boxShadow: '0 0 28px rgba(0,110,255,0.55), 0 4px 14px rgba(0,0,0,0.35)',
+                  }}
+                  whileHover={{
+                    scale: 1.06,
+                    boxShadow: '0 0 48px rgba(0,150,255,0.75), 0 4px 18px rgba(0,0,0,0.4)',
+                  }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  Shop Now
+                </motion.button>
+              </Link>
+
+              <Link href="#shop">
+                <motion.button
+                  type="button"
+                  className="px-9 py-4 font-bold uppercase tracking-widest rounded-full text-sm"
+                  style={{
+                    border: '1px solid rgba(59,158,255,0.38)',
+                    background: 'rgba(0,50,160,0.18)',
+                    color: 'rgba(160, 210, 255, 0.92)',
+                    backdropFilter: 'blur(6px)',
+                  }}
+                  whileHover={{
+                    scale: 1.06,
+                    borderColor: 'rgba(59,158,255,0.75)',
+                    background: 'rgba(0,70,200,0.28)',
+                  }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  View Products
+                </motion.button>
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* ── Mobile layout ── */}
+          <div className="md:hidden w-full flex flex-col items-center text-center pt-12">
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              style={{
+                fontSize: 11,
+                color: 'rgba(100, 180, 255, 0.6)',
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                fontFamily: 'monospace',
+                marginBottom: 12,
+              }}
+            >
+              Premium Automotive Accessories
+            </motion.span>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                fontWeight: 900,
+                fontSize: 'clamp(46px, 13vw, 68px)',
+                color: '#3B9EFF',
+                letterSpacing: '-0.025em',
+                lineHeight: 1,
+                textShadow:
+                  '0 0 40px rgba(59,158,255,0.55), 0 0 14px rgba(59,158,255,0.3)',
+              }}
+            >
+              Motovise
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.75, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
+              className="mt-3"
+              style={{
+                fontWeight: 500,
+                fontSize: 'clamp(20px, 5.5vw, 30px)',
+                color: 'rgba(220, 235, 255, 0.9)',
+              }}
+            >
+              Give Your Car Wings
+            </motion.div>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.7, delay: 0.55 }}
+              className="mt-3 px-4"
+              style={{
+                fontSize: 'clamp(13px, 3.8vw, 16px)',
+                color: 'rgba(170, 210, 255, 0.7)',
+                lineHeight: 1.6,
+                maxWidth: 320,
+              }}
+            >
+              Because your car deserves more than stock
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.7 }}
+              className="flex gap-3 mt-8"
+            >
+              <Link href="/products">
+                <motion.button
+                  type="button"
+                  className="px-7 py-3.5 font-bold uppercase tracking-widest rounded-full text-white text-xs"
+                  style={{
+                    background: 'linear-gradient(135deg, #0057E0, #0EA5E9)',
+                    boxShadow: '0 0 24px rgba(0,110,255,0.5)',
+                  }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  Shop Now
+                </motion.button>
+              </Link>
+
+              <Link href="#shop">
+                <motion.button
+                  type="button"
+                  className="px-7 py-3.5 font-bold uppercase tracking-widest rounded-full text-xs"
+                  style={{
+                    border: '1px solid rgba(59,158,255,0.4)',
+                    background: 'rgba(0,50,160,0.2)',
+                    color: 'rgba(160,210,255,0.9)',
+                    backdropFilter: 'blur(6px)',
+                  }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  Explore
+                </motion.button>
+              </Link>
+            </motion.div>
           </div>
         </div>
       </div>
+
+      {/* Subtle scan-line accent at the bottom */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-px pointer-events-none"
+        style={{
+          background:
+            'linear-gradient(to right, transparent, rgba(59,158,255,0.4) 30%, rgba(59,158,255,0.4) 70%, transparent)',
+        }}
+      />
     </section>
   );
 }

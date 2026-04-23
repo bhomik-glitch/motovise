@@ -237,10 +237,10 @@ export default function BottomFrameScroll() {
             style={{
               fontWeight: 800,
               fontSize: 'clamp(40px,4vw,68px)',
-              color: '#8CC63F',
+              color: '#3B9EFF',
               letterSpacing: '-0.02em',
               lineHeight: 1.0,
-              textShadow,
+              textShadow: '0 0 40px rgba(59,158,255,0.45), 0 4px 16px rgba(0,0,0,0.5)',
             }}
           >
             Upgrade
@@ -271,12 +271,12 @@ export default function BottomFrameScroll() {
           <Link href="/shop">
             <button
               type="button"
-              className="px-10 py-4 rounded-full text-black font-bold uppercase transition-transform hover:scale-105 active:scale-95"
+              className="px-10 py-4 rounded-full text-white font-bold uppercase transition-transform hover:scale-105 active:scale-95"
               style={{
-                background: '#8CC63F',
+                background: 'linear-gradient(135deg, #0057E0, #0EA5E9)',
                 fontSize: 'clamp(11px,0.95vw,13px)',
                 letterSpacing: '0.15em',
-                boxShadow: '0 8px 32px rgba(140,198,63,0.35)',
+                boxShadow: '0 8px 32px rgba(0,110,255,0.45)',
               }}
             >
               Shop Now

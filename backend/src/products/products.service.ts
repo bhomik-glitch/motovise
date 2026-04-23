@@ -266,13 +266,16 @@ export class ProductsService {
                             slug: true,
                         },
                     },
+                    productImages: {
+                        orderBy: { isPrimary: 'desc' },
+                    },
                 },
             }),
             this.prisma.product.count({ where }),
         ]);
 
         return {
-            data: products,
+            data: products.map(this.formatProduct),
             meta: {
                 total,
                 page,
@@ -298,6 +301,9 @@ export class ProductsService {
                         slug: true,
                     },
                 },
+                productImages: {
+                    orderBy: { isPrimary: 'desc' },
+                },
             },
         });
 
@@ -305,7 +311,7 @@ export class ProductsService {
             throw new NotFoundException('Product not found');
         }
 
-        return product;
+        return this.formatProduct(product);
     }
 
     async findBySlug(slug: string) {
@@ -319,6 +325,9 @@ export class ProductsService {
                         slug: true,
                     },
                 },
+                productImages: {
+                    orderBy: { isPrimary: 'desc' },
+                },
             },
         });
 
@@ -326,7 +335,7 @@ export class ProductsService {
             throw new NotFoundException('Product not found');
         }
 
-        return product;
+        return this.formatProduct(product);
     }
 
     async update(id: string, updateProductDto: UpdateProductDto) {
@@ -425,7 +434,7 @@ export class ProductsService {
     }
 
     async getFeatured() {
-        return this.prisma.product.findMany({
+        const products = await this.prisma.product.findMany({
             where: {
                 isFeatured: true,
                 isActive: true,
@@ -438,8 +447,23 @@ export class ProductsService {
                         slug: true,
                     },
                 },
+                productImages: {
+                    orderBy: { isPrimary: 'desc' },
+                },
             },
             take: 10,
         });
+        return products.map(this.formatProduct);
     }
+
+    private formatProduct = (product: any) => {
+        const { productImages, ...rest } = product;
+        const imageUrls: string[] = (productImages ?? []).map((img: any) => img.url);
+        const primaryImage = (productImages ?? []).find((img: any) => img.isPrimary);
+        return {
+            ...rest,
+            images: rest.images?.length ? rest.images : imageUrls,
+            thumbnail: rest.thumbnail ?? primaryImage?.url ?? imageUrls[0] ?? null,
+        };
+    };
 }
